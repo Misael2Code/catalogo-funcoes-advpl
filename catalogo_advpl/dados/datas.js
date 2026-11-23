@@ -214,5 +214,77 @@ User Function ExDaySum()
     ConOut("Data do Pedido: " + dToC(dPedido))
     ConOut("Previsao de Entrega: " + dToC(dEntrega))
 Return`
+  },
+  {
+    nome: "Time",
+    categoria: "Datas",
+    sintaxe: "Time()",
+    retorno: "Caractere (String no formato HH:MM:SS)",
+    descricaoCurta: "Retorna a hora atual do sistema no formato padrão HH:MM:SS.",
+    descricaoDetalhada: "Obtém a hora corrente do relógio do sistema operacional da máquina/servidor onde o processo está executando. Indispensável para logs, métricas de performance e registro de horários de movimentações.",
+    parametros: [],
+    exemplo: `// Exemplo prático: Registro de horário de processamento
+User Function ExTime()
+    Local cHoraAtual := Time()
+    ConOut("Início da rotina: " + cHoraAtual) // "09:35:10"
+Return`
+  },
+  {
+    nome: "ElapTime",
+    categoria: "Datas",
+    sintaxe: "ElapTime( <cHoraInicio>, <cHoraFim> )",
+    retorno: "Caractere (String no formato HH:MM:SS)",
+    descricaoCurta: "Calcula o tempo decorrido entre dois horários no formato HH:MM:SS.",
+    descricaoDetalhada: "Calcula o intervalo de tempo entre o horário inicial e o final. Trata automaticamente a virada de meia-noite (24 horas). Muito utilizada para mensurar tempo de processamento de rotinas batch e integrações.",
+    parametros: [
+      { nome: "cHoraInicio", tipo: "Caractere", descricao: "Horário inicial no formato 'HH:MM:SS'.", opcional: false },
+      { nome: "cHoraFim", tipo: "Caractere", descricao: "Horário final no formato 'HH:MM:SS'.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Cálculo do tempo total de execução
+User Function ExElapTime()
+    Local cInicio  := "14:00:00"
+    Local cFim     := "15:42:35"
+    Local cDuracao := ElapTime(cInicio, cFim)
+
+    ConOut("Tempo decorrido: " + cDuracao) // "01:42:35"
+Return`
+  },
+  {
+    nome: "LastDay",
+    categoria: "Datas",
+    sintaxe: "LastDay( <dData> )",
+    retorno: "Data (D)",
+    descricaoCurta: "Retorna a data correspondente ao último dia do mês da data informada.",
+    descricaoDetalhada: "Retorna o último dia do mês correspondente à data informada, tratando automaticamente anos bissextos (28 ou 29 dias em fevereiro) e meses de 30 ou 31 dias. Essencial para rotinas fiscais e financeiras de fechamento.",
+    parametros: [
+      { nome: "dData", tipo: "Data", descricao: "Data base de referência.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Identificação do dia de fechamento do mês
+User Function ExLastDay()
+    Local dRef       := cToD("10/02/2026")
+    Local dUltimoDia := LastDay(dRef)
+
+    ConOut("Último dia de Fevereiro/2026: " + dToC(dUltimoDia)) // "28/02/2026"
+Return`
+  },
+  {
+    nome: "DataValida",
+    categoria: "Datas",
+    sintaxe: "DataValida( <dData>, [<lAvanca>] )",
+    retorno: "Data (D)",
+    descricaoCurta: "Valida se uma data é dia útil conforme o calendário de feriados do Protheus.",
+    descricaoDetalhada: "Verifica se a data informada cai em sábados, domingos ou feriados cadastrados no sistema. Caso não seja dia útil, avança para o próximo dia útil (padrão) ou retrocede para o dia útil anterior se lAvanca for .F.",
+    parametros: [
+      { nome: "dData", tipo: "Data", descricao: "Data a ser validada contra o calendário de dias úteis.", opcional: false },
+      { nome: "lAvanca", tipo: "Lógico", descricao: "Se .T., avança para o próximo dia útil; se .F., retrocede para o dia útil anterior. Padrão: .T.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Ajuste automático de vencimento para dia útil
+User Function ExDataValida()
+    Local dVenc := cToD("15/11/2026") // Domingo / Feriado Nacional
+    Local dUtil := DataValida(dVenc, .T.)
+
+    ConOut("Data original: " + dToC(dVenc))
+    ConOut("Data ajustada para dia útil: " + dToC(dUtil))
+Return`
   }
 );

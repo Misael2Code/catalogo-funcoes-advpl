@@ -222,5 +222,246 @@ User Function ExTCQuery()
     // Fecha o cursor temporario
     (cAliasQry)->(DbCloseArea())
 Return`
+  },
+  {
+    nome: "EoF",
+    categoria: "Banco de Dados",
+    sintaxe: "EoF()",
+    retorno: "Lógico (.T. / .F.)",
+    descricaoCurta: "Verifica se o ponteiro de registros ultrapassou o último registro da tabela ativa (End of File).",
+    descricaoDetalhada: "Retorna .T. quando o ponteiro atinge o fim da tabela (após o último registro físico ou lógico com índice ativo) ou se a tabela estiver vazia. Essencial para controle de laços de repetição While !Eof().",
+    parametros: [],
+    exemplo: `// Exemplo prático: Varredura de registros com controle de fim de arquivo
+User Function ExEoF()
+    DbSelectArea("SA1")
+    DbSetOrder(1)
+    DbGoTop()
+
+    While !SA1->(Eof())
+        ConOut("Cliente: " + SA1->A1_COD + " - " + SA1->A1_NOME)
+        SA1->(DbSkip())
+    EndDo
+Return`
+  },
+  {
+    nome: "BoF",
+    categoria: "Banco de Dados",
+    sintaxe: "BoF()",
+    retorno: "Lógico (.T. / .F.)",
+    descricaoCurta: "Verifica se o ponteiro de registros ultrapassou o início da tabela ativa (Beginning of File).",
+    descricaoDetalhada: "Retorna .T. quando uma tentativa de movimentação para trás (DbSkip(-1)) ultrapassa o primeiro registro ou caso a tabela esteja totalmente vazia.",
+    parametros: [],
+    exemplo: `// Exemplo prático: Verificação de início de tabela
+User Function ExBoF()
+    DbSelectArea("SA1")
+    DbGoTop()
+    DbSkip(-1) // Força tentativa de recuo antes do primeiro registro
+
+    If BoF()
+        ConOut("Ponteiro atingiu o início da tabela (BoF atingido).")
+    EndIf
+Return`
+  },
+  {
+    nome: "DbSkip",
+    categoria: "Banco de Dados",
+    sintaxe: "DbSkip( [<nRegistros>] )",
+    retorno: "NIL",
+    descricaoCurta: "Move o ponteiro da área de trabalho ativa uma ou mais posições para frente ou para trás.",
+    descricaoDetalhada: "Avança ou recua o ponteiro de registros na tabela ativa. Se <nRegistros> for omitido, avança 1 registro. Se positivo, avança N registros; se negativo, retrocede N registros respeitando o índice ativo.",
+    parametros: [
+      { nome: "nRegistros", tipo: "Numérico", descricao: "Quantidade de registros a saltar (positivo para avançar, negativo para recuar). Padrão: 1.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Navegação avançando e recuando registros
+User Function ExDbSkip()
+    DbSelectArea("SB1")
+    DbGoTop()
+
+    // Avança 1 registro
+    DbSkip()
+
+    // Retrocede 1 registro
+    DbSkip(-1)
+
+    // Salta 5 registros para frente
+    DbSkip(5)
+Return`
+  },
+  {
+    nome: "DbGoTop",
+    categoria: "Banco de Dados",
+    sintaxe: "DbGoTop()",
+    retorno: "NIL",
+    descricaoCurta: "Posiciona o ponteiro de registros no primeiro registro lógico da tabela na área ativa.",
+    descricaoDetalhada: "Move o ponteiro para o primeiro registro da tabela considerando a ordem do índice ativo e quaisquer filtros aplicados.",
+    parametros: [],
+    exemplo: `// Exemplo prático: Posicionamento no primeiro registro
+User Function ExDbGoTop()
+    DbSelectArea("SA1")
+    DbSetOrder(1) // Filial + Código + Loja
+    DbGoTop()
+
+    If !Eof()
+        ConOut("Primeiro cliente da tabela: " + SA1->A1_COD + " - " + SA1->A1_NOME)
+    EndIf
+Return`
+  },
+  {
+    nome: "DbGoBottom",
+    categoria: "Banco de Dados",
+    sintaxe: "DbGoBottom()",
+    retorno: "NIL",
+    descricaoCurta: "Posiciona o ponteiro de registros no último registro lógico da tabela na área ativa.",
+    descricaoDetalhada: "Move o ponteiro para o último registro válido da tabela, respeitando a ordem do índice selecionado e os filtros em vigor.",
+    parametros: [],
+    exemplo: `// Exemplo prático: Localização do último registro cadastrado
+User Function ExDbGoBottom()
+    DbSelectArea("SA1")
+    DbSetOrder(1)
+    DbGoBottom()
+
+    If !Bof()
+        ConOut("Último cliente ordenado: " + SA1->A1_COD + " - " + SA1->A1_NOME)
+    EndIf
+Return`
+  },
+  {
+    nome: "DbGoTo",
+    categoria: "Banco de Dados",
+    sintaxe: "DbGoTo( <nRecNo> )",
+    retorno: "NIL",
+    descricaoCurta: "Posiciona o ponteiro de registros diretamente no registro físico identificado pelo número de RecNo.",
+    descricaoDetalhada: "Acesso direto e instantâneo ao registro físico correspondente à coluna R_E_C_N_O_ no banco de dados relacional.",
+    parametros: [
+      { nome: "nRecNo", tipo: "Numérico", descricao: "Número do registro físico (RecNo) para posicionamento direto.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Posicionamento direto via RecNo salvo
+User Function ExDbGoTo()
+    Local nRecSalvo := 1540
+
+    DbSelectArea("SA1")
+    DbGoTo(nRecSalvo)
+
+    If !Eof()
+        ConOut("Cliente no RecNo " + cValToChar(nRecSalvo) + ": " + SA1->A1_NOME)
+    EndIf
+Return`
+  },
+  {
+    nome: "RecNo",
+    categoria: "Banco de Dados",
+    sintaxe: "RecNo()",
+    retorno: "Numérico",
+    descricaoCurta: "Retorna o número de registro físico (R_E_C_N_O_) corrente na área de trabalho ativa.",
+    descricaoDetalhada: "Obtém o identificador numérico único e sequencial do registro físico corrente no banco de dados Protheus.",
+    parametros: [],
+    exemplo: `// Exemplo prático: Captura de RecNo para operações posteriores
+User Function ExRecNo()
+    Local nRecAtual := 0
+
+    DbSelectArea("SA1")
+    DbSetOrder(1)
+    If DbSeek(xFilial("SA1") + "00000101")
+        nRecAtual := RecNo()
+        ConOut("RecNo do cliente localizado: " + cValToChar(nRecAtual))
+    EndIf
+Return`
+  },
+  {
+    nome: "Deleted",
+    categoria: "Banco de Dados",
+    sintaxe: "Deleted()",
+    retorno: "Lógico (.T. / .F.)",
+    descricaoCurta: "Verifica se o registro corrente na área de trabalho ativa está marcado como deletado.",
+    descricaoDetalhada: "Verifica se o campo de controle D_E_L_E_T_ possui asterisco ('*') indicando que o registro foi excluído logicamente.",
+    parametros: [],
+    exemplo: `// Exemplo prático: Verificação de exclusão lógica
+User Function ExDeleted()
+    DbSelectArea("SA1")
+    If Deleted()
+        ConOut("O registro posicionado está marcado como deletado.")
+    Else
+        ConOut("Registro ativo e válido.")
+    EndIf
+Return`
+  },
+  {
+    nome: "DbCloseArea",
+    categoria: "Banco de Dados",
+    sintaxe: "DbCloseArea()",
+    retorno: "NIL",
+    descricaoCurta: "Fecha a área de trabalho da tabela ativa ou especificada liberando recursos.",
+    descricaoDetalhada: "Fecha a tabela ou cursor temporário aberto na área de trabalho, desassociando o alias e liberando buffers de memória.",
+    parametros: [],
+    exemplo: `// Exemplo prático: Fechamento de área de trabalho e cursor temporário
+User Function ExDbCloseArea()
+    Local cAliasTmp := GetNextAlias()
+
+    TCQuery "SELECT A1_COD FROM SA1990 WHERE D_E_L_E_T_ = ' '" ALIAS (cAliasTmp) NEW
+    (cAliasTmp)->(DbCloseArea())
+    ConOut("Cursor temporário fechado com sucesso.")
+Return`
+  },
+  {
+    nome: "Select",
+    categoria: "Banco de Dados",
+    sintaxe: "Select( [<cAlias>] )",
+    retorno: "Numérico",
+    descricaoCurta: "Retorna o número da área de trabalho associada ao alias informado ou da área ativa.",
+    descricaoDetalhada: "Retorna o identificador numérico da área de trabalho ativa ou do alias especificado. Se o alias não estiver aberto, retorna 0.",
+    parametros: [
+      { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela cuja área de trabalho se deseja verificar.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Verificação de tabela aberta
+User Function ExSelect()
+    Local nAreaSA1 := Select("SA1")
+
+    If nAreaSA1 > 0
+        ConOut("Tabela SA1 aberta na área: " + cValToChar(nAreaSA1))
+    Else
+        ConOut("Tabela SA1 não está aberta no momento.")
+    EndIf
+Return`
+  },
+  {
+    nome: "GetArea",
+    categoria: "Banco de Dados",
+    sintaxe: "GetArea()",
+    retorno: "Array",
+    descricaoCurta: "Salva o estado e posicionamento da área de trabalho corrente (alias, índice e RecNo).",
+    descricaoDetalhada: "Retorna um array estruturado contendo { Alias(), IndexOrd(), RecNo() }. Indispensável para preservar o contexto antes de rotinas de consulta secundárias, gatilhos e pontos de entrada.",
+    parametros: [],
+    exemplo: `// Exemplo prático: Preservação de contexto com GetArea e RestArea
+User Function ExGetArea()
+    Local aArea := GetArea() // Salva contexto corrente
+
+    // Realiza consultas ou atualizações em outras tabelas
+    DbSelectArea("SB1")
+    DbSeek(xFilial("SB1") + "PROD001")
+
+    RestArea(aArea) // Restaura com precisão o estado original
+Return`
+  },
+  {
+    nome: "RestArea",
+    categoria: "Banco de Dados",
+    sintaxe: "RestArea( <aArea> )",
+    retorno: "NIL",
+    descricaoCurta: "Restaura o estado e posicionamento de uma área previamente salva com GetArea().",
+    descricaoDetalhada: "Recebe o vetor gerado por GetArea() e restaura a tabela ativa, a ordem de índice selecionada e o registro posicionado (RecNo).",
+    parametros: [
+      { nome: "aArea", tipo: "Array", descricao: "Array retornado previamente pela função GetArea().", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Restauração de contexto de navegação
+User Function ExRestArea()
+    Local aAreaAnt := GetArea()
+
+    // Consulta em tabela de parâmetros ou dados auxiliares
+    DbSelectArea("SX6")
+    DbSetOrder(1)
+
+    // Restaura fielmente a tabela, índice e registro onde o usuário estava
+    RestArea(aAreaAnt)
+Return`
   }
 );

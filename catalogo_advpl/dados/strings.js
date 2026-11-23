@@ -409,5 +409,80 @@ User Function ExTransform()
     cDocFmt := Transform(cCNPJ, "@R 99.999.999/9999-99")
     ConOut("CNPJ Formatado: " + cDocFmt) // "01.234.567/0001-89"
 Return`
+  },
+  {
+    nome: "Left",
+    categoria: "Strings",
+    sintaxe: "Left( <cString>, <nTam> )",
+    retorno: "Caractere (String)",
+    descricaoCurta: "Retorna a quantidade especificada de caracteres a partir do início (esquerda) de uma string.",
+    descricaoDetalhada: "Extrai os primeiros <nTam> caracteres da cadeia de caracteres. Equivale funcionalmente a SubStr(cString, 1, nTam).",
+    parametros: [
+      { nome: "cString", tipo: "Caractere", descricao: "Cadeia de caracteres de onde o trecho inicial será extraído.", opcional: false },
+      { nome: "nTam", tipo: "Numérico", descricao: "Quantidade de caracteres a serem extraídos da esquerda para a direita.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Obtenção de prefixo ou código de UF
+User Function ExLeft()
+    Local cChave := "35261112345678000195550010000000011000000010"
+    Local cUF    := Left(cChave, 2) // "35" (SP)
+
+    ConOut("Código UF extraído da NFe: " + cUF)
+Return`
+  },
+  {
+    nome: "Right",
+    categoria: "Strings",
+    sintaxe: "Right( <cString>, <nTam> )",
+    retorno: "Caractere (String)",
+    descricaoCurta: "Retorna a quantidade especificada de caracteres a partir do final (direita) de uma string.",
+    descricaoDetalhada: "Extrai os últimos <nTam> caracteres de uma cadeia de texto a partir de sua extremidade direita.",
+    parametros: [
+      { nome: "cString", tipo: "Caractere", descricao: "Cadeia de caracteres de onde o trecho final será extraído.", opcional: false },
+      { nome: "nTam", tipo: "Numérico", descricao: "Quantidade de caracteres finais a serem extraídos.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Identificação de extensão de arquivo
+User Function ExRight()
+    Local cArquivo  := "RELATORIO_GERENCIAL.PDF"
+    Local cExtensao := Right(cArquivo, 3) // "PDF"
+
+    ConOut("Extensão do documento: " + cExtensao)
+Return`
+  },
+  {
+    nome: "Replicate",
+    categoria: "Strings",
+    sintaxe: "Replicate( <cString>, <nRepeticoes> )",
+    retorno: "Caractere (String)",
+    descricaoCurta: "Repete uma cadeia de caracteres uma quantidade especificada de vezes.",
+    descricaoDetalhada: "Cria uma nova string concatenando <cString> tantas vezes quanto indicado em <nRepeticoes>. Amplamente empregada em linhas divisórias, separadores de relatórios e preenchimentos textuais.",
+    parametros: [
+      { nome: "cString", tipo: "Caractere", descricao: "Caractere ou texto a ser repetido.", opcional: false },
+      { nome: "nRepeticoes", tipo: "Numérico", descricao: "Quantidade de vezes que o texto será replicado.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Criação de linha separadora em relatórios
+User Function ExReplicate()
+    Local cDivisoria := Replicate("=", 50)
+
+    ConOut(cDivisoria)
+    ConOut("CABECALHO DO RELATORIO FINANCEIRO")
+    ConOut(cDivisoria)
+Return`
+  },
+  {
+    nome: "Space",
+    categoria: "Strings",
+    sintaxe: "Space( <nEspacos> )",
+    retorno: "Caractere (String contendo apenas espaços)",
+    descricaoCurta: "Gera e retorna uma string contendo uma quantidade especificada de espaços em branco.",
+    descricaoDetalhada: "Cria uma cadeia de caracteres composta exclusivamente por <nEspacos> espaços vazios. Usada na inicialização de variáveis vinculadas a campos Protheus de largura fixa e dimensionamento de buffers.",
+    parametros: [
+      { nome: "nEspacos", tipo: "Numérico", descricao: "Quantidade de espaços em branco a gerar.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Inicialização de buffer de campo
+User Function ExSpace()
+    Local cNomeVazio := Space(40) // 40 espaços (tamanho padrão A1_NOME)
+
+    ConOut("Comprimento da variável: " + cValToChar(Len(cNomeVazio))) // 40
+Return`
   }
 );

@@ -1847,6 +1847,1076 @@ User Function ExConOut()
     ConOut("[DATA] " + dToC(Date()))
     ConOut("==========================================")
 Return`
+      },
+
+      // -----------------------------------------------------------------------
+      // CATEGORIA: BANCO DE DADOS - NAVEGAÇÃO E CONTROLE ISAM (12 NOVAS FUNÇÕES)
+      // -----------------------------------------------------------------------
+      {
+        nome: "EoF",
+        categoria: "Banco de Dados",
+        sintaxe: "EoF()",
+        retorno: "Lógico (.T. / .F.)",
+        descricaoCurta: "Verifica se o ponteiro de registros ultrapassou o último registro da tabela ativa (End of File).",
+        descricaoDetalhada: "Retorna .T. quando o ponteiro atinge o fim da tabela (após o último registro físico ou lógico com índice ativo) ou se a tabela estiver vazia. Essencial para controle de laços de repetição While !Eof().",
+        parametros: [],
+        exemplo: `// Exemplo prático: Varredura de registros com controle de fim de arquivo
+User Function ExEoF()
+    DbSelectArea("SA1")
+    DbSetOrder(1)
+    DbGoTop()
+
+    While !SA1->(Eof())
+        ConOut("Cliente: " + SA1->A1_COD + " - " + SA1->A1_NOME)
+        SA1->(DbSkip())
+    EndDo
+Return`
+      },
+      {
+        nome: "BoF",
+        categoria: "Banco de Dados",
+        sintaxe: "BoF()",
+        retorno: "Lógico (.T. / .F.)",
+        descricaoCurta: "Verifica se o ponteiro de registros ultrapassou o início da tabela ativa (Beginning of File).",
+        descricaoDetalhada: "Retorna .T. quando uma tentativa de movimentação para trás (DbSkip(-1)) ultrapassa o primeiro registro ou caso a tabela esteja totalmente vazia.",
+        parametros: [],
+        exemplo: `// Exemplo prático: Verificação de início de tabela
+User Function ExBoF()
+    DbSelectArea("SA1")
+    DbGoTop()
+    DbSkip(-1) // Força tentativa de recuo antes do primeiro registro
+
+    If BoF()
+        ConOut("Ponteiro atingiu o início da tabela (BoF atingido).")
+    EndIf
+Return`
+      },
+      {
+        nome: "DbSkip",
+        categoria: "Banco de Dados",
+        sintaxe: "DbSkip( [<nRegistros>] )",
+        retorno: "NIL",
+        descricaoCurta: "Move o ponteiro da área de trabalho ativa uma ou mais posições para frente ou para trás.",
+        descricaoDetalhada: "Avança ou recua o ponteiro de registros na tabela ativa. Se <nRegistros> for omitido, avança 1 registro. Se positivo, avança N registros; se negativo, retrocede N registros respeitando o índice ativo.",
+        parametros: [
+          { nome: "nRegistros", tipo: "Numérico", descricao: "Quantidade de registros a saltar (positivo para avançar, negativo para recuar). Padrão: 1.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Navegação avançando e recuando registros
+User Function ExDbSkip()
+    DbSelectArea("SB1")
+    DbGoTop()
+
+    // Avança 1 registro
+    DbSkip()
+
+    // Retrocede 1 registro
+    DbSkip(-1)
+
+    // Salta 5 registros para frente
+    DbSkip(5)
+Return`
+      },
+      {
+        nome: "DbGoTop",
+        categoria: "Banco de Dados",
+        sintaxe: "DbGoTop()",
+        retorno: "NIL",
+        descricaoCurta: "Posiciona o ponteiro de registros no primeiro registro lógico da tabela na área ativa.",
+        descricaoDetalhada: "Move o ponteiro para o primeiro registro da tabela considerando a ordem do índice ativo e quaisquer filtros aplicados.",
+        parametros: [],
+        exemplo: `// Exemplo prático: Posicionamento no primeiro registro
+User Function ExDbGoTop()
+    DbSelectArea("SA1")
+    DbSetOrder(1) // Filial + Código + Loja
+    DbGoTop()
+
+    If !Eof()
+        ConOut("Primeiro cliente da tabela: " + SA1->A1_COD + " - " + SA1->A1_NOME)
+    EndIf
+Return`
+      },
+      {
+        nome: "DbGoBottom",
+        categoria: "Banco de Dados",
+        sintaxe: "DbGoBottom()",
+        retorno: "NIL",
+        descricaoCurta: "Posiciona o ponteiro de registros no último registro lógico da tabela na área ativa.",
+        descricaoDetalhada: "Move o ponteiro para o último registro válido da tabela, respeitando a ordem do índice selecionado e os filtros em vigor.",
+        parametros: [],
+        exemplo: `// Exemplo prático: Localização do último registro cadastrado
+User Function ExDbGoBottom()
+    DbSelectArea("SA1")
+    DbSetOrder(1)
+    DbGoBottom()
+
+    If !Bof()
+        ConOut("Último cliente ordenado: " + SA1->A1_COD + " - " + SA1->A1_NOME)
+    EndIf
+Return`
+      },
+      {
+        nome: "DbGoTo",
+        categoria: "Banco de Dados",
+        sintaxe: "DbGoTo( <nRecNo> )",
+        retorno: "NIL",
+        descricaoCurta: "Posiciona o ponteiro de registros diretamente no registro físico identificado pelo número de RecNo.",
+        descricaoDetalhada: "Acesso direto e instantâneo ao registro físico correspondente à coluna R_E_C_N_O_ no banco de dados relacional.",
+        parametros: [
+          { nome: "nRecNo", tipo: "Numérico", descricao: "Número do registro físico (RecNo) para posicionamento direto.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Posicionamento direto via RecNo salvo
+User Function ExDbGoTo()
+    Local nRecSalvo := 1540
+
+    DbSelectArea("SA1")
+    DbGoTo(nRecSalvo)
+
+    If !Eof()
+        ConOut("Cliente no RecNo " + cValToChar(nRecSalvo) + ": " + SA1->A1_NOME)
+    EndIf
+Return`
+      },
+      {
+        nome: "RecNo",
+        categoria: "Banco de Dados",
+        sintaxe: "RecNo()",
+        retorno: "Numérico",
+        descricaoCurta: "Retorna o número de registro físico (R_E_C_N_O_) corrente na área de trabalho ativa.",
+        descricaoDetalhada: "Obtém o identificador numérico único e sequencial do registro físico corrente no banco de dados Protheus.",
+        parametros: [],
+        exemplo: `// Exemplo prático: Captura de RecNo para operações posteriores
+User Function ExRecNo()
+    Local nRecAtual := 0
+
+    DbSelectArea("SA1")
+    DbSetOrder(1)
+    If DbSeek(xFilial("SA1") + "00000101")
+        nRecAtual := RecNo()
+        ConOut("RecNo do cliente localizado: " + cValToChar(nRecAtual))
+    EndIf
+Return`
+      },
+      {
+        nome: "Deleted",
+        categoria: "Banco de Dados",
+        sintaxe: "Deleted()",
+        retorno: "Lógico (.T. / .F.)",
+        descricaoCurta: "Verifica se o registro corrente na área de trabalho ativa está marcado como deletado.",
+        descricaoDetalhada: "Verifica se o campo de controle D_E_L_E_T_ possui asterisco ('*') indicando que o registro foi excluído logicamente.",
+        parametros: [],
+        exemplo: `// Exemplo prático: Verificação de exclusão lógica
+User Function ExDeleted()
+    DbSelectArea("SA1")
+    If Deleted()
+        ConOut("O registro posicionado está marcado como deletado.")
+    Else
+        ConOut("Registro ativo e válido.")
+    EndIf
+Return`
+      },
+      {
+        nome: "DbCloseArea",
+        categoria: "Banco de Dados",
+        sintaxe: "DbCloseArea()",
+        retorno: "NIL",
+        descricaoCurta: "Fecha a área de trabalho da tabela ativa ou especificada liberando recursos.",
+        descricaoDetalhada: "Fecha a tabela ou cursor temporário aberto na área de trabalho, desassociando o alias e liberando buffers de memória.",
+        parametros: [],
+        exemplo: `// Exemplo prático: Fechamento de área de trabalho e cursor temporário
+User Function ExDbCloseArea()
+    Local cAliasTmp := GetNextAlias()
+
+    TCQuery "SELECT A1_COD FROM SA1990 WHERE D_E_L_E_T_ = ' '" ALIAS (cAliasTmp) NEW
+    (cAliasTmp)->(DbCloseArea())
+    ConOut("Cursor temporário fechado com sucesso.")
+Return`
+      },
+      {
+        nome: "Select",
+        categoria: "Banco de Dados",
+        sintaxe: "Select( [<cAlias>] )",
+        retorno: "Numérico",
+        descricaoCurta: "Retorna o número da área de trabalho associada ao alias informado ou da área ativa.",
+        descricaoDetalhada: "Retorna o identificador numérico da área de trabalho ativa ou do alias especificado. Se o alias não estiver aberto, retorna 0.",
+        parametros: [
+          { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela cuja área de trabalho se deseja verificar.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Verificação de tabela aberta
+User Function ExSelect()
+    Local nAreaSA1 := Select("SA1")
+
+    If nAreaSA1 > 0
+        ConOut("Tabela SA1 aberta na área: " + cValToChar(nAreaSA1))
+    Else
+        ConOut("Tabela SA1 não está aberta no momento.")
+    EndIf
+Return`
+      },
+      {
+        nome: "GetArea",
+        categoria: "Banco de Dados",
+        sintaxe: "GetArea()",
+        retorno: "Array",
+        descricaoCurta: "Salva o estado e posicionamento da área de trabalho corrente (alias, índice e RecNo).",
+        descricaoDetalhada: "Retorna um array estruturado contendo { Alias(), IndexOrd(), RecNo() }. Indispensável para preservar o contexto antes de rotinas de consulta secundárias, gatilhos e pontos de entrada.",
+        parametros: [],
+        exemplo: `// Exemplo prático: Preservação de contexto com GetArea e RestArea
+User Function ExGetArea()
+    Local aArea := GetArea() // Salva contexto corrente
+
+    // Realiza consultas ou atualizações em outras tabelas
+    DbSelectArea("SB1")
+    DbSeek(xFilial("SB1") + "PROD001")
+
+    RestArea(aArea) // Restaura com precisão o estado original
+Return`
+      },
+      {
+        nome: "RestArea",
+        categoria: "Banco de Dados",
+        sintaxe: "RestArea( <aArea> )",
+        retorno: "NIL",
+        descricaoCurta: "Restaura o estado e posicionamento de uma área previamente salva com GetArea().",
+        descricaoDetalhada: "Recebe o vetor gerado por GetArea() e restaura a tabela ativa, a ordem de índice selecionada e o registro posicionado (RecNo).",
+        parametros: [
+          { nome: "aArea", tipo: "Array", descricao: "Array retornado previamente pela função GetArea().", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Restauração de contexto de navegação
+User Function ExRestArea()
+    Local aAreaAnt := GetArea()
+
+    // Consulta em tabela de parâmetros ou dados auxiliares
+    DbSelectArea("SX6")
+    DbSetOrder(1)
+
+    // Restaura fielmente a tabela, índice e registro onde o usuário estava
+    RestArea(aAreaAnt)
+Return`
+      },
+
+      // -----------------------------------------------------------------------
+      // CATEGORIA: ARQUIVOS E DIRETÓRIOS (12 NOVAS FUNÇÕES)
+      // -----------------------------------------------------------------------
+      {
+        nome: "File",
+        categoria: "Arquivos e Diretórios",
+        sintaxe: "File( <cArquivo> )",
+        retorno: "Lógico (.T. / .F.)",
+        descricaoCurta: "Verifica se um determinado arquivo existe no sistema de arquivos ou diretório especificado.",
+        descricaoDetalhada: "Pesquisa a existência de um arquivo no disco local ou nos caminhos mapeados pelo RootPath do servidor Protheus. Retorna .T. se localizado ou .F. caso contrário.",
+        parametros: [
+          { nome: "cArquivo", tipo: "Caractere", descricao: "Nome ou caminho relativo/absoluto do arquivo a verificar.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Verificação de existência de arquivo antes de processar
+User Function ExFile()
+    Local cCaminho := "\\system\\sigamat.emp"
+
+    If File(cCaminho)
+        ConOut("Arquivo localizado no servidor: " + cCaminho)
+    Else
+        ConOut("Arquivo não encontrado!")
+    EndIf
+Return`
+      },
+      {
+        nome: "FCreate",
+        categoria: "Arquivos e Diretórios",
+        sintaxe: "FCreate( <cArquivo>, [<nAtributo>] )",
+        retorno: "Numérico (Handle do arquivo ou -1 se falha)",
+        descricaoCurta: "Cria um novo arquivo em disco e retorna seu manipulador (handle) binário para escrita.",
+        descricaoDetalhada: "Cria um novo arquivo binário em disco. Se o arquivo já existir, seu conteúdo será truncado para zero bytes. Retorna o handle numérico para operações com FWrite ou -1 em caso de erro.",
+        parametros: [
+          { nome: "cArquivo", tipo: "Caractere", descricao: "Nome e caminho do arquivo a ser criado.", opcional: false },
+          { nome: "nAtributo", tipo: "Numérico", descricao: "Atributos do arquivo (0: Normal, 1: Somente Leitura, 2: Oculto, 4: Sistema). Padrão: 0.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Criação de arquivo de log
+User Function ExFCreate()
+    Local cPath := "\\spool\\log_integracao.txt"
+    Local nHdl  := FCreate(cPath)
+
+    If nHdl != -1
+        FWrite(nHdl, "INICIO DO PROCESSAMENTO: " + Time() + CRLF)
+        FClose(nHdl)
+        ConOut("Arquivo criado com sucesso. Handle: " + cValToChar(nHdl))
+    Else
+        ConOut("Erro ao criar arquivo. Código FError: " + cValToChar(FError()))
+    EndIf
+Return`
+      },
+      {
+        nome: "FOpen",
+        categoria: "Arquivos e Diretórios",
+        sintaxe: "FOpen( <cArquivo>, [<nModo>] )",
+        retorno: "Numérico (Handle do arquivo ou -1 se falha)",
+        descricaoCurta: "Abre um arquivo existente em disco e retorna seu identificador (handle) para leitura/escrita.",
+        descricaoDetalhada: "Abre um arquivo existente permitindo especificar o modo de acesso (leitura, escrita ou ambos) e modo de compartilhamento. Retorna o identificador numérico (handle) ou -1 se falhar.",
+        parametros: [
+          { nome: "cArquivo", tipo: "Caractere", descricao: "Caminho do arquivo a ser aberto.", opcional: false },
+          { nome: "nModo", tipo: "Numérico", descricao: "Modo de acesso (0: FO_READ, 1: FO_WRITE, 2: FO_READWRITE). Padrão: 0.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Abertura de arquivo de configuração em modo leitura
+User Function ExFOpen()
+    Local cFile := "\\system\\appserver.ini"
+    Local nHdl  := FOpen(cFile, 0) // 0 = Apenas Leitura
+
+    If nHdl != -1
+        ConOut("Arquivo aberto com sucesso. Handle: " + cValToChar(nHdl))
+        FClose(nHdl)
+    Else
+        ConOut("Falha na abertura do arquivo. FError: " + cValToChar(FError()))
+    EndIf
+Return`
+      },
+      {
+        nome: "FRead",
+        categoria: "Arquivos e Diretórios",
+        sintaxe: "FRead( <nHandle>, @<cBuffer>, <nBytes> )",
+        retorno: "Numérico (Quantidade de bytes lidos com sucesso)",
+        descricaoCurta: "Lê uma quantidade de bytes de um arquivo aberto diretamente para uma variável de buffer.",
+        descricaoDetalhada: "Lê <nBytes> a partir da posição atual do ponteiro do arquivo. A variável <cBuffer> deve ser previamente inicializada com tamanho suficiente (ex: Space(nBytes)) e passada por referência com @.",
+        parametros: [
+          { nome: "nHandle", tipo: "Numérico", descricao: "Handle do arquivo retornado por FOpen ou FCreate.", opcional: false },
+          { nome: "cBuffer", tipo: "Caractere", descricao: "Variável passada por referência (@) que receberá os dados lidos.", opcional: false },
+          { nome: "nBytes", tipo: "Numérico", descricao: "Quantidade de bytes a ler do arquivo.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Leitura de cabeçalho de arquivo
+User Function ExFRead()
+    Local nHdl    := FOpen("\\spool\\dados.txt", 0)
+    Local cBuffer := Space(100)
+    Local nLidos  := 0
+
+    If nHdl != -1
+        nLidos := FRead(nHdl, @cBuffer, 100)
+        ConOut("Bytes lidos: " + cValToChar(nLidos))
+        ConOut("Conteúdo lido: " + cBuffer)
+        FClose(nHdl)
+    EndIf
+Return`
+      },
+      {
+        nome: "FWrite",
+        categoria: "Arquivos e Diretórios",
+        sintaxe: "FWrite( <nHandle>, <cBuffer>, [<nBytes>] )",
+        retorno: "Numérico (Quantidade de bytes gravados)",
+        descricaoCurta: "Grava uma cadeia de caracteres ou buffer de dados em um arquivo previamente aberto.",
+        descricaoDetalhada: "Escreve o conteúdo de <cBuffer> no arquivo a partir da posição corrente do ponteiro. Retorna a quantidade de bytes gravados com sucesso. Se retornar número menor que o comprimento de bytes, indica erro ou disco cheio.",
+        parametros: [
+          { nome: "nHandle", tipo: "Numérico", descricao: "Handle do arquivo retornado por FCreate ou FOpen.", opcional: false },
+          { nome: "cBuffer", tipo: "Caractere", descricao: "Cadeia de caracteres a ser gravada no arquivo.", opcional: false },
+          { nome: "nBytes", tipo: "Numérico", descricao: "Quantidade de bytes a gravar. Se omitido, grava toda a string cBuffer.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Gravação de linhas em arquivo CSV
+User Function ExFWrite()
+    Local nHdl := FCreate("\\spool\\resultado.csv")
+
+    If nHdl != -1
+        FWrite(nHdl, "CODIGO;DESCRICAO;VALOR" + CRLF)
+        FWrite(nHdl, "001;PRODUTO A;100.00" + CRLF)
+        FClose(nHdl)
+        ConOut("Dados gravados com sucesso no CSV!")
+    EndIf
+Return`
+      },
+      {
+        nome: "FClose",
+        categoria: "Arquivos e Diretórios",
+        sintaxe: "FClose( <nHandle> )",
+        retorno: "Lógico (.T. se sucesso, .F. se falha)",
+        descricaoCurta: "Fecha um arquivo aberto por FCreate ou FOpen liberando o descritor e salvando os buffers em disco.",
+        descricaoDetalhada: "Fecha o arquivo associado ao handle informado, descarregando todos os buffers pendentes para o disco e liberando o descritor de arquivo para o sistema operacional.",
+        parametros: [
+          { nome: "nHandle", tipo: "Numérico", descricao: "Identificador (handle) do arquivo a ser fechado.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Fechamento seguro de arquivo
+User Function ExFClose()
+    Local nHdl := FCreate("\\spool\\teste.txt")
+    If nHdl != -1
+        FWrite(nHdl, "Linha gravada com sucesso")
+        If FClose(nHdl)
+            ConOut("Arquivo fechado e salvo com sucesso.")
+        EndIf
+    EndIf
+Return`
+      },
+      {
+        nome: "FErase",
+        categoria: "Arquivos e Diretórios",
+        sintaxe: "FErase( <cArquivo> )",
+        retorno: "Numérico (0 se sucesso ou -1 se falha)",
+        descricaoCurta: "Exclui fisicamente um arquivo do sistema de arquivos.",
+        descricaoDetalhada: "Remove o arquivo especificado do disco. O arquivo não pode estar em uso por nenhum outro processo. Retorna 0 se o arquivo for apagado com sucesso ou -1 em caso de erro.",
+        parametros: [
+          { nome: "cArquivo", tipo: "Caractere", descricao: "Caminho do arquivo a ser excluído.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Exclusão de arquivo temporário
+User Function ExFErase()
+    Local cArqTemp := "\\spool\\temp_relat.tmp"
+
+    If File(cArqTemp)
+        If FErase(cArqTemp) == 0
+            ConOut("Arquivo temporário excluído com sucesso.")
+        Else
+            ConOut("Erro ao excluir arquivo. FError: " + cValToChar(FError()))
+        EndIf
+    EndIf
+Return`
+      },
+      {
+        nome: "FRename",
+        categoria: "Arquivos e Diretórios",
+        sintaxe: "FRename( <cOrigem>, <cDestino> )",
+        retorno: "Numérico (0 se sucesso ou -1 se erro)",
+        descricaoCurta: "Renomeia ou move um arquivo em disco de um caminho de origem para um novo destino.",
+        descricaoDetalhada: "Altera o nome de um arquivo no disco ou o move de diretório. O arquivo de origem deve existir e o arquivo de destino não pode existir previamente. Retorna 0 se bem-sucedido.",
+        parametros: [
+          { nome: "cOrigem", tipo: "Caractere", descricao: "Caminho e nome atual do arquivo.", opcional: false },
+          { nome: "cDestino", tipo: "Caractere", descricao: "Novo caminho e nome desejado para o arquivo.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Renomeação de arquivo após término da gravação
+User Function ExFRename()
+    Local cVelho := "\\spool\\pedidos.tmp"
+    Local cNovo  := "\\spool\\pedidos.csv"
+
+    If FRename(cVelho, cNovo) == 0
+        ConOut("Arquivo renomeado com sucesso!")
+    Else
+        ConOut("Erro ao renomear arquivo: " + cValToChar(FError()))
+    EndIf
+Return`
+      },
+      {
+        nome: "Directory",
+        categoria: "Arquivos e Diretórios",
+        sintaxe: "Directory( [<cMascara>], [<cAtributos>] )",
+        retorno: "Array (Matriz bidimensional com dados dos arquivos)",
+        descricaoCurta: "Retorna uma matriz contendo informações detalhadas dos arquivos e subpastas que atendem a um filtro.",
+        descricaoDetalhada: "Lista os arquivos de um diretório. Cada linha da matriz retornada contém: [1] Nome (C), [2] Tamanho em bytes (N), [3] Data da última alteração (D), [4] Hora da alteração (C) e [5] Atributos (C).",
+        parametros: [
+          { nome: "cMascara", tipo: "Caractere", descricao: "Filtro de busca com curingas (ex: '\\spool\\*.csv'). Padrão: '*.*'.", opcional: true },
+          { nome: "cAtributos", tipo: "Caractere", descricao: "Atributos a incluir na listagem ('D' para pastas, 'H' para ocultos, 'S' para sistema).", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Listagem de todos os arquivos de um diretório
+User Function ExDirectory()
+    Local aArquivos := Directory("\\spool\\*.csv")
+    Local nI        := 0
+
+    ConOut("Total de arquivos CSV encontrados: " + cValToChar(Len(aArquivos)))
+    For nI := 1 To Len(aArquivos)
+        ConOut("Arquivo: " + aArquivos[nI][1] + " | Tamanho: " + cValToChar(aArquivos[nI][2]) + " bytes")
+    Next nI
+Return`
+      },
+      {
+        nome: "MemoRead",
+        categoria: "Arquivos e Diretórios",
+        sintaxe: "MemoRead( <cArquivo> )",
+        retorno: "Caractere (String com todo o conteúdo do arquivo)",
+        descricaoCurta: "Lê e carrega diretamente todo o conteúdo de um arquivo de texto em disco para a memória.",
+        descricaoDetalhada: "Abre o arquivo informado, lê todo o seu conteúdo para uma string de texto na memória e o fecha automaticamente. Ideal para carregar arquivos de configuração, scripts SQL, templates, XML e JSON.",
+        parametros: [
+          { nome: "cArquivo", tipo: "Caractere", descricao: "Nome e caminho do arquivo de texto a ser lido.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Leitura integral de script SQL
+User Function ExMemoRead()
+    Local cArquivo  := "\\system\\query_clientes.sql"
+    Local cConteudo := ""
+
+    If File(cArquivo)
+        cConteudo := MemoRead(cArquivo)
+        ConOut("Script SQL carregado com sucesso (" + cValToChar(Len(cConteudo)) + " caracteres).")
+    EndIf
+Return`
+      },
+      {
+        nome: "MemoWrite",
+        categoria: "Arquivos e Diretórios",
+        sintaxe: "MemoWrite( <cArquivo>, <cString> )",
+        retorno: "Lógico (.T. se gravado com sucesso, .F. se falha)",
+        descricaoCurta: "Grava diretamente uma cadeia de caracteres inteira da memória para um arquivo em disco.",
+        descricaoDetalhada: "Cria um arquivo em disco (ou sobrescreve o existente) e grava toda a string de texto passada no segundo parâmetro. Retorna .T. se a gravação for concluída com êxito.",
+        parametros: [
+          { nome: "cArquivo", tipo: "Caractere", descricao: "Caminho do arquivo a ser criado ou sobrescrito.", opcional: false },
+          { nome: "cString", tipo: "Caractere", descricao: "Conteúdo textual a ser gravado no arquivo.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Geração rápida de arquivo de log
+User Function ExMemoWrite()
+    Local cDestino := "\\spool\\relatorio_rapido.txt"
+    Local cRelat   := "RELATÓRIO GERADO EM " + dToC(Date()) + " AS " + Time() + CRLF
+
+    cRelat += "Linha 1: Faturamento Mensal OK" + CRLF
+    cRelat += "Linha 2: Estoques Atualizados" + CRLF
+
+    If MemoWrite(cDestino, cRelat)
+        ConOut("Arquivo gravado com sucesso via MemoWrite!")
+    EndIf
+Return`
+      },
+      {
+        nome: "CpyT2S",
+        categoria: "Arquivos e Diretórios",
+        sintaxe: "CpyT2S( <cOrigemClient>, <cDestinoServer>, [<lShowProgress>] )",
+        retorno: "Numérico (0 se sucesso)",
+        descricaoCurta: "Copia um arquivo da máquina do usuário (Client / SmartClient) para o servidor Protheus (Server).",
+        descricaoDetalhada: "Transfere um arquivo físico da estação de trabalho cliente para o ambiente do servidor Protheus. Essencial em rotinas de importação de planilhas, arquivos bancários e notas fiscais selecionadas pelo operador.",
+        parametros: [
+          { nome: "cOrigemClient", tipo: "Caractere", descricao: "Caminho completo do arquivo na máquina do usuário (ex: 'C:\\temp\\planilha.xlsx').", opcional: false },
+          { nome: "cDestinoServer", tipo: "Caractere", descricao: "Caminho de destino no servidor Protheus (ex: '\\spool\\import.xlsx').", opcional: false },
+          { nome: "lShowProgress", tipo: "Lógico", descricao: "Exibe régua visual de progresso da transferência (padrão: .T.).", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Transferência de arquivo da estação para o servidor
+User Function ExCpyT2S()
+    Local cArqLocal  := "C:\\temp\\planilha_precos.xlsx"
+    Local cArqServer := "\\spool\\import_precos.xlsx"
+    Local nRet       := 0
+
+    // Copia da estação de trabalho para o servidor
+    nRet := CpyT2S(cArqLocal, cArqServer, .T.)
+
+    If nRet == 0
+        ConOut("Arquivo transferido com sucesso para o servidor: " + cArqServer)
+    Else
+        ConOut("Falha na cópia do arquivo do cliente para o servidor!")
+    EndIf
+Return`
+      },
+
+      // -----------------------------------------------------------------------
+      // CATEGORIA: TIPOS E VALIDAÇÕES (10 NOVAS FUNÇÕES)
+      // -----------------------------------------------------------------------
+      {
+        nome: "Empty",
+        categoria: "Tipos e Validações",
+        sintaxe: "Empty( <exp> )",
+        retorno: "Lógico (.T. / .F.)",
+        descricaoCurta: "Verifica se uma expressão ou variável está vazia de acordo com seu tipo de dado.",
+        descricaoDetalhada: "Avalia a expressão informada. Retorna .T. para strings vazias ou contendo apenas espaços, número zero (0), datas vazias (CTOD('  /  /  ')), valores lógicos .F. e arrays vazios ({}).",
+        parametros: [
+          { nome: "exp", tipo: "Qualquer tipo", descricao: "Expressão ou variável a ser avaliada.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Validação de preenchimento de campos e variáveis
+User Function ExEmpty()
+    Local cTexto := "   "
+    Local nValor := 0
+    Local aLista := {}
+
+    ConOut("Texto vazio: " + cValToChar(Empty(cTexto)))  // .T.
+    ConOut("Valor zerado: " + cValToChar(Empty(nValor))) // .T.
+    ConOut("Array vazio: " + cValToChar(Empty(aLista)))  // .T.
+
+    If Empty(cTexto)
+        ConOut("O preenchimento do campo é obrigatório!")
+    EndIf
+Return`
+      },
+      {
+        nome: "ValType",
+        categoria: "Tipos e Validações",
+        sintaxe: "ValType( <exp> )",
+        retorno: "Caractere (1 caractere com o tipo do dado)",
+        descricaoCurta: "Retorna o tipo de dado resultante da avaliação direta de uma expressão ou variável.",
+        descricaoDetalhada: "Identifica o tipo de dado em tempo de execução: 'C' (Caractere), 'N' (Numérico), 'D' (Data), 'L' (Lógico), 'A' (Array), 'B' (Bloco de Código), 'O' (Objeto), 'M' (Memo) ou 'U' (Indefinido / NIL).",
+        parametros: [
+          { nome: "exp", tipo: "Qualquer tipo", descricao: "Expressão ou variável a ser inspecionada.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Tratamento dinâmico de tipo de parâmetro
+User Function ExValType()
+    Local xValor := 125.50
+
+    If ValType(xValor) == "N"
+        ConOut("A variável xValor é do tipo Numérico.")
+    ElseIf ValType(xValor) == "C"
+        ConOut("A variável xValor é uma String.")
+    ElseIf ValType(xValor) == "A"
+        ConOut("A variável xValor é um Array.")
+    EndIf
+Return`
+      },
+      {
+        nome: "Type",
+        categoria: "Tipos e Validações",
+        sintaxe: "Type( <cExpressao> )",
+        retorno: "Caractere (1 caractere com o tipo ou 'U')",
+        descricaoCurta: "Avalia uma expressão passada em forma de string e retorna o tipo de dado da variável ou campo.",
+        descricaoDetalhada: "Diferente de ValType (que recebe o valor diretamente), Type recebe uma string com o identificador da variável, função ou campo (ex: 'SA1->A1_NOME'). Se o identificador não existir no escopo ou tabela, retorna 'U' (Undefined).",
+        parametros: [
+          { nome: "cExpressao", tipo: "Caractere", descricao: "Expressão ou nome de variável/campo em formato de texto.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Verificação de existência de campo ou variável pública
+User Function ExType()
+    // Verifica se o campo existe na tabela antes de acessá-lo
+    If Type("SA1->A1_NOME") != "U"
+        ConOut("Campo SA1->A1_NOME existe e é do tipo: " + Type("SA1->A1_NOME"))
+    Else
+        ConOut("Campo SA1->A1_NOME não está acessível no contexto atual.")
+    EndIf
+Return`
+      },
+      {
+        nome: "If",
+        categoria: "Tipos e Validações",
+        sintaxe: "If( <lCondicao>, <expVerdadeiro>, <expFalso> )",
+        retorno: "Qualquer tipo",
+        descricaoCurta: "Função condicional inline que avalia uma condição lógica e retorna um de dois valores possíveis.",
+        descricaoDetalhada: "Avalia a condição booleana no primeiro parâmetro. Se for .T., retorna o resultado da segunda expressão; se for .F., retorna o resultado da terceira expressão. Equivale ao operador ternário.",
+        parametros: [
+          { nome: "lCondicao", tipo: "Lógico", descricao: "Condição lógica a ser avaliada.", opcional: false },
+          { nome: "expVerdadeiro", tipo: "Qualquer tipo", descricao: "Valor retornado se a condição for .T.", opcional: false },
+          { nome: "expFalso", tipo: "Qualquer tipo", descricao: "Valor retornado se a condição for .F.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Atribuição condicional concisa
+User Function ExIf()
+    Local lAtivo  := .T.
+    Local cStatus := If(lAtivo, "USUARIO ATIVO", "USUARIO BLOQUEADO")
+    ConOut("Status do operador: " + cStatus)
+Return`
+      },
+      {
+        nome: "IIf",
+        categoria: "Tipos e Validações",
+        sintaxe: "IIf( <lCondicao>, <expVerdadeiro>, <expFalso> )",
+        retorno: "Qualquer tipo",
+        descricaoCurta: "Forma alternativa tradicional da função condicional inline (Immediate If).",
+        descricaoDetalhada: "Sinônimo exato da função If(). Muito utilizada em fórmulas de dicionário de dados (SX3, SX1), filtros de relatórios e inicializadores de campos no Protheus.",
+        parametros: [
+          { nome: "lCondicao", tipo: "Lógico", descricao: "Condição lógica avaliada.", opcional: false },
+          { nome: "expVerdadeiro", tipo: "Qualquer tipo", descricao: "Valor retornado caso verdadeiro.", opcional: false },
+          { nome: "expFalso", tipo: "Qualquer tipo", descricao: "Valor retornado caso falso.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Uso em regras de cálculo e exibição
+User Function ExIIf()
+    Local nEstoque := 5
+    Local cAviso   := IIf(nEstoque > 0, "Estoque Disponível", "PRODUTO ESGOTADO")
+    ConOut("Situação do item: " + cAviso)
+Return`
+      },
+      {
+        nome: "RetSqlName",
+        categoria: "Tipos e Validações",
+        sintaxe: "RetSqlName( <cAlias> )",
+        retorno: "Caractere (String com o nome físico da tabela no SGBD)",
+        descricaoCurta: "Retorna o nome físico real da tabela no banco de dados relacional associado ao alias Protheus.",
+        descricaoDetalhada: "Converte o alias do Protheus (ex: 'SA1', 'SB1') no nome físico da tabela no banco de dados, anexando o sufixo da empresa e filial corrente (ex: 'SA1010' ou 'SA1990'). Obrigatória na construção de qualquer consulta SQL.",
+        parametros: [
+          { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela no dicionário SX2 (ex: 'SA1', 'SC5').", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Construção de query SQL apontando para a tabela correta
+User Function ExRetSqlName()
+    Local cTabSA1 := RetSqlName("SA1")
+    Local cSQL    := "SELECT A1_COD, A1_NOME FROM " + cTabSA1 + " WHERE D_E_L_E_T_ = ' '"
+
+    ConOut("Tabela física no banco: " + cTabSA1)
+    ConOut("Query montada: " + cSQL)
+Return`
+      },
+      {
+        nome: "TCSqlExec",
+        categoria: "Tipos e Validações",
+        sintaxe: "TCSqlExec( <cQuery> )",
+        retorno: "Numérico (0 se sucesso ou código de erro negativo do SGBD)",
+        descricaoCurta: "Executa uma instrução SQL de manipulação (UPDATE, INSERT, DELETE, DDL) diretamente no banco.",
+        descricaoDetalhada: "Envia instruções SQL que não retornam cursores de dados (operações DML/DDL) diretamente para o banco via DBAccess. Retorna número maior ou igual a zero em caso de sucesso; se for negativo, consulte a função TCSqlError().",
+        parametros: [
+          { nome: "cQuery", tipo: "Caractere", descricao: "Comando SQL a ser executado no SGBD.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Execução de comando UPDATE direto via DBAccess
+User Function ExTCSqlExec()
+    Local cUpdate := "UPDATE " + RetSqlName("SZ1") + " SET Z1_STATUS = '1' WHERE Z1_STATUS = '0' AND D_E_L_E_T_ = ' '"
+    Local nStatus := TCSqlExec(cUpdate)
+
+    If nStatus >= 0
+        ConOut("Comando SQL executado com sucesso no SGBD!")
+    Else
+        ConOut("Erro na execução SQL: " + TCSqlError())
+    EndIf
+Return`
+      },
+      {
+        nome: "ExistCpo",
+        categoria: "Tipos e Validações",
+        sintaxe: "ExistCpo( <cAlias>, <cValor>, [<nOrdem>] )",
+        retorno: "Lógico (.T. / .F.)",
+        descricaoCurta: "Valida a existência de um valor na chave de uma tabela cadastrada no Protheus.",
+        descricaoDetalhada: "Função padrão de validação no dicionário de dados (SX3). Pesquisa se <cValor> existe na tabela <cAlias>. Se não existir, dispara a mensagem de help de sistema padrão e retorna .F.",
+        parametros: [
+          { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela pesquisada (ex: 'SA1', 'SB1').", opcional: false },
+          { nome: "cValor", tipo: "Caractere", descricao: "Código ou valor a ser validado na tabela.", opcional: false },
+          { nome: "nOrdem", tipo: "Numérico", descricao: "Ordem do índice a ser pesquisado (padrão: 1).", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Validação de campo de cliente
+User Function ExExistCpo()
+    Local cCodCliente := "000001"
+
+    If ExistCpo("SA1", cCodCliente, 1)
+        ConOut("Cliente validado com sucesso!")
+    Else
+        ConOut("Cliente inválido ou não cadastrado.")
+    EndIf
+Return`
+      },
+      {
+        nome: "ExistChav",
+        categoria: "Tipos e Validações",
+        sintaxe: "ExistChav( <cAlias>, <cChave>, [<nOrdem>], [<cHelp>] )",
+        retorno: "Lógico (.T. se NÃO existe duplicidade, .F. se chave já cadastrada)",
+        descricaoCurta: "Verifica se uma chave de registro já existe na tabela para evitar duplicidade de cadastros.",
+        descricaoDetalhada: "Utilizada nas validações de chave primária no Protheus. Retorna .T. se a chave estiver livre (não existir no banco), permitindo a inclusão; se já existir, dispara mensagem de duplicidade e retorna .F.",
+        parametros: [
+          { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela (ex: 'SB1').", opcional: false },
+          { nome: "cChave", tipo: "Caractere", descricao: "Chave completa a ser verificada (incluindo filial se tabela exclusiva).", opcional: false },
+          { nome: "nOrdem", tipo: "Numérico", descricao: "Ordem do índice (padrão: 1).", opcional: true },
+          { nome: "cHelp", tipo: "Caractere", descricao: "Código do Help a disparar se duplicado.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Validação anti-duplicidade em inclusão de produto
+User Function ExExistChav()
+    Local cNovoCod := "PROD999"
+
+    If ExistChav("SB1", xFilial("SB1") + cNovoCod, 1)
+        ConOut("Código disponível para novo cadastro.")
+    Else
+        ConOut("Código já em uso! Cadastro rejeitado.")
+    EndIf
+Return`
+      },
+      {
+        nome: "Help",
+        categoria: "Tipos e Validações",
+        sintaxe: "Help( [<cRotina>], [<nLinha>], <cHelp>, [<cCampo>], <cMensagem>, <nTipo>, [<nHelp>] )",
+        retorno: "NIL",
+        descricaoCurta: "Apresenta a janela padrão de Help do Protheus exibindo mensagens de validação e solução para o usuário.",
+        descricaoDetalhada: "Abre o diálogo oficial de Help do sistema (com abas de Problema e Solução). Usada em regras de validação de campos (X3_VALID) e rotinas de validação de formulários.",
+        parametros: [
+          { nome: "cRotina", tipo: "Caractere", descricao: "Nome da rotina chamadora.", opcional: true },
+          { nome: "nLinha", tipo: "Numérico", descricao: "Número da linha no código.", opcional: true },
+          { nome: "cHelp", tipo: "Caractere", descricao: "Código identificador do Help no dicionário SX1/SX6.", opcional: false },
+          { nome: "cCampo", tipo: "Caractere", descricao: "Nome do campo gerador da validação.", opcional: true },
+          { nome: "cMensagem", tipo: "Caractere", descricao: "Descrição detalhada do problema ou erro.", opcional: false },
+          { nome: "nTipo", tipo: "Numérico", descricao: "Tipo de Help (1: Atenção/Erro de validação).", opcional: false },
+          { nome: "nHelp", tipo: "Numérico", descricao: "Código numérico do help.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Disparo de mensagem de Help de validação
+User Function ExHelp()
+    Local cMsg := "O campo Quantidade deve conter valor superior a zero para este produto."
+    Help("", 1, "QTDINVALIDA", , cMsg, 1, 0)
+Return`
+      },
+
+      // -----------------------------------------------------------------------
+      // CATEGORIA: STRINGS - COMPLEMENTARES (4 NOVAS FUNÇÕES)
+      // -----------------------------------------------------------------------
+      {
+        nome: "Left",
+        categoria: "Strings",
+        sintaxe: "Left( <cString>, <nTam> )",
+        retorno: "Caractere (String)",
+        descricaoCurta: "Retorna a quantidade especificada de caracteres a partir do início (esquerda) de uma string.",
+        descricaoDetalhada: "Extrai os primeiros <nTam> caracteres da cadeia de caracteres. Equivale funcionalmente a SubStr(cString, 1, nTam).",
+        parametros: [
+          { nome: "cString", tipo: "Caractere", descricao: "Cadeia de caracteres de onde o trecho inicial será extraído.", opcional: false },
+          { nome: "nTam", tipo: "Numérico", descricao: "Quantidade de caracteres a serem extraídos da esquerda para a direita.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Obtenção de prefixo ou código de UF
+User Function ExLeft()
+    Local cChave := "35261112345678000195550010000000011000000010"
+    Local cUF    := Left(cChave, 2) // "35" (SP)
+
+    ConOut("Código UF extraído da NFe: " + cUF)
+Return`
+      },
+      {
+        nome: "Right",
+        categoria: "Strings",
+        sintaxe: "Right( <cString>, <nTam> )",
+        retorno: "Caractere (String)",
+        descricaoCurta: "Retorna a quantidade especificada de caracteres a partir do final (direita) de uma string.",
+        descricaoDetalhada: "Extrai os últimos <nTam> caracteres de uma cadeia de texto a partir de sua extremidade direita.",
+        parametros: [
+          { nome: "cString", tipo: "Caractere", descricao: "Cadeia de caracteres de onde o trecho final será extraído.", opcional: false },
+          { nome: "nTam", tipo: "Numérico", descricao: "Quantidade de caracteres finais a serem extraídos.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Identificação de extensão de arquivo
+User Function ExRight()
+    Local cArquivo  := "RELATORIO_GERENCIAL.PDF"
+    Local cExtensao := Right(cArquivo, 3) // "PDF"
+
+    ConOut("Extensão do documento: " + cExtensao)
+Return`
+      },
+      {
+        nome: "Replicate",
+        categoria: "Strings",
+        sintaxe: "Replicate( <cString>, <nRepeticoes> )",
+        retorno: "Caractere (String)",
+        descricaoCurta: "Repete uma cadeia de caracteres uma quantidade especificada de vezes.",
+        descricaoDetalhada: "Cria uma nova string concatenando <cString> tantas vezes quanto indicado em <nRepeticoes>. Amplamente empregada em linhas divisórias, separadores de relatórios e preenchimentos textuais.",
+        parametros: [
+          { nome: "cString", tipo: "Caractere", descricao: "Caractere ou texto a ser repetido.", opcional: false },
+          { nome: "nRepeticoes", tipo: "Numérico", descricao: "Quantidade de vezes que o texto será replicado.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Criação de linha separadora em relatórios
+User Function ExReplicate()
+    Local cDivisoria := Replicate("=", 50)
+
+    ConOut(cDivisoria)
+    ConOut("CABECALHO DO RELATORIO FINANCEIRO")
+    ConOut(cDivisoria)
+Return`
+      },
+      {
+        nome: "Space",
+        categoria: "Strings",
+        sintaxe: "Space( <nEspacos> )",
+        retorno: "Caractere (String contendo apenas espaços)",
+        descricaoCurta: "Gera e retorna uma string contendo uma quantidade especificada de espaços em branco.",
+        descricaoDetalhada: "Cria uma cadeia de caracteres composta exclusivamente por <nEspacos> espaços vazios. Usada na inicialização de variáveis vinculadas a campos Protheus de largura fixa e dimensionamento de buffers.",
+        parametros: [
+          { nome: "nEspacos", tipo: "Numérico", descricao: "Quantidade de espaços em branco a gerar.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Inicialização de buffer de campo
+User Function ExSpace()
+    Local cNomeVazio := Space(40) // 40 espaços (tamanho padrão A1_NOME)
+
+    ConOut("Comprimento da variável: " + cValToChar(Len(cNomeVazio))) // 40
+Return`
+      },
+
+      // -----------------------------------------------------------------------
+      // CATEGORIA: DATAS - COMPLEMENTARES E HORAS (4 NOVAS FUNÇÕES)
+      // -----------------------------------------------------------------------
+      {
+        nome: "Time",
+        categoria: "Datas",
+        sintaxe: "Time()",
+        retorno: "Caractere (String no formato HH:MM:SS)",
+        descricaoCurta: "Retorna a hora atual do sistema no formato padrão HH:MM:SS.",
+        descricaoDetalhada: "Obtém a hora corrente do relógio do sistema operacional da máquina/servidor onde o processo está executando. Indispensável para logs, métricas de performance e registro de horários de movimentações.",
+        parametros: [],
+        exemplo: `// Exemplo prático: Registro de horário de processamento
+User Function ExTime()
+    Local cHoraAtual := Time()
+    ConOut("Início da rotina: " + cHoraAtual) // "09:35:10"
+Return`
+      },
+      {
+        nome: "ElapTime",
+        categoria: "Datas",
+        sintaxe: "ElapTime( <cHoraInicio>, <cHoraFim> )",
+        retorno: "Caractere (String no formato HH:MM:SS)",
+        descricaoCurta: "Calcula o tempo decorrido entre dois horários no formato HH:MM:SS.",
+        descricaoDetalhada: "Calcula o intervalo de tempo entre o horário inicial e o final. Trata automaticamente a virada de meia-noite (24 horas). Muito utilizada para mensurar tempo de processamento de rotinas batch e integrações.",
+        parametros: [
+          { nome: "cHoraInicio", tipo: "Caractere", descricao: "Horário inicial no formato 'HH:MM:SS'.", opcional: false },
+          { nome: "cHoraFim", tipo: "Caractere", descricao: "Horário final no formato 'HH:MM:SS'.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Cálculo do tempo total de execução
+User Function ExElapTime()
+    Local cInicio  := "14:00:00"
+    Local cFim     := "15:42:35"
+    Local cDuracao := ElapTime(cInicio, cFim)
+
+    ConOut("Tempo decorrido: " + cDuracao) // "01:42:35"
+Return`
+      },
+      {
+        nome: "LastDay",
+        categoria: "Datas",
+        sintaxe: "LastDay( <dData> )",
+        retorno: "Data (D)",
+        descricaoCurta: "Retorna a data correspondente ao último dia do mês da data informada.",
+        descricaoDetalhada: "Retorna o último dia do mês correspondente à data informada, tratando automaticamente anos bissextos (28 ou 29 dias em fevereiro) e meses de 30 ou 31 dias. Essencial para rotinas fiscais e financeiras de fechamento.",
+        parametros: [
+          { nome: "dData", tipo: "Data", descricao: "Data base de referência.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Identificação do dia de fechamento do mês
+User Function ExLastDay()
+    Local dRef       := cToD("10/02/2026")
+    Local dUltimoDia := LastDay(dRef)
+
+    ConOut("Último dia de Fevereiro/2026: " + dToC(dUltimoDia)) // "28/02/2026"
+Return`
+      },
+      {
+        nome: "DataValida",
+        categoria: "Datas",
+        sintaxe: "DataValida( <dData>, [<lAvanca>] )",
+        retorno: "Data (D)",
+        descricaoCurta: "Valida se uma data é dia útil conforme o calendário de feriados do Protheus.",
+        descricaoDetalhada: "Verifica se a data informada cai em sábados, domingos ou feriados cadastrados no sistema. Caso não seja dia útil, avança para o próximo dia útil (padrão) ou retrocede para o dia útil anterior se lAvanca for .F.",
+        parametros: [
+          { nome: "dData", tipo: "Data", descricao: "Data a ser validada contra o calendário de dias úteis.", opcional: false },
+          { nome: "lAvanca", tipo: "Lógico", descricao: "Se .T., avança para o próximo dia útil; se .F., retrocede para o dia útil anterior. Padrão: .T.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Ajuste automático de vencimento para dia útil
+User Function ExDataValida()
+    Local dVenc := cToD("15/11/2026") // Domingo / Feriado Nacional
+    Local dUtil := DataValida(dVenc, .T.)
+
+    ConOut("Data original: " + dToC(dVenc))
+    ConOut("Data ajustada para dia útil: " + dToC(dUtil))
+Return`
+      },
+
+      // -----------------------------------------------------------------------
+      // CATEGORIA: FRAMEWORK PROTHEUS (8 NOVAS FUNÇÕES)
+      // -----------------------------------------------------------------------
+      {
+        nome: "FWGetArea",
+        categoria: "Framework Protheus",
+        sintaxe: "FWGetArea()",
+        retorno: "Array",
+        descricaoCurta: "Salva o estado completo da área de trabalho ativa no Framework Protheus moderno.",
+        descricaoDetalhada: "Evolução oficial e segura da função GetArea(). Captura de maneira robusta tabela ativa, ordem, índice, posição física e ponteiros de navegação do ambiente TOTVS.",
+        parametros: [],
+        exemplo: `// Exemplo prático: Preservação de contexto com FWGetArea e FWRestArea
+User Function ExFWGetArea()
+    Local aArea := FWGetArea()
+
+    // Processamento secundário em outra tabela
+    DbSelectArea("SE1")
+    DbSetOrder(1)
+
+    FWRestArea(aArea) // Restaura com total segurança
+Return`
+      },
+      {
+        nome: "FWRestArea",
+        categoria: "Framework Protheus",
+        sintaxe: "FWRestArea( <aArea> )",
+        retorno: "NIL",
+        descricaoCurta: "Restaura o estado e posicionamento de tabela previamente capturado com FWGetArea().",
+        descricaoDetalhada: "Evolução oficial da função RestArea(). Restaura a tabela ativa, a ordem de índice e o registro posicionado capturados anteriormente por FWGetArea().",
+        parametros: [
+          { nome: "aArea", tipo: "Array", descricao: "Array gerado previamente pela função FWGetArea().", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Restauração de contexto
+User Function ExFWRestArea()
+    Local aArea := FWGetArea()
+
+    DbSelectArea("SB1")
+    DbGoTop()
+
+    FWRestArea(aArea) // Retorna exatamente ao contexto anterior
+Return`
+      },
+      {
+        nome: "FWAlertInfo",
+        categoria: "Framework Protheus",
+        sintaxe: "FWAlertInfo( <cMensagem>, [<cTitulo>] )",
+        retorno: "NIL",
+        descricaoCurta: "Apresenta uma caixa de diálogo informativa moderna com o design visual atual do Protheus.",
+        descricaoDetalhada: "Exibe diálogo informativo padronizado pelas classes modernas de interface da TOTVS. Substitui a tradicional MsgInfo() com suporte aprimorado a Protheus Web e SmartClient moderno.",
+        parametros: [
+          { nome: "cMensagem", tipo: "Caractere", descricao: "Texto da mensagem informativa.", opcional: false },
+          { nome: "cTitulo", tipo: "Caractere", descricao: "Título do cabeçalho da janela (padrão: 'Informação').", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Mensagem informativa moderna
+User Function ExFWAlertInfo()
+    FWAlertInfo("Processo de importação concluído com sucesso!", "Sincronização")
+Return`
+      },
+      {
+        nome: "FWAlertSuccess",
+        categoria: "Framework Protheus",
+        sintaxe: "FWAlertSuccess( <cMensagem>, [<cTitulo>] )",
+        retorno: "NIL",
+        descricaoCurta: "Exibe uma notificação moderna de sucesso com ícone verde característico no Protheus.",
+        descricaoDetalhada: "Componente moderno oficial da TOTVS para confirmações de sucesso em operações, amplamente empregado em rotinas MVC e PO-UI.",
+        parametros: [
+          { nome: "cMensagem", tipo: "Caractere", descricao: "Texto da mensagem de sucesso.", opcional: false },
+          { nome: "cTitulo", tipo: "Caractere", descricao: "Título da notificação (padrão: 'Sucesso').", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Notificação de sucesso de faturamento
+User Function ExFWAlertSuccess()
+    FWAlertSuccess("Pedido de venda nº 004520 faturado com êxito!", "Faturamento")
+Return`
+      },
+      {
+        nome: "FWAlertWarning",
+        categoria: "Framework Protheus",
+        sintaxe: "FWAlertWarning( <cMensagem>, [<cTitulo>] )",
+        retorno: "NIL",
+        descricaoCurta: "Apresenta uma caixa de advertência/alerta no padrão visual moderno do Protheus.",
+        descricaoDetalhada: "Alternativa contemporânea à função MsgAlert(), exibindo estilização moderna com destaque visual de advertência.",
+        parametros: [
+          { nome: "cMensagem", tipo: "Caractere", descricao: "Texto da mensagem de advertência.", opcional: false },
+          { nome: "cTitulo", tipo: "Caractere", descricao: "Título do diálogo (padrão: 'Atenção').", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Alerta financeiro
+User Function ExFWAlertWarning()
+    FWAlertWarning("Atenção: Existem títulos vencidos para este fornecedor.", "Aviso Financeiro")
+Return`
+      },
+      {
+        nome: "FWAlertError",
+        categoria: "Framework Protheus",
+        sintaxe: "FWAlertError( <cMensagem>, [<cTitulo>] )",
+        retorno: "NIL",
+        descricaoCurta: "Exibe uma notificação de erro impeditivo no padrão visual moderno do Protheus.",
+        descricaoDetalhada: "Alternativa moderna à função MsgStop(), utilizada para notificar o operador sobre erros graves, impeditivos ou falhas de validação de dados.",
+        parametros: [
+          { nome: "cMensagem", tipo: "Caractere", descricao: "Texto descritivo do erro ocorrido.", opcional: false },
+          { nome: "cTitulo", tipo: "Caractere", descricao: "Título do cabeçalho da janela (padrão: 'Erro').", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Notificação de erro operacional impeditivo
+User Function ExFWAlertError()
+    FWAlertError("Falha na gravação do registro: Saldo em estoque insuficiente.", "Erro Operacional")
+Return`
+      },
+      {
+        nome: "FWExecView",
+        categoria: "Framework Protheus",
+        sintaxe: "FWExecView( <cTitulo>, <cPrograma>, [<nOperacao>], [<oDlg>], [<bCloseOnOK>], [<bOk>], [<nPercent>] )",
+        retorno: "Numérico (0 se confirmação ou 1 se cancelamento)",
+        descricaoCurta: "Executa e abre uma interface visual baseada em arquitetura MVC (Model-View-Controller).",
+        descricaoDetalhada: "Função primordial para acionamento de rotinas desenvolvidas no padrão MVC Protheus (operações de Visualização: 2, Inclusão: 3, Alteração: 4, Exclusão: 5).",
+        parametros: [
+          { nome: "cTitulo", tipo: "Caractere", descricao: "Título exibido na barra superior da janela.", opcional: false },
+          { nome: "cPrograma", tipo: "Caractere", descricao: "Nome do fonte/função que implementa o MVC (ex: 'MATA010').", opcional: false },
+          { nome: "nOperacao", tipo: "Numérico", descricao: "Código da operação MVC (1: Pesquisar, 2: Visualizar, 3: Incluir, 4: Alterar, 5: Excluir). Padrão: 2.", opcional: true },
+          { nome: "oDlg", tipo: "Objeto", descricao: "Janela mãe opcional para ancoragem modal.", opcional: true },
+          { nome: "bCloseOnOK", tipo: "Bloco de Código", descricao: "Code-block avaliado ao fechar confirmando.", opcional: true },
+          { nome: "bOk", tipo: "Bloco de Código", descricao: "Code-block executado na validação do botão OK.", opcional: true },
+          { nome: "nPercent", tipo: "Numérico", descricao: "Percentual de dimensionamento da tela.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Abertura de rotina de cadastro em MVC
+User Function ExFWExecView()
+    // Abre a tela MVC de cadastro de clientes em modo de visualização (2)
+    FWExecView("Visualizar Cliente", "MATA030", 2)
+Return`
+      },
+      {
+        nome: "FWTemporaryTable",
+        categoria: "Framework Protheus",
+        sintaxe: "FWTemporaryTable():New( [<cAlias>] )",
+        retorno: "Objeto (Instância da classe FWTemporaryTable)",
+        descricaoCurta: "Cria e gerencia tabelas temporárias físicas de alta performance no banco de dados relacional.",
+        descricaoDetalhada: "Classe moderna do Protheus que substitui a criação de arquivos temporários em disco. Permite definir colunas (SetFields), índices (AddIndex) e criar a tabela fisicamente no banco com Create(), além de eliminação automática com Delete().",
+        parametros: [
+          { nome: "cAlias", tipo: "Caractere", descricao: "Alias desejado para a tabela temporária (se omitido, gera via GetNextAlias()).", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Criação e uso de tabela temporária relacional com FWTemporaryTable
+User Function ExFWTemporaryTable()
+    Local oTempTable := FWTemporaryTable():New("TMPCLI")
+    Local aCampos    := {}
+
+    // Define os campos da tabela temporária
+    aAdd(aCampos, {"CODIGO" , "C", 6, 0})
+    aAdd(aCampos, {"NOME"   , "C", 40, 0})
+    aAdd(aCampos, {"VALOR"  , "N", 12, 2})
+
+    oTempTable:SetFields(aCampos)
+    oTempTable:AddIndex("1", {"CODIGO"})
+    oTempTable:Create()
+
+    // Gravação na tabela temporária
+    RecLock("TMPCLI", .T.)
+        TMPCLI->CODIGO := "000001"
+        TMPCLI->NOME   := "CLIENTE TEMPORARIO"
+        TMPCLI->VALOR  := 1500.00
+    MsUnlock()
+
+    // Elimina a tabela temporária do banco de dados
+    oTempTable:Delete()
+Return`
       }
     ];
 
