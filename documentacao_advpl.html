@@ -1,0 +1,2139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentação Técnica de Funções ADVPL - TOTVS Protheus</title>
+  <style>
+    /* ==========================================================================
+       Catalogo de Funcoes ADVPL / TOTVS Protheus - Estilos 100% Offline
+       Sem dependencias externas, sem Google Fonts, sem CDNs.
+       ========================================================================== */
+
+    :root {
+      --bg-primary: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-subtle: #f1f5f9;
+      --bg-highlight: #e2e8f0;
+      
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --text-light: #94a3b8;
+      
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --primary-soft: #e0f2fe;
+      --primary-border: #bae6fd;
+      
+      --brand-totvs: #0f172a;
+      --brand-totvs-accent: #38bdf8;
+      
+      --code-bg: #0f172a;
+      --code-text: #f8fafc;
+      
+      --border-color: #cbd5e1;
+      --border-subtle: #e2e8f0;
+      
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+      
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "Consolas", "Fira Code", "Cascadia Code", "Courier New", monospace;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app-header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #ffffff;
+      padding: 1.25rem 2rem;
+      box-shadow: var(--shadow-md);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      border-bottom: 2px solid #0284c7;
+    }
+
+    .header-container {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .logo-badge {
+      background: #0284c7;
+      color: #ffffff;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.9rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: var(--radius-sm);
+      letter-spacing: 1px;
+    }
+
+    .logo-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-subtitle {
+      font-size: 0.82rem;
+      color: var(--brand-totvs-accent);
+      font-weight: 500;
+    }
+
+    .header-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    .offline-pill {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .offline-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #10b981;
+    }
+
+    .app-main {
+      flex: 1;
+      max-width: 1300px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    .controls-card {
+      background: var(--bg-surface);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .search-box {
+      position: relative;
+      margin-bottom: 1.25rem;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.85rem 1rem 0.85rem 2.85rem;
+      font-size: 1rem;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      outline: none;
+      font-family: inherit;
+      color: var(--text-main);
+      background-color: #ffffff;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+
+    .clear-btn {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .clear-btn:hover {
+      color: var(--text-main);
+      background-color: var(--bg-highlight);
+    }
+
+    .categories-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .category-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-right: 0.5rem;
+    }
+
+    .cat-btn {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 0.4rem 0.9rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .cat-btn:hover {
+      background: var(--bg-highlight);
+      color: var(--text-main);
+    }
+
+    .cat-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+      font-weight: 600;
+      box-shadow: 0 2px 4px rgba(2, 132, 199, 0.3);
+    }
+
+    .table-meta-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+      padding: 0 0.25rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .count-badge {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .table-container {
+      background: var(--bg-surface);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .advpl-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .advpl-table thead {
+      background-color: #0f172a;
+      color: #ffffff;
+    }
+
+    .advpl-table th {
+      padding: 1rem 1.25rem;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .advpl-table th.col-func { width: 22%; }
+    .advpl-table th.col-syntax { width: 38%; }
+    .advpl-table th.col-desc { width: 40%; }
+
+    .advpl-table tbody tr {
+      border-bottom: 1px solid var(--border-subtle);
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+
+    .advpl-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .advpl-table tbody tr:hover {
+      background-color: var(--primary-soft);
+    }
+
+    .advpl-table td {
+      padding: 1rem 1.25rem;
+      vertical-align: middle;
+      font-size: 0.92rem;
+    }
+
+    .func-name-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .func-name-tag {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: #0369a1;
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: var(--radius-sm);
+      width: fit-content;
+    }
+
+    .func-cat-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    .syntax-code {
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      color: #334155;
+      background-color: #f8fafc;
+      padding: 0.35rem 0.65rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      word-break: break-all;
+      display: inline-block;
+    }
+
+    .desc-text {
+      color: var(--text-main);
+      line-height: 1.45;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-muted);
+    }
+
+    .no-results-icon {
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .no-results h3 {
+      font-size: 1.2rem;
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Tela de Detalhes Dedicada */
+    .view-details {
+      display: none;
+    }
+
+    .detail-nav-bar {
+      margin-bottom: 1.5rem;
+    }
+
+    .back-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.6rem 1.2rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: var(--shadow-sm);
+      font-family: inherit;
+    }
+
+    .back-btn:hover {
+      background: var(--bg-highlight);
+      border-color: var(--text-muted);
+    }
+
+    .detail-card {
+      background: var(--bg-surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+
+    .detail-header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #ffffff;
+      padding: 2rem;
+      border-bottom: 3px solid var(--primary);
+    }
+
+    .detail-header-top {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .detail-func-title {
+      font-family: var(--font-mono);
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: #38bdf8;
+    }
+
+    .detail-cat-pill {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .detail-quick-desc {
+      font-size: 1.1rem;
+      color: #cbd5e1;
+      max-width: 900px;
+    }
+
+    .detail-body {
+      padding: 2rem;
+    }
+
+    .detail-section {
+      margin-bottom: 2rem;
+    }
+
+    .detail-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .section-heading {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 2px solid var(--bg-highlight);
+      padding-bottom: 0.5rem;
+    }
+
+    .syntax-block {
+      background-color: #0f172a;
+      color: #38bdf8;
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      padding: 1.25rem;
+      border-radius: var(--radius-md);
+      border-left: 4px solid var(--primary);
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .return-box {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .return-badge {
+      font-weight: 700;
+      color: #0369a1;
+      background: #e0f2fe;
+      padding: 0.2rem 0.5rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+    }
+
+    .params-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+    }
+
+    .params-table th {
+      background: var(--bg-subtle);
+      text-align: left;
+      padding: 0.75rem 1rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .params-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.92rem;
+      vertical-align: top;
+    }
+
+    .param-name {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: #0369a1;
+    }
+
+    .param-type {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .param-req {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+    }
+
+    .param-req.mandatory {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .param-req.optional {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .code-container {
+      background-color: var(--code-bg);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      border: 1px solid #1e293b;
+    }
+
+    .code-header {
+      background: #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.65rem 1.25rem;
+      border-bottom: 1px solid #334155;
+    }
+
+    .code-lang-tag {
+      color: #94a3b8;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .copy-btn {
+      background: #334155;
+      color: #f8fafc;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 0.35rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .copy-btn:hover { background: #475569; }
+    .copy-btn.copied { background: #10b981; color: #ffffff; }
+
+    .code-pre {
+      margin: 0;
+      padding: 1.25rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--code-text);
+      white-space: pre;
+    }
+
+    .app-footer {
+      background: #0f172a;
+      color: #94a3b8;
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.85rem;
+      border-top: 1px solid #1e293b;
+      margin-top: auto;
+    }
+
+    @media (max-width: 900px) {
+      .advpl-table th.col-syntax,
+      .advpl-table td.col-syntax { display: none; }
+      .advpl-table th.col-func { width: 35%; }
+      .advpl-table th.col-desc { width: 65%; }
+      .detail-func-title { font-size: 1.75rem; }
+    }
+
+    @media (max-width: 640px) {
+      .app-header { padding: 1rem; }
+      .app-main { padding: 1rem 0.75rem; }
+      .controls-card { padding: 1rem; }
+      .detail-body { padding: 1rem; }
+      .detail-header { padding: 1.25rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Cabecalho Principal -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="logo-area">
+        <span class="logo-badge">ADVPL</span>
+        <div>
+          <h1 class="logo-title">Catálogo de Funções ADVPL</h1>
+          <p class="logo-subtitle">Documentação Técnica Oficial TOTVS Protheus</p>
+        </div>
+      </div>
+      <div class="header-meta">
+        <span class="offline-pill" title="Funcionamento 100% autônomo sem internet">
+          <span class="offline-dot"></span>
+          100% Offline
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Conteudo Principal -->
+  <main class="app-main">
+
+    <!-- TELA 1: LISTAGEM PRINCIPAL -->
+    <section id="viewList" class="view-list">
+      <div class="controls-card">
+        <div class="search-box">
+          <span class="search-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </span>
+          <input 
+            type="text" 
+            id="searchInput" 
+            class="search-input" 
+            placeholder="Buscar por nome da função, sintaxe ou descrição (ex: StrTran, aScan, RecLock)..."
+            autocomplete="off"
+            spellcheck="false"
+          >
+          <button type="button" id="clearSearchBtn" class="clear-btn" title="Limpar busca">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <div class="categories-bar">
+          <span class="category-label">Categorias:</span>
+          <div id="categoryFilters" style="display: inline-flex; flex-wrap: wrap; gap: 0.5rem;"></div>
+        </div>
+      </div>
+
+      <div class="table-meta-bar">
+        <span>Exibindo <span id="filteredCount" class="count-badge">0</span> de <span id="totalCount" class="count-badge">0</span> funções</span>
+        <span style="font-size: 0.85rem; color: var(--text-light);">Dica: Clique em qualquer linha para abrir a documentação detalhada</span>
+      </div>
+
+      <div id="tableContainer" class="table-container">
+        <table class="advpl-table">
+          <thead>
+            <tr>
+              <th class="col-func">1. Função</th>
+              <th class="col-syntax">2. Sintaxe</th>
+              <th class="col-desc">3. Breve Descrição</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+
+      <div id="noResults" class="no-results" style="display: none;">
+        <div class="no-results-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            <line x1="8" y1="11" x2="14" y2="11"></line>
+          </svg>
+        </div>
+        <h3>Nenhuma função encontrada</h3>
+        <p>Verifique o termo digitado ou altere o filtro de categoria selecionado.</p>
+      </div>
+    </section>
+
+    <!-- TELA 2: DETALHES DEDICADOS DA FUNCAO -->
+    <section id="viewDetails" class="view-details">
+      <div class="detail-nav-bar">
+        <button type="button" id="backToListBtn" class="back-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          ← Voltar para a lista <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: normal; margin-left: 0.35rem;">(ou pressione ESC)</span>
+        </button>
+      </div>
+
+      <article class="detail-card">
+        <header class="detail-header">
+          <div class="detail-header-top">
+            <h2 id="detailTitle" class="detail-func-title">NomeDaFuncao</h2>
+            <span id="detailCategory" class="detail-cat-pill">Categoria</span>
+          </div>
+          <p id="detailQuickDesc" class="detail-quick-desc">Resumo rapido da funcao.</p>
+        </header>
+
+        <div class="detail-body">
+          <section class="detail-section">
+            <h3 class="section-heading">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+              Sintaxe Oficial
+            </h3>
+            <pre id="detailSyntax" class="syntax-block">Sintaxe()</pre>
+          </section>
+
+          <section class="detail-section">
+            <h3 class="section-heading">Tipo de Retorno</h3>
+            <div class="return-box">
+              <span class="return-badge">Retorno:</span>
+              <span id="detailReturn">NIL</span>
+            </div>
+          </section>
+
+          <section class="detail-section">
+            <h3 class="section-heading">Descrição Detalhada e Comportamento</h3>
+            <p id="detailFullDesc" style="color: var(--text-main); line-height: 1.6; font-size: 0.98rem;"></p>
+          </section>
+
+          <section class="detail-section">
+            <h3 class="section-heading">Parâmetros da Função</h3>
+            <div id="detailParamsContainer"></div>
+          </section>
+
+          <section class="detail-section">
+            <h3 class="section-heading">Exemplo Prático em ADVPL</h3>
+            <div class="code-container">
+              <div class="code-header">
+                <span class="code-lang-tag">Código Fonte ADVPL / Protheus</span>
+                <button type="button" id="copyCodeBtn" class="copy-btn" title="Copiar código para a área de transferência">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  Copiar código
+                </button>
+              </div>
+              <pre id="detailCodeExample" class="code-pre"><code></code></pre>
+            </div>
+          </section>
+        </div>
+      </article>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    <p>Catálogo de Documentação Técnica ADVPL &bull; Arquitetura 100% Offline para Protheus 12 &bull; Sem dependências de rede</p>
+  </footer>
+
+  <script>
+    /**
+     * =========================================================================
+     * CATÁLOGO DE FUNÇÕES ADVPL / TOTVS PROTHEUS
+     * Array Principal de Funções (50 Funções Essenciais Mais Usadas)
+     * Para adicionar novos lotes, basta colar novos blocos JSON neste array.
+     * =========================================================================
+     */
+    const FUNCOES_ADVPL = [
+      // -----------------------------------------------------------------------
+      // CATEGORIA: STRINGS (16 FUNCOES)
+      // -----------------------------------------------------------------------
+      {
+        nome: "StrTran",
+        categoria: "Strings",
+        sintaxe: "StrTran( <cString>, <cProcura>, [<cSubst>], [<nInicio>], [<nOcorr>] )",
+        retorno: "Caractere (String)",
+        descricaoCurta: "Substitui ocorrências de uma substring dentro de uma cadeia de caracteres por outra substring.",
+        descricaoDetalhada: "Pesquisa uma determinada cadeia de caracteres em uma string e a substitui por outra. Se <cSubst> for omitido, a substring encontrada será excluída. Permite definir a partir de qual ocorrência começar (<nInicio>) e quantas ocorrências substituir (<nOcorr>).",
+        parametros: [
+          { nome: "cString", tipo: "Caractere", descricao: "Cadeia de caracteres original onde a busca será feita.", opcional: false },
+          { nome: "cProcura", tipo: "Caractere", descricao: "Substring a ser pesquisada para substituição.", opcional: false },
+          { nome: "cSubst", tipo: "Caractere", descricao: "Nova substring que substituirá cProcura. Se omitido, cProcura é removida.", opcional: true },
+          { nome: "nInicio", tipo: "Numérico", descricao: "Número da ocorrência a partir da qual iniciar a substituição (padrão: 1).", opcional: true },
+          { nome: "nOcorr", tipo: "Numérico", descricao: "Quantidade de ocorrências a serem substituídas (padrão: todas).", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Substituição de textos e remoção de caracteres
+User Function ExStrTran()
+    Local cTexto    := "TOTVS Protheus 12 - Modulo Protheus Faturamento"
+    Local cNovoTxt  := ""
+    Local cMascara  := "123.456.789-00"
+    Local cSemPonto := ""
+
+    // 1. Substitui todas as ocorrências de "Protheus" por "ERP"
+    cNovoTxt := StrTran(cTexto, "Protheus", "ERP")
+    ConOut("Texto Alterado: " + cNovoTxt)
+    // Saída: "TOTVS ERP 12 - Modulo ERP Faturamento"
+
+    // 2. Remove pontuação de CPF
+    cSemPonto := StrTran(cMascara, ".", "")
+    cSemPonto := StrTran(cSemPonto, "-", "")
+    ConOut("CPF limpo: " + cSemPonto) // "12345678900"
+
+    // 3. Substitui apenas a 2ª ocorrência
+    cNovoTxt := StrTran(cTexto, "Protheus", "ERP", 2, 1)
+    ConOut("Apenas 2a ocorrencia: " + cNovoTxt)
+Return`
+      },
+      {
+        nome: "PadL",
+        categoria: "Strings",
+        sintaxe: "PadL( <exp>, <nTam>, [<cCarac>] )",
+        retorno: "Caractere (String)",
+        descricaoCurta: "Alinha uma expressão à direita, preenchendo o espaço restante à esquerda com caracteres específicos.",
+        descricaoDetalhada: "Converte a expressão informada em string e alinha o conteúdo à direita, preenchendo as posições restantes à esquerda com o caractere especificado (padrão: espaço em branco).",
+        parametros: [
+          { nome: "exp", tipo: "Caractere / Numérico / Data", descricao: "Expressão a ser alinhada e preenchida.", opcional: false },
+          { nome: "nTam", tipo: "Numérico", descricao: "Comprimento total da string resultante.", opcional: false },
+          { nome: "cCarac", tipo: "Caractere", descricao: "Caractere de preenchimento (padrão: espaço em branco).", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Formatação de códigos com zeros à esquerda
+User Function ExPadL()
+    Local cCodigo := "458"
+    Local cFormat := PadL(cCodigo, 6, "0") // "000458"
+    Local cValor  := PadL("1.520,30", 15)  // "       1.520,30"
+
+    ConOut("Código Formatado: " + cFormat)
+    ConOut("Valor Alinhado: [" + cValor + "]")
+Return`
+      },
+      {
+        nome: "PadR",
+        categoria: "Strings",
+        sintaxe: "PadR( <exp>, <nTam>, [<cCarac>] )",
+        retorno: "Caractere (String)",
+        descricaoCurta: "Alinha uma expressão à esquerda, preenchendo o espaço restante à direita com caracteres específicos.",
+        descricaoDetalhada: "Converte a expressão para string e alinha o texto à esquerda, preenchendo o restante das posições à direita até atingir o comprimento total informado. Utilizado em layouts de arquivos de remessa bancária (CNAB) e campos de largura fixa.",
+        parametros: [
+          { nome: "exp", tipo: "Caractere / Numérico / Data", descricao: "Expressão a ser alinhada.", opcional: false },
+          { nome: "nTam", tipo: "Numérico", descricao: "Comprimento total da string resultante.", opcional: false },
+          { nome: "cCarac", tipo: "Caractere", descricao: "Caractere de preenchimento (padrão: espaço em branco).", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Layout de registro fixo tipo CNAB/TXT
+User Function ExPadR()
+    Local cNomeCli := "MERCADO MODELO LTDA"
+    Local cRegistro:= PadR(cNomeCli, 40) // Preenche com espaços até 40 posições
+
+    ConOut("Linha Fixa: [" + cRegistro + "] (Tam: " + cValToChar(Len(cRegistro)) + ")")
+Return`
+      },
+      {
+        nome: "PadC",
+        categoria: "Strings",
+        sintaxe: "PadC( <exp>, <nTam>, [<cCarac>] )",
+        retorno: "Caractere (String)",
+        descricaoCurta: "Centraliza uma expressão dentro de uma largura especificada, preenchendo ambos os lados.",
+        descricaoDetalhada: "Centraliza o texto resultante da expressão no espaço total definido por <nTam>, distribuindo igualmente os caracteres de preenchimento nas duas laterais.",
+        parametros: [
+          { nome: "exp", tipo: "Caractere / Numérico / Data", descricao: "Expressão ou texto a ser centralizado.", opcional: false },
+          { nome: "nTam", tipo: "Numérico", descricao: "Comprimento total da linha/string desejada.", opcional: false },
+          { nome: "cCarac", tipo: "Caractere", descricao: "Caractere de preenchimento das laterais (padrão: espaço).", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Cabeçalho centralizado em logs e relatórios
+User Function ExPadC()
+    Local cTitulo := "RELATORIO DE FATURAMENTO MENSAL"
+    Local cCabec  := PadC(cTitulo, 60, "=")
+
+    ConOut(cCabec)
+    // "==============RELATORIO DE FATURAMENTO MENSAL=============="
+Return`
+      },
+      {
+        nome: "Len",
+        categoria: "Strings",
+        sintaxe: "Len( <exp> )",
+        retorno: "Numérico",
+        descricaoCurta: "Retorna o número de caracteres em uma string ou a quantidade de elementos em um array.",
+        descricaoDetalhada: "Função polimórfica essencial do ADVPL. Quando aplicada sobre uma string, retorna o total de caracteres. Quando aplicada sobre um array, retorna a quantidade de elementos/posições do vetor.",
+        parametros: [
+          { nome: "exp", tipo: "Caractere / Array", descricao: "Cadeia de caracteres ou vetor a ser mensurado.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Validação de chave de NFe e tamanho de lista
+User Function ExLen()
+    Local cChaveNFe := "35261112345678000195550010000000011000000010"
+    Local aItens    := {"Item 1", "Item 2", "Item 3"}
+
+    If Len(cChaveNFe) == 44
+        ConOut("Chave NFe válida com 44 dígitos.")
+    EndIf
+
+    ConOut("Total de itens no vetor: " + cValToChar(Len(aItens))) // 3
+Return`
+      },
+      {
+        nome: "Upper",
+        categoria: "Strings",
+        sintaxe: "Upper( <cString> )",
+        retorno: "Caractere (String)",
+        descricaoCurta: "Converte todas as letras minúsculas de uma cadeia de caracteres em letras maiúsculas.",
+        descricaoDetalhada: "Converte todos os caracteres alfabéticos minúsculos para maiúsculos. Fundamental antes de gravações no banco de dados Protheus ou buscas por índices para evitar inconsistências de Case Sensitivity.",
+        parametros: [
+          { nome: "cString", tipo: "Caractere", descricao: "Texto a ser convertido para maiúsculas.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Padronização para gravação e comparação
+User Function ExUpper()
+    Local cEntrada := "protheus faturamento microsiga"
+    Local cMaiusc  := Upper(cEntrada)
+
+    ConOut(cMaiusc) // "PROTHEUS FATURAMENTO MICROSIGA"
+
+    If Upper(AllTrim("ativo")) == "ATIVO"
+        ConOut("Status confirmado com sucesso.")
+    EndIf
+Return`
+      },
+      {
+        nome: "Lower",
+        categoria: "Strings",
+        sintaxe: "Lower( <cString> )",
+        retorno: "Caractere (String)",
+        descricaoCurta: "Converte todas as letras maiúsculas de uma cadeia de caracteres em letras minúsculas.",
+        descricaoDetalhada: "Converte todos os caracteres alfabéticos maiúsculos para minúsculos. Usada comumente na formatação de e-mails, endpoints REST e JSON.",
+        parametros: [
+          { nome: "cString", tipo: "Caractere", descricao: "Texto a ser convertido para minúsculas.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Padronização de e-mail de contato
+User Function ExLower()
+    Local cEmailOriginal := "JOAO.SILVA@FORNECEDOR.COM.BR"
+    Local cEmailFormat   := Lower(AllTrim(cEmailOriginal))
+
+    ConOut("E-mail tratado: " + cEmailFormat)
+    // "joao.silva@fornecedor.com.br"
+Return`
+      },
+      {
+        nome: "AllTrim",
+        categoria: "Strings",
+        sintaxe: "AllTrim( <cString> )",
+        retorno: "Caractere (String)",
+        descricaoCurta: "Remove todos os espaços em branco iniciais e finais de uma cadeia de caracteres.",
+        descricaoDetalhada: "Elimina espaços vazios localizados tanto à esquerda quanto à direita da string. Indispensável no Protheus, pois os campos tipo Caractere no banco de dados possuem tamanho fixo e retornam preenchidos com espaços à direita.",
+        parametros: [
+          { nome: "cString", tipo: "Caractere", descricao: "Cadeia de caracteres a ser limpa.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Limpeza de campos vindos de tabelas Protheus
+User Function ExAllTrim()
+    Local cNomeCli := "   SUPERMERCADOS ALVORADA S/A        "
+    Local cLimpo   := AllTrim(cNomeCli)
+
+    ConOut("Comprimento original: " + cValToChar(Len(cNomeCli))) // 37
+    ConOut("Comprimento limpo: " + cValToChar(Len(cLimpo)))       // 30
+Return`
+      },
+      {
+        nome: "SubStr",
+        categoria: "Strings",
+        sintaxe: "SubStr( <cString>, <nInicio>, [<nTam>] )",
+        retorno: "Caractere (String)",
+        descricaoCurta: "Extrai e retorna uma subcadeia de caracteres a partir de uma posição inicial.",
+        descricaoDetalhada: "Copia um pedaço da string <cString> começando no índice <nInicio> (base 1 no ADVPL). Se <nTam> não for informado, extrai todos os caracteres restantes até o fim da cadeia.",
+        parametros: [
+          { nome: "cString", tipo: "Caractere", descricao: "Cadeia original de onde o trecho será extraído.", opcional: false },
+          { nome: "nInicio", tipo: "Numérico", descricao: "Posição inicial da extração (começando em 1).", opcional: false },
+          { nome: "nTam", tipo: "Numérico", descricao: "Quantidade de caracteres a extrair. Se omitido, copia até o final.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Decomposição de código estruturado de produto
+User Function ExSubStr()
+    Local cCodProd   := "EL-00452-REV2"
+    Local cFamilia   := SubStr(cCodProd, 1, 2)  // "EL"
+    Local cSequencia := SubStr(cCodProd, 4, 5)  // "00452"
+    Local cVersao    := SubStr(cCodProd, 10)    // "REV2"
+
+    ConOut("Família: " + cFamilia + " | Seq: " + cSequencia + " | Versão: " + cVersao)
+Return`
+      },
+      {
+        nome: "At",
+        categoria: "Strings",
+        sintaxe: "At( <cBusca>, <cString>, [<nInicio>] )",
+        retorno: "Numérico",
+        descricaoCurta: "Retorna a posição numérica da primeira ocorrência de uma substring em uma string.",
+        descricaoDetalhada: "Pesquisa a primeira ocorrência da substring <cBusca> dentro de <cString>. Retorna o índice inteiro onde ela começa (base 1) ou 0 caso não seja encontrada.",
+        parametros: [
+          { nome: "cBusca", tipo: "Caractere", descricao: "Texto a ser localizado.", opcional: false },
+          { nome: "cString", tipo: "Caractere", descricao: "Cadeia onde a busca será efetuada.", opcional: false },
+          { nome: "nInicio", tipo: "Numérico", descricao: "Índice a partir do qual começar a busca (padrão: 1).", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Localização de delimitador em string composta
+User Function ExAt()
+    Local cEmail := "financeiro@empresa.com.br"
+    Local nPos   := At("@", cEmail)
+
+    If nPos > 0
+        ConOut("Usuário: " + SubStr(cEmail, 1, nPos - 1))
+        ConOut("Domínio: " + SubStr(cEmail, nPos + 1))
+    EndIf
+Return`
+      },
+      {
+        nome: "Rat",
+        categoria: "Strings",
+        sintaxe: "Rat( <cBusca>, <cString> )",
+        retorno: "Numérico",
+        descricaoCurta: "Retorna a posição da última ocorrência de uma substring dentro de uma cadeia de caracteres.",
+        descricaoDetalhada: "Executa busca da direita para a esquerda (Right At), retornando a posição numérica da última ocorrência da substring. Muito utilizada para extrair nomes de arquivos a partir de caminhos completos com barras.",
+        parametros: [
+          { nome: "cBusca", tipo: "Caractere", descricao: "Substring procurada.", opcional: false },
+          { nome: "cString", tipo: "Caractere", descricao: "Texto onde a busca será realizada.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Extração de nome de arquivo e extensão
+User Function ExRat()
+    Local cFullPath    := "C:\\TOTVS\\PROTHEUS\\DATA\\SXS\\SX6990.DTC"
+    Local nUltimaBarra := Rat("\\", cFullPath)
+    Local cNomeArq     := SubStr(cFullPath, nUltimaBarra + 1)
+
+    ConOut("Nome do arquivo: " + cNomeArq) // "SX6990.DTC"
+Return`
+      },
+      {
+        nome: "Stuff",
+        categoria: "Strings",
+        sintaxe: "Stuff( <cString>, <nInicio>, <nDeleta>, <cInsere> )",
+        retorno: "Caractere (String)",
+        descricaoCurta: "Insere, substitui ou deleta caracteres em uma posição específica de uma string.",
+        descricaoDetalhada: "Manipula uma string apagando <nDeleta> caracteres a partir da posição <nInicio> e inserindo <cInsere> nessa mesma posição. Se <nDeleta> for 0, atua como pura inserção sem perda de caracteres.",
+        parametros: [
+          { nome: "cString", tipo: "Caractere", descricao: "Cadeia original de caracteres.", opcional: false },
+          { nome: "nInicio", tipo: "Numérico", descricao: "Posição inicial da modificação.", opcional: false },
+          { nome: "nDeleta", tipo: "Numérico", descricao: "Quantidade de caracteres a serem removidos.", opcional: false },
+          { nome: "cInsere", tipo: "Caractere", descricao: "Texto a ser inserido na posição.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Formatação dinâmica de máscara de CEP
+User Function ExStuff()
+    Local cCEP := "01310100"
+    // Insere o traço separador na posição 6 sem deletar nada
+    Local cCEPFmt := Stuff(cCEP, 6, 0, "-")
+    ConOut("CEP Formatado: " + cCEPFmt) // "01310-100"
+Return`
+      },
+      {
+        nome: "StrZero",
+        categoria: "Strings",
+        sintaxe: "StrZero( <nNumero>, <nTam>, [<nDecimais>] )",
+        retorno: "Caractere (String)",
+        descricaoCurta: "Converte um número em string preenchida com zeros à esquerda até o tamanho especificado.",
+        descricaoDetalhada: "Função padrão do Protheus para formatação de códigos sequenciais, numeração de documentos fiscais e itens de pedido.",
+        parametros: [
+          { nome: "nNumero", tipo: "Numérico", descricao: "Valor numérico a ser convertido.", opcional: false },
+          { nome: "nTam", tipo: "Numérico", descricao: "Quantidade total de caracteres da string final.", opcional: false },
+          { nome: "nDecimais", tipo: "Numérico", descricao: "Número de casas decimais (padrão: 0).", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Formatação de número de NF e item de pedido
+User Function ExStrZero()
+    Local nDoc  := 1420
+    Local nItem := 1
+
+    ConOut("NF: " + StrZero(nDoc, 9))   // "000001420"
+    ConOut("Item: " + StrZero(nItem, 4)) // "0001"
+Return`
+      },
+      {
+        nome: "cValToChar",
+        categoria: "Strings",
+        sintaxe: "cValToChar( <exp> )",
+        retorno: "Caractere (String)",
+        descricaoCurta: "Converte qualquer valor de tipo básico (numérico, data, lógico) em string sem formatação especial.",
+        descricaoDetalhada: "Converte valores numéricos, lógicos (.T./.F.) ou datas para o tipo caractere de forma direta. Essencial para concatenações em mensagens e logs sem ocorrência de erro de tipos incompatíveis.",
+        parametros: [
+          { nome: "exp", tipo: "Qualquer tipo básico", descricao: "Expressão a ser convertida.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Concatenação segura de tipos em mensagens
+User Function ExcValToChar()
+    Local nPreco := 150.75
+    Local lAtivo := .T.
+    ConOut("Preço: " + cValToChar(nPreco) + " | Ativo: " + cValToChar(lAtivo))
+Return`
+      },
+      {
+        nome: "Val",
+        categoria: "Strings",
+        sintaxe: "Val( <cString> )",
+        retorno: "Numérico",
+        descricaoCurta: "Converte uma cadeia de caracteres contendo dígitos em um valor numérico nativo.",
+        descricaoDetalhada: "Analisa uma string de caracteres a partir da esquerda e converte os dígitos em um número do tipo Numérico (N). A conversão cessa no primeiro caractere não numérico.",
+        parametros: [
+          { nome: "cString", tipo: "Caractere", descricao: "String contendo dígitos a ser convertida.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Conversão de valores lidos de campos de texto ou XML
+User Function ExVal()
+    Local cQtdTxt := "25"
+    Local nQtd    := Val(cQtdTxt)
+    Local nTotal  := nQtd * 10.50
+    ConOut("Total calculado: R$ " + cValToChar(nTotal))
+Return`
+      },
+      {
+        nome: "Transform",
+        categoria: "Strings",
+        sintaxe: "Transform( <exp>, <cPicture> )",
+        retorno: "Caractere (String)",
+        descricaoCurta: "Formata uma expressão numérica ou texto segundo uma máscara predefinida (picture).",
+        descricaoDetalhada: "Aplica regras de máscara/picture ADVPL sobre o valor. Suporta máscaras de valores monetários (@E 999,999.99), CNPJ/CPF (@R 99.999.999/9999-99) e formatos de caracteres personalizados.",
+        parametros: [
+          { nome: "exp", tipo: "Numérico / Caractere", descricao: "Valor a ser formatado.", opcional: false },
+          { nome: "cPicture", tipo: "Caractere", descricao: "Máscara de formatação com convenções @E, @R, etc.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Formatação de moeda brasileira e CNPJ
+User Function ExTransform()
+    Local nTotal := 458920.45
+    Local cCNPJ  := "01234567000189"
+
+    ConOut("Valor: R$ " + Transform(nTotal, "@E 999,999,999.99")) // "458.920,45"
+    ConOut("CNPJ: " + Transform(cCNPJ, "@R 99.999.999/9999-99"))   // "01.234.567/0001-89"
+Return`
+      },
+
+      // -----------------------------------------------------------------------
+      // CATEGORIA: ARRAYS (9 FUNCOES)
+      // -----------------------------------------------------------------------
+      {
+        nome: "aAdd",
+        categoria: "Arrays",
+        sintaxe: "aAdd( <aDestino>, <expValor> )",
+        retorno: "Qualquer tipo (retorna o valor adicionado)",
+        descricaoCurta: "Adiciona dinamicamente um novo elemento ao final de um array.",
+        descricaoDetalhada: "Aumenta o tamanho do array <aDestino> em uma posição e armazena o valor <expValor> nessa nova posição. É a função mais utilizada para construção de listas e matrizes de itens no Protheus.",
+        parametros: [
+          { nome: "aDestino", tipo: "Array", descricao: "Array que receberá o novo elemento.", opcional: false },
+          { nome: "expValor", tipo: "Qualquer tipo", descricao: "Elemento a ser adicionado.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Criação de lista e matriz bidimensional
+User Function ExaAdd()
+    Local aItens := {}
+    aAdd(aItens, {"PROD001", "TECLADO USB", 85.50})
+    aAdd(aItens, {"PROD002", "MOUSE OPTICO", 45.00})
+
+    ConOut("Total de itens: " + cValToChar(Len(aItens)))
+    ConOut("Primeiro item: " + aItens[1][2])
+Return`
+      },
+      {
+        nome: "aScan",
+        categoria: "Arrays",
+        sintaxe: "aScan( <aArray>, <expBusca>, [<nInicio>], [<nQtd>] )",
+        retorno: "Numérico",
+        descricaoCurta: "Localiza um valor ou expressão code-block dentro de um array, retornando sua posição.",
+        descricaoDetalhada: "Pesquisa por um valor literal ou avalia uma expressão em bloco de código {|x| ...} para cada elemento do array. Retorna a posição do elemento localizado (base 1) ou 0 caso não seja encontrado.",
+        parametros: [
+          { nome: "aArray", tipo: "Array", descricao: "Array onde a pesquisa será efetuada.", opcional: false },
+          { nome: "expBusca", tipo: "Qualquer tipo / Bloco de Código", descricao: "Valor a ser buscado ou Code-block {|x| ...}.", opcional: false },
+          { nome: "nInicio", tipo: "Numérico", descricao: "Posição inicial da busca (padrão: 1).", opcional: true },
+          { nome: "nQtd", tipo: "Numérico", descricao: "Número de elementos a pesquisar.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Busca em matriz multidimensional com code-block
+User Function ExaScan()
+    Local aItens := { {"001", "MOUSE", 35.00}, {"002", "TECLADO", 80.00} }
+    Local nPos   := aScan(aItens, {|x| x[1] == "002"})
+
+    If nPos > 0
+        ConOut("Produto encontrado na linha " + cValToChar(nPos) + ": " + aItens[nPos][2])
+    EndIf
+Return`
+      },
+      {
+        nome: "aSort",
+        categoria: "Arrays",
+        sintaxe: "aSort( <aArray>, [<nInicio>], [<nQtd>], [<bBloco>] )",
+        retorno: "Array",
+        descricaoCurta: "Ordena os elementos de um array em ordem crescente ou conforme critério customizado.",
+        descricaoDetalhada: "Classifica os dados do array. Por padrão ordena em ordem crescente. Caso necessite de ordem decrescente ou ordenação por coluna específica de matriz, utilize um code-block {|x, y| x < y}.",
+        parametros: [
+          { nome: "aArray", tipo: "Array", descricao: "Array a ser ordenado (modifica o array original).", opcional: false },
+          { nome: "nInicio", tipo: "Numérico", descricao: "Índice inicial para ordenação (padrão: 1).", opcional: true },
+          { nome: "nQtd", tipo: "Numérico", descricao: "Quantidade de elementos a ordenar.", opcional: true },
+          { nome: "bBloco", tipo: "Bloco de Código", descricao: "Code-block de comparação {|x, y| ...}.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Ordenação de matriz por coluna específica
+User Function ExaSort()
+    Local aClientes := { {"03", "CARLOS"}, {"01", "ANA"}, {"02", "BEATRIZ"} }
+
+    // Ordena pelo código (coluna 1)
+    aSort(aClientes, , , {|x, y| x[1] < y[1]})
+    ConOut("Primeiro cliente ordenado: " + aClientes[1][2]) // "ANA"
+Return`
+      },
+      {
+        nome: "aSize",
+        categoria: "Arrays",
+        sintaxe: "aSize( <aArray>, <nNovoTam> )",
+        retorno: "Array",
+        descricaoCurta: "Redimensiona dinamicamente a quantidade de elementos de um array.",
+        descricaoDetalhada: "Altera o tamanho do array informado para <nNovoTam>. Se o novo tamanho for menor, os elementos excedentes são descartados. Se maior, novas posições são preenchidas com valor NIL.",
+        parametros: [
+          { nome: "aArray", tipo: "Array", descricao: "Array que será redimensionado.", opcional: false },
+          { nome: "nNovoTam", tipo: "Numérico", descricao: "Nova quantidade total de elementos.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Ajuste fino de tamanho de array
+User Function ExaSize()
+    Local aDados := {"A", "B", "C", "D", "E"}
+    aSize(aDados, 3) // Trunca para 3 elementos: {"A", "B", "C"}
+    ConOut("Novo tamanho: " + cValToChar(Len(aDados))) // 3
+Return`
+      },
+      {
+        nome: "aDel",
+        categoria: "Arrays",
+        sintaxe: "aDel( <aArray>, <nPos> )",
+        retorno: "Array",
+        descricaoCurta: "Exclui logicamente um elemento na posição indicada, deslocando os seguintes para a esquerda.",
+        descricaoDetalhada: "Remove o elemento na posição <nPos>, deslocando os seguintes para a esquerda. ATENÇÃO: aDel não diminui o tamanho do vetor; a última posição fica NIL. Use aSize(aArray, Len(aArray) - 1) para reduzir fisicamente.",
+        parametros: [
+          { nome: "aArray", tipo: "Array", descricao: "Array onde o elemento será removido.", opcional: false },
+          { nome: "nPos", tipo: "Numérico", descricao: "Índice numérico do elemento a deletar.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Remoção física de um elemento com aDel e aSize
+User Function ExaDel()
+    Local aCores := {"AZUL", "VERMELHO", "VERDE"}
+    aDel(aCores, 2)              // {"AZUL", "VERDE", NIL}
+    aSize(aCores, Len(aCores)-1) // Reduz tamanho para 2
+    ConOut("Posição 2 agora é: " + aCores[2]) // "VERDE"
+Return`
+      },
+      {
+        nome: "aTail",
+        categoria: "Arrays",
+        sintaxe: "aTail( <aArray> )",
+        retorno: "Qualquer tipo (conteúdo do último elemento)",
+        descricaoCurta: "Retorna o conteúdo do último elemento de um array sem removê-lo.",
+        descricaoDetalhada: "Equivale a acessar aArray[Len(aArray)], porém com sintaxe mais limpa e segura. Se o array estiver vazio, retorna NIL.",
+        parametros: [
+          { nome: "aArray", tipo: "Array", descricao: "Array de onde será retornado o último item.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Leitura do último item processado
+User Function ExaTail()
+    Local aFila := {"Ordem 001", "Ordem 002", "Ordem 003"}
+    Local cUltima := aTail(aFila)
+    ConOut("Última ordem: " + cUltima) // "Ordem 003"
+Return`
+      },
+      {
+        nome: "aClone",
+        categoria: "Arrays",
+        sintaxe: "aClone( <aArray> )",
+        retorno: "Array",
+        descricaoCurta: "Cria e retorna uma cópia exata e independente (deep copy) de um array.",
+        descricaoDetalhada: "No ADVPL, atribuir um array a outra variável cria apenas uma referência de memória. A função aClone realiza cópia profunda de todos os elementos e subarrays aninhados.",
+        parametros: [
+          { nome: "aArray", tipo: "Array", descricao: "Array original a ser clonado.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Cópia profunda sem alterar o original
+User Function ExaClone()
+    Local aOriginal := {"A", "B", {"SUB1", "SUB2"}}
+    Local aCopia    := aClone(aOriginal)
+
+    aCopia[1] := "ALTERADO"
+    ConOut("Original [1]: " + aOriginal[1]) // "A"
+    ConOut("Cópia [1]: " + aCopia[1])       // "ALTERADO"
+Return`
+      },
+      {
+        nome: "aEval",
+        categoria: "Arrays",
+        sintaxe: "aEval( <aArray>, <bBloco>, [<nInicio>], [<nQtd>] )",
+        retorno: "Array",
+        descricaoCurta: "Executa um bloco de código para cada elemento do array.",
+        descricaoDetalhada: "Itera sobre os elementos do vetor passando como argumentos para o code-block: o elemento corrente e o índice correspondente {|v, i| ...}. Ideal para somatórias e percursos limpos.",
+        parametros: [
+          { nome: "aArray", tipo: "Array", descricao: "Array que será percorrido.", opcional: false },
+          { nome: "bBloco", tipo: "Bloco de Código", descricao: "Code-block executado para cada elemento: {|v, i| ...}.", opcional: false },
+          { nome: "nInicio", tipo: "Numérico", descricao: "Posição inicial do percurso (padrão: 1).", opcional: true },
+          { nome: "nQtd", tipo: "Numérico", descricao: "Quantidade de elementos a iterar.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Somatória de valores em array com aEval
+User Function ExaEval()
+    Local aPrecos := {10.50, 25.00, 14.50, 50.00}
+    Local nTotal  := 0
+
+    aEval(aPrecos, {|nValor| nTotal += nValor})
+    ConOut("Total Acumulado: R$ " + cValToChar(nTotal)) // 100.00
+Return`
+      },
+      {
+        nome: "aFill",
+        categoria: "Arrays",
+        sintaxe: "aFill( <aArray>, <expValor>, [<nInicio>], [<nQtd>] )",
+        retorno: "Array",
+        descricaoCurta: "Preenche elementos de um array com um valor especificado.",
+        descricaoDetalhada: "Atribui o valor constante <expValor> a todos os elementos de <aArray> ou a uma fatia delimitada por <nInicio> e <nQtd>. Utilizada na inicialização rápida de matrizes.",
+        parametros: [
+          { nome: "aArray", tipo: "Array", descricao: "Array a ser preenchido.", opcional: false },
+          { nome: "expValor", tipo: "Qualquer tipo", descricao: "Valor que preencherá as posições.", opcional: false },
+          { nome: "nInicio", tipo: "Numérico", descricao: "Índice inicial (padrão: 1).", opcional: true },
+          { nome: "nQtd", tipo: "Numérico", descricao: "Quantidade de posições a preencher.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Inicialização de array com zeros
+User Function ExaFill()
+    Local aContadores := Array(10)
+    aFill(aContadores, 0)
+    ConOut("Elemento 1: " + cValToChar(aContadores[1])) // 0
+Return`
+      },
+
+      // -----------------------------------------------------------------------
+      // CATEGORIA: DATAS (10 FUNCOES)
+      // -----------------------------------------------------------------------
+      {
+        nome: "Date",
+        categoria: "Datas",
+        sintaxe: "Date()",
+        retorno: "Data (D)",
+        descricaoCurta: "Retorna a data atual do sistema operacional da máquina ou servidor.",
+        descricaoDetalhada: "Obtém a data corrente configurada no sistema operacional. No Protheus, diferencia-se de dDataBase, que é a data de referência selecionada no login pelo usuário.",
+        parametros: [],
+        exemplo: `// Exemplo prático: Comparação entre data real e data base
+User Function ExDate()
+    Local dHoje   := Date()
+    Local dLogica := dDataBase
+
+    ConOut("Data do Servidor: " + dToC(dHoje))
+    ConOut("Data Base Protheus: " + dToC(dLogica))
+Return`
+      },
+      {
+        nome: "dToS",
+        categoria: "Datas",
+        sintaxe: "dToS( <dData> )",
+        retorno: "Caractere (String no formato AAAAMMDD)",
+        descricaoCurta: "Converte uma variável do tipo Data em uma string no formato ISO/ANSI AAAAMMDD.",
+        descricaoDetalhada: "Converte data para o formato invertido AAAAMMDD. Essencial para consultas SQL, chaves de índice SIX e buscas com DbSeek para ordenação cronológica perfeita.",
+        parametros: [
+          { nome: "dData", tipo: "Data", descricao: "Data a ser convertida.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Uso em filtros SQL
+User Function ExdToS()
+    Local dRef := Date()
+    Local cSQL := "SELECT * FROM SE1990 WHERE E1_VENCREA >= '" + dToS(dRef) + "'"
+    ConOut("Query: " + cSQL)
+Return`
+      },
+      {
+        nome: "sToD",
+        categoria: "Datas",
+        sintaxe: "sToD( <cData> )",
+        retorno: "Data (D)",
+        descricaoCurta: "Converte uma cadeia de caracteres no formato AAAAMMDD em um valor nativo do tipo Data.",
+        descricaoDetalhada: "Inverso de dToS. Recebe uma string contendo exatamente 8 dígitos no formato AAAAMMDD e a converte em um dado nativo de Data do ADVPL. Comum ao ler campos de queries SQL.",
+        parametros: [
+          { nome: "cData", tipo: "Caractere", descricao: "String de 8 dígitos no padrão AAAAMMDD.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Conversão de campo vindo de query SQL
+User Function ExsToD()
+    Local cDataBanco := "20261225"
+    Local dData      := sToD(cDataBanco)
+    ConOut("Data formatada: " + dToC(dData)) // "25/12/2026"
+Return`
+      },
+      {
+        nome: "dToC",
+        categoria: "Datas",
+        sintaxe: "dToC( <dData> )",
+        retorno: "Caractere (String no formato DD/MM/AAAA)",
+        descricaoCurta: "Converte uma expressão do tipo Data em uma string formatada de acordo com o idioma ativo.",
+        descricaoDetalhada: "Converte data para exibição visual na tela ou impressão de relatórios. No padrão brasileiro (SET DATE BRITISH), formata no padrão DD/MM/AAAA.",
+        parametros: [
+          { nome: "dData", tipo: "Data", descricao: "Variável tipo Data a ser formatada.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Exibição amigável em mensagem
+User Function ExdToC()
+    Local dVenc := Date() + 30
+    MsgInfo("O vencimento ocorrerá em: " + dToC(dVenc), "Vencimento")
+Return`
+      },
+      {
+        nome: "cToD",
+        categoria: "Datas",
+        sintaxe: "cToD( <cData> )",
+        retorno: "Data (D)",
+        descricaoCurta: "Converte uma string contendo data formatada (DD/MM/AAAA) em uma variável tipo Data.",
+        descricaoDetalhada: "Recebe uma string com formatação de data (ex: '23/11/2026') e a converte para o tipo Data (D) nativo. Se inválida, retorna data em branco.",
+        parametros: [
+          { nome: "cData", tipo: "Caractere", descricao: "String no formato DD/MM/AAAA.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Conversão de digitação de usuário
+User Function ExcToD()
+    Local dData := cToD("15/08/2026")
+    If !Empty(dData)
+        ConOut("Data válida: " + dToC(dData))
+    EndIf
+Return`
+      },
+      {
+        nome: "Day",
+        categoria: "Datas",
+        sintaxe: "Day( <dData> )",
+        retorno: "Numérico",
+        descricaoCurta: "Retorna o dia do mês (1 a 31) a partir de uma variável do tipo Data.",
+        descricaoDetalhada: "Extrai a informação do dia numérico do mês a partir de uma data fornecida. Se a data estiver vazia, retorna 0.",
+        parametros: [
+          { nome: "dData", tipo: "Data", descricao: "Data de onde o dia será extraído.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Verificação de dia de corte
+User Function ExDay()
+    Local nDia := Day(Date())
+    ConOut("Dia atual: " + cValToChar(nDia))
+Return`
+      },
+      {
+        nome: "Month",
+        categoria: "Datas",
+        sintaxe: "Month( <dData> )",
+        retorno: "Numérico",
+        descricaoCurta: "Retorna o número do mês (1 a 12) a partir de uma variável do tipo Data.",
+        descricaoDetalhada: "Extrai o número do mês correspondente a uma expressão do tipo Data. Se a data fornecida for vazia, retorna 0.",
+        parametros: [
+          { nome: "dData", tipo: "Data", descricao: "Data de onde o mês será extraído.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Identificação de trimestre contábil
+User Function ExMonth()
+    Local nMes := Month(Date())
+    ConOut("Mês atual: " + cValToChar(nMes))
+Return`
+      },
+      {
+        nome: "Year",
+        categoria: "Datas",
+        sintaxe: "Year( <dData> )",
+        retorno: "Numérico",
+        descricaoCurta: "Retorna o ano com quatro dígitos a partir de uma variável do tipo Data.",
+        descricaoDetalhada: "Retorna o ano com 4 dígitos da data especificada (ex: 2026). Utilizado na composição de exercícios fiscais e numerações anuais de processos.",
+        parametros: [
+          { nome: "dData", tipo: "Data", descricao: "Data de onde o ano será extraído.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Exercício contábil
+User Function ExYear()
+    Local nAno := Year(Date())
+    ConOut("Exercício Fiscal: " + cValToChar(nAno))
+Return`
+      },
+      {
+        nome: "MonthSum",
+        categoria: "Datas",
+        sintaxe: "MonthSum( <dData>, <nMeses> )",
+        retorno: "Data (D)",
+        descricaoCurta: "Adiciona ou subtrai uma quantidade específica de meses a uma data.",
+        descricaoDetalhada: "Soma ou subtrai meses a uma data, ajustando automaticamente os dias finais de cada mês (ex: somando 1 mês a 31/01 resultará em 28/02). Essencial para cálculo de parcelas.",
+        parametros: [
+          { nome: "dData", tipo: "Data", descricao: "Data base inicial.", opcional: false },
+          { nome: "nMeses", tipo: "Numérico", descricao: "Meses a adicionar ou subtrair.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Cálculo de parcelas de contrato
+User Function ExMonthSum()
+    Local dInicio := cToD("31/01/2026")
+    Local dParc1  := MonthSum(dInicio, 1) // "28/02/2026"
+    ConOut("Vencimento Parcela 1: " + dToC(dParc1))
+Return`
+      },
+      {
+        nome: "DaySum",
+        categoria: "Datas",
+        sintaxe: "DaySum( <dData>, <nDias> )",
+        retorno: "Data (D)",
+        descricaoCurta: "Adiciona ou subtrai uma quantidade específica de dias corridos a uma data.",
+        descricaoDetalhada: "Soma ou subtrai dias corridos de uma data. Equivale a operação de adição direta (dData + nDias), fornecendo sintaxe padronizada e legível.",
+        parametros: [
+          { nome: "dData", tipo: "Data", descricao: "Data inicial.", opcional: false },
+          { nome: "nDias", tipo: "Numérico", descricao: "Dias corridos a somar ou subtrair.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Prazo limite de entrega
+User Function ExDaySum()
+    Local dPedido  := Date()
+    Local dEntrega := DaySum(dPedido, 15)
+    ConOut("Previsão de Entrega: " + dToC(dEntrega))
+Return`
+      },
+
+      // -----------------------------------------------------------------------
+      // CATEGORIA: BANCO DE DADOS (8 FUNCOES)
+      // -----------------------------------------------------------------------
+      {
+        nome: "DbSelectArea",
+        categoria: "Banco de Dados",
+        sintaxe: "DbSelectArea( <cAlias> | <nArea> )",
+        retorno: "NIL",
+        descricaoCurta: "Define e posiciona a área de trabalho ativa para uma tabela informada via alias ou número.",
+        descricaoDetalhada: "Troca o contexto corrente para a tabela especificada. Todas as operações subsequentes de navegação, leitura de campos e índices atuarão sobre essa área ativa.",
+        parametros: [
+          { nome: "cAlias / nArea", tipo: "Caractere / Numérico", descricao: "Alias da tabela no Protheus (ex: 'SA1', 'SB1') ou número da área.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Seleção de tabela e leitura
+User Function ExDbSelectArea()
+    DbSelectArea("SA1")
+    DbSetOrder(1)
+    DbGoTop()
+    If !SA1->(Eof())
+        ConOut("Cliente: " + SA1->A1_NOME)
+    EndIf
+Return`
+      },
+      {
+        nome: "DbSetOrder",
+        categoria: "Banco de Dados",
+        sintaxe: "DbSetOrder( <nOrdem> )",
+        retorno: "NIL",
+        descricaoCurta: "Define a ordem de índice ativa para pesquisa e navegação na tabela selecionada.",
+        descricaoDetalhada: "Altera o índice em vigor na área de trabalho ativa conforme sequência de índices cadastrados na tabela SIX do Dicionário de Dados do Protheus.",
+        parametros: [
+          { nome: "nOrdem", tipo: "Numérico", descricao: "Número da ordem de índice desejada (ex: 1, 2, 3...).", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Troca de ordem de pesquisa
+User Function ExDbSetOrder()
+    DbSelectArea("SA1")
+    DbSetOrder(1) // A1_FILIAL + A1_COD + A1_LOJA
+    DbSetOrder(3) // A1_FILIAL + A1_CGC
+Return`
+      },
+      {
+        nome: "DbSeek",
+        categoria: "Banco de Dados",
+        sintaxe: "DbSeek( <expChave>, [<lSoftSeek>], [<lFindLast>] )",
+        retorno: "Lógico (.T. se encontrou, .F. caso contrário)",
+        descricaoCurta: "Pesquisa um registro na tabela ativa com base na chave de índice corrente.",
+        descricaoDetalhada: "Executa busca binária de alta performance através do índice ativo. Retorna .T. se localizado e posiciona o registro; retorna .F. caso contrário.",
+        parametros: [
+          { nome: "expChave", tipo: "Caractere / Numérico / Data", descricao: "Chave de pesquisa correspondente aos campos do índice.", opcional: false },
+          { nome: "lSoftSeek", tipo: "Lógico", descricao: "Se .T., posiciona no registro posterior caso a chave exata não exista (padrão: .F.).", opcional: true },
+          { nome: "lFindLast", tipo: "Lógico", descricao: "Se .T., busca a última ocorrência da chave informada (padrão: .F.).", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Busca de produto na tabela SB1
+User Function ExDbSeek()
+    Local cCodProd := "PROD001"
+    DbSelectArea("SB1")
+    DbSetOrder(1) // B1_FILIAL + B1_COD
+
+    If DbSeek(xFilial("SB1") + cCodProd)
+        ConOut("Produto encontrado: " + SB1->B1_DESC)
+    Else
+        ConOut("Produto não cadastrado!")
+    EndIf
+Return`
+      },
+      {
+        nome: "RecLock",
+        categoria: "Banco de Dados",
+        sintaxe: "RecLock( <cAlias>, <lInclusao> )",
+        retorno: "Lógico (.T. se bloqueio/inclusão bem-sucedida)",
+        descricaoCurta: "Bloqueia o registro corrente para alteração ou prepara o buffer para inclusão.",
+        descricaoDetalhada: "Função fundamental para gravação de dados. Se <lInclusao> for .T., prepara inclusão de novo registro. Se .F., bloqueia o registro posicionado para alteração concorrente segura. Toda chamada a RecLock DEVE ser finalizada com MsUnlock().",
+        parametros: [
+          { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela que receberá a gravação.", opcional: false },
+          { nome: "lInclusao", tipo: "Lógico", descricao: ".T. para inclusão de novo registro; .F. para alteração.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Inclusão e alteração de registros no Protheus
+User Function ExRecLock()
+    DbSelectArea("SA1")
+    RecLock("SA1", .T.)
+        SA1->A1_FILIAL := xFilial("SA1")
+        SA1->A1_COD    := "999999"
+        SA1->A1_LOJA   := "01"
+        SA1->A1_NOME   := "CLIENTE RECLOCK"
+    MsUnlock()
+    ConOut("Cliente gravado com sucesso!")
+Return`
+      },
+      {
+        nome: "MsUnlock",
+        categoria: "Banco de Dados",
+        sintaxe: "MsUnlock()",
+        retorno: "NIL",
+        descricaoCurta: "Libera o bloqueio do registro corrente previamente bloqueado pela função RecLock.",
+        descricaoDetalhada: "Confirma a gravação física dos dados e remove o lock exclusivo do registro na área ativa, disponibilizando-o para outras threads.",
+        parametros: [],
+        exemplo: `// Exemplo prático: Boas práticas com RecLock e MsUnlock
+User Function ExMsUnlock()
+    DbSelectArea("SB1")
+    DbSetOrder(1)
+    If DbSeek(xFilial("SB1") + "PROD001")
+        If RecLock("SB1", .F.)
+            SB1->B1_PRV1 := 125.00
+            MsUnlock()
+            ConOut("Preço atualizado com sucesso!")
+        EndIf
+    EndIf
+Return`
+      },
+      {
+        nome: "GetMV",
+        categoria: "Banco de Dados",
+        sintaxe: "GetMV( <cParametro>, [<lHelp>], [<xPadrao>] )",
+        retorno: "Qualquer tipo (conteúdo do parâmetro conforme tipo no SX6)",
+        descricaoCurta: "Obtém e retorna o conteúdo de um parâmetro do sistema Protheus cadastrado na tabela SX6.",
+        descricaoDetalhada: "Carrega da tabela SX6 do dicionário de dados o valor de um parâmetro de configuração do sistema (como MV_ESTADO, MV_CENT, etc.), já tipado.",
+        parametros: [
+          { nome: "cParametro", tipo: "Caractere", descricao: "Nome do parâmetro cadastrado no SX6 (ex: 'MV_ESTADO').", opcional: false },
+          { nome: "lHelp", tipo: "Lógico", descricao: "Se deve disparar tela de Help de dicionário caso não exista (padrão: .F.).", opcional: true },
+          { nome: "xPadrao", tipo: "Qualquer tipo", descricao: "Valor padrão caso o parâmetro não seja encontrado.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Leitura de parâmetros do sistema
+User Function ExGetMV()
+    Local cEstado := GetMV("MV_ESTADO")
+    Local nCasas  := GetMV("MV_CENT", , 2)
+    ConOut("Estado da empresa: " + cEstado)
+    ConOut("Casas decimais: " + cValToChar(nCasas))
+Return`
+      },
+      {
+        nome: "PutMV",
+        categoria: "Banco de Dados",
+        sintaxe: "PutMV( <cParametro>, <xConteudo> )",
+        retorno: "Lógico (.T. se gravado com sucesso)",
+        descricaoCurta: "Grava ou atualiza o conteúdo de um parâmetro do sistema na tabela SX6.",
+        descricaoDetalhada: "Atualiza o conteúdo do parâmetro informado na tabela SX6 no banco de dados respeitando as regras de compartilhamento de tabelas/filiais do Protheus.",
+        parametros: [
+          { nome: "cParametro", tipo: "Caractere", descricao: "Nome do parâmetro no SX6.", opcional: false },
+          { nome: "xConteudo", tipo: "Qualquer tipo", descricao: "Novo conteúdo a ser gravado.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Atualização de parâmetro
+User Function ExPutMV()
+    Local lSucesso := PutMV("MV_ESTADO", "SP")
+    If lSucesso
+        ConOut("Parâmetro MV_ESTADO atualizado com sucesso!")
+    EndIf
+Return`
+      },
+      {
+        nome: "TCQuery",
+        categoria: "Banco de Dados",
+        sintaxe: "TCQuery( <cQuery>, <cAlias>, [<nFlags>] )",
+        retorno: "Numérico (0 se sucesso ou código de erro TC)",
+        descricaoCurta: "Executa uma sentença SQL direta no banco via TOPConnect/DBAccess, criando um cursor.",
+        descricaoDetalhada: "Envia consulta SQL (SELECT) para o banco de dados através da camada DBAccess/TOPConnect e vincula os dados a um alias temporário de memória percorrível via DbGoTop(), DbSkip() e Eof().",
+        parametros: [
+          { nome: "cQuery", tipo: "Caractere", descricao: "Sentença SQL no padrão ANSI compatível com DBAccess.", opcional: false },
+          { nome: "cAlias", tipo: "Caractere", descricao: "Nome do alias temporário a ser criado (ex: 'TMPQRY').", opcional: false },
+          { nome: "nFlags", tipo: "Numérico", descricao: "Flags adicionais de processamento TOPConnect.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Consulta customizada em clientes via SQL
+User Function ExTCQuery()
+    Local cAliasQry := GetNextAlias()
+    Local cQuery    := "SELECT A1_COD, A1_NOME FROM " + RetSqlName("SA1") + " WHERE A1_EST = 'SP' AND D_E_L_E_T_ = ' '"
+
+    TCQuery cQuery ALIAS (cAliasQry) NEW
+
+    (cAliasQry)->(DbGoTop())
+    While !(cAliasQry)->(Eof())
+        ConOut("Cliente: " + (cAliasQry)->A1_COD + " - " + (cAliasQry)->A1_NOME)
+        (cAliasQry)->(DbSkip())
+    EndDo
+    (cAliasQry)->(DbCloseArea())
+Return`
+      },
+
+      // -----------------------------------------------------------------------
+      // CATEGORIA: FRAMEWORK PROTHEUS (1 FUNCAO)
+      // -----------------------------------------------------------------------
+      {
+        nome: "FWxFilial",
+        categoria: "Framework Protheus",
+        sintaxe: "FWxFilial( <cAlias> )",
+        retorno: "Caractere (String)",
+        descricaoCurta: "Retorna o código da filial correspondente à tabela informada, considerando compartilhamento ou exclusividade.",
+        descricaoDetalhada: "Função oficial do Framework Protheus (evolução de xFilial). Consulta o modo de compartilhamento da tabela no dicionário SX2. Se compartilhada para a empresa, retorna string vazia (''). Se exclusiva, retorna o código da filial ativa (cFilAnt). Utilizada em todas as chaves de busca por índice.",
+        parametros: [
+          { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela cadastrada no SX2 (ex: 'SA1', 'SB1', 'SC5').", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Busca por chave primária respeitando o compartilhamento
+User Function ExFWxFilial()
+    Local cFilialSA1 := FWxFilial("SA1")
+
+    DbSelectArea("SA1")
+    DbSetOrder(1) // A1_FILIAL + A1_COD + A1_LOJA
+
+    If DbSeek(cFilialSA1 + "000100" + "01")
+        ConOut("Cliente localizado na filial: " + cFilialSA1)
+        ConOut("Razão Social: " + SA1->A1_NOME)
+    EndIf
+Return`
+      },
+
+      // -----------------------------------------------------------------------
+      // CATEGORIA: MENSAGENS E TELAS (6 FUNCOES)
+      // -----------------------------------------------------------------------
+      {
+        nome: "MsgInfo",
+        categoria: "Mensagens e Telas",
+        sintaxe: "MsgInfo( <cMensagem>, [<cTitulo>] )",
+        retorno: "NIL",
+        descricaoCurta: "Exibe uma caixa de diálogo informativa com botão OK e ícone de informação.",
+        descricaoDetalhada: "Apresenta uma mensagem na interface gráfica do SmartClient para dar retornos de sucesso ou comunicados operacionais. Interrompe a execução até que o operador clique no botão OK.",
+        parametros: [
+          { nome: "cMensagem", tipo: "Caractere", descricao: "Texto descritivo exibido no corpo da janela.", opcional: false },
+          { nome: "cTitulo", tipo: "Caractere", descricao: "Título exibido na barra superior (padrão: 'Atenção').", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Notificação de sucesso de faturamento
+User Function ExMsgInfo()
+    MsgInfo("Processamento de faturamento finalizado com sucesso!", "Sucesso")
+Return`
+      },
+      {
+        nome: "MsgAlert",
+        categoria: "Mensagens e Telas",
+        sintaxe: "MsgAlert( <cMensagem>, [<cTitulo>] )",
+        retorno: "NIL",
+        descricaoCurta: "Exibe uma caixa de diálogo de alerta com botão OK e ícone de advertência.",
+        descricaoDetalhada: "Utilizada para alertar o operador sobre inconsistências não impeditivas, avisos importantes ou advertências de regras de negócio. Exibe o ícone amarelo de alerta.",
+        parametros: [
+          { nome: "cMensagem", tipo: "Caractere", descricao: "Texto da advertência.", opcional: false },
+          { nome: "cTitulo", tipo: "Caractere", descricao: "Título do cabeçalho da janela.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Alerta de limite de crédito
+User Function ExMsgAlert()
+    MsgAlert("Atenção: O cliente atingiu 90% do seu limite de crédito rotativo!", "Alerta de Crédito")
+Return`
+      },
+      {
+        nome: "MsgStop",
+        categoria: "Mensagens e Telas",
+        sintaxe: "MsgStop( <cMensagem>, [<cTitulo>] )",
+        retorno: "NIL",
+        descricaoCurta: "Exibe uma caixa de diálogo de erro crítico com botão OK e ícone de parada.",
+        descricaoDetalhada: "Notifica o operador sobre erros graves, operações canceladas ou bloqueios que impedem o prosseguimento da rotina. Exibe o ícone vermelho de parada (Stop).",
+        parametros: [
+          { nome: "cMensagem", tipo: "Caractere", descricao: "Mensagem descritiva do erro impeditivo.", opcional: false },
+          { nome: "cTitulo", tipo: "Caractere", descricao: "Título do cabeçalho da janela.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Bloqueio de período contábil fechado
+User Function ExMsgStop()
+    MsgStop("Operação cancelada: O período contábil atual está encerrado para lançamentos!", "Bloqueio Contábil")
+Return`
+      },
+      {
+        nome: "MsgYesNo",
+        categoria: "Mensagens e Telas",
+        sintaxe: "MsgYesNo( <cMensagem>, [<cTitulo>] )",
+        retorno: "Lógico (.T. se 'Sim', .F. se 'Não')",
+        descricaoCurta: "Exibe uma caixa de confirmação com botões 'Sim' e 'Não', retornando a escolha do usuário.",
+        descricaoDetalhada: "Abre um diálogo de pergunta. Se o usuário clicar em 'Sim' (ou pressionar Enter), retorna .T. Se clicar em 'Não' ou fechar a janela, retorna .F.",
+        parametros: [
+          { nome: "cMensagem", tipo: "Caractere", descricao: "Texto da pergunta de confirmação.", opcional: false },
+          { nome: "cTitulo", tipo: "Caractere", descricao: "Título da caixa de confirmação.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Confirmação de cancelamento
+User Function ExMsgYesNo()
+    If MsgYesNo("Deseja realmente cancelar este pedido de venda?", "Confirmação")
+        ConOut("Cancelando pedido...")
+    Else
+        ConOut("Cancelamento abortado pelo usuário.")
+    EndIf
+Return`
+      },
+      {
+        nome: "Aviso",
+        categoria: "Mensagens e Telas",
+        sintaxe: "Aviso( <cTitulo>, <cMensagem>, <aBotoes>, [<nTam>], [<cRotina>], [<nRotAuto>], [<cIcone>] )",
+        retorno: "Numérico (índice do botão selecionado: 1, 2, 3...)",
+        descricaoCurta: "Exibe uma janela customizada de aviso com múltiplos botões configuráveis.",
+        descricaoDetalhada: "Função robusta do Protheus que permite criar caixas de diálogo avançadas com 1 até 3 botões personalizados definidos em um array. Retorna o número inteiro do botão selecionado.",
+        parametros: [
+          { nome: "cTitulo", tipo: "Caractere", descricao: "Título exibido na janela.", opcional: false },
+          { nome: "cMensagem", tipo: "Caractere", descricao: "Texto da mensagem detalhada.", opcional: false },
+          { nome: "aBotoes", tipo: "Array", descricao: "Array de strings com o texto de cada botão (ex: {'Continuar', 'Cancelar'}).", opcional: false },
+          { nome: "nTam", tipo: "Numérico", descricao: "Tamanho da janela (1: Pequena, 2: Média, 3: Grande).", opcional: true },
+          { nome: "cRotina", tipo: "Caractere", descricao: "Nome da rotina chamadora para rastreamento.", opcional: true },
+          { nome: "nRotAuto", tipo: "Numérico", descricao: "Opção padrão para rotina automática (ExecAuto).", opcional: true },
+          { nome: "cIcone", tipo: "Caractere", descricao: "Ícone exibido ('Alert', 'Info', 'Stop').", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Janela com múltiplos caminhos de ação
+User Function ExAviso()
+    Local aOpcoes  := {"Ignorar e Continuar", "Ajustar Saldo", "Cancelar"}
+    Local nEscolha := Aviso("Saldo Divergente", "O saldo é inferior ao solicitado.", aOpcoes, 2, "VENDAS", 3, "Alert")
+
+    If nEscolha == 1
+        ConOut("Ignorado")
+    ElseIf nEscolha == 2
+        ConOut("Ajuste")
+    EndIf
+Return`
+      },
+      {
+        nome: "ConOut",
+        categoria: "Mensagens e Telas",
+        sintaxe: "ConOut( <exp1>, [<exp2>], ... )",
+        retorno: "NIL",
+        descricaoCurta: "Imprime mensagens diretamente no console do servidor Protheus (AppServer) para logs e depuração.",
+        descricaoDetalhada: "Envia mensagens de texto para a saída padrão do console do AppServer (totvs_appserver.exe) e arquivo appserver.log. Indispensável para batch, jobs, REST e depuração.",
+        parametros: [
+          { nome: "exp1", tipo: "Caractere / Qualquer tipo", descricao: "Primeira expressão a ser impressa no log.", opcional: false },
+          { nome: "exp2...", tipo: "Caractere / Qualquer tipo", descricao: "Expressões adicionais separadas por vírgula.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Log estruturado de rastreabilidade
+User Function ExConOut()
+    ConOut("==========================================")
+    ConOut("[LOG] Início do processamento: " + Time())
+    ConOut("[DATA] " + dToC(Date()))
+    ConOut("==========================================")
+Return`
+      }
+    ];
+
+    /**
+     * =========================================================================
+     * LÓGICA DA APLICAÇÃO (Single Page Interface 100% Offline)
+     * =========================================================================
+     */
+    document.addEventListener("DOMContentLoaded", function () {
+      let allFunctions = FUNCOES_ADVPL;
+      let currentCategory = "todas";
+      let searchTerm = "";
+
+      // Elementos do DOM
+      const searchInput = document.getElementById("searchInput");
+      const clearSearchBtn = document.getElementById("clearSearchBtn");
+      const categoryFiltersContainer = document.getElementById("categoryFilters");
+      const tableBody = document.getElementById("tableBody");
+      const totalCountEl = document.getElementById("totalCount");
+      const filteredCountEl = document.getElementById("filteredCount");
+      const noResultsEl = document.getElementById("noResults");
+      const tableContainer = document.getElementById("tableContainer");
+
+      // Telas
+      const viewList = document.getElementById("viewList");
+      const viewDetails = document.getElementById("viewDetails");
+      const backToListBtn = document.getElementById("backToListBtn");
+
+      // Elementos da Tela de Detalhes
+      const detailTitle = document.getElementById("detailTitle");
+      const detailCategory = document.getElementById("detailCategory");
+      const detailQuickDesc = document.getElementById("detailQuickDesc");
+      const detailSyntax = document.getElementById("detailSyntax");
+      const detailReturn = document.getElementById("detailReturn");
+      const detailFullDesc = document.getElementById("detailFullDesc");
+      const detailParamsContainer = document.getElementById("detailParamsContainer");
+      const detailCodeExample = document.getElementById("detailCodeExample");
+      const copyCodeBtn = document.getElementById("copyCodeBtn");
+
+      function normalizeStr(str) {
+        if (!str) return "";
+        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+      }
+
+      function initCategories() {
+        const categories = ["todas"];
+        allFunctions.forEach((f) => {
+          if (f.categoria && !categories.includes(f.categoria)) {
+            categories.push(f.categoria);
+          }
+        });
+
+        categoryFiltersContainer.innerHTML = "";
+        categories.forEach((cat) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "cat-btn" + (cat === currentCategory ? " active" : "");
+          btn.textContent = cat === "todas" ? "Todas as Categorias" : cat;
+          btn.addEventListener("click", () => {
+            document.querySelectorAll(".cat-btn").forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            currentCategory = cat;
+            renderTable();
+          });
+          categoryFiltersContainer.appendChild(btn);
+        });
+      }
+
+      function renderTable() {
+        const normSearch = normalizeStr(searchTerm.trim());
+
+        const filtered = allFunctions.filter((fn) => {
+          const matchCat =
+            currentCategory === "todas" ||
+            fn.categoria.toLowerCase() === currentCategory.toLowerCase();
+
+          if (!matchCat) return false;
+          if (!normSearch) return true;
+
+          const matchName = normalizeStr(fn.nome).includes(normSearch);
+          const matchDesc = normalizeStr(fn.descricaoCurta).includes(normSearch);
+          const matchFull = normalizeStr(fn.descricaoDetalhada).includes(normSearch);
+          const matchSyntax = normalizeStr(fn.sintaxe).includes(normSearch);
+
+          return matchName || matchDesc || matchFull || matchSyntax;
+        });
+
+        totalCountEl.textContent = allFunctions.length;
+        filteredCountEl.textContent = filtered.length;
+        tableBody.innerHTML = "";
+
+        if (filtered.length === 0) {
+          tableContainer.style.display = "none";
+          noResultsEl.style.display = "block";
+        } else {
+          tableContainer.style.display = "block";
+          noResultsEl.style.display = "none";
+
+          filtered.forEach((fn) => {
+            const tr = document.createElement("tr");
+            tr.setAttribute("title", "Clique para ver documentação de " + fn.nome);
+
+            tr.innerHTML = `
+              <td class="col-func">
+                <div class="func-name-cell">
+                  <span class="func-name-tag">${escapeHtml(fn.nome)}</span>
+                  <span class="func-cat-badge">${escapeHtml(fn.categoria)}</span>
+                </div>
+              </td>
+              <td class="col-syntax">
+                <code class="syntax-code">${escapeHtml(fn.sintaxe)}</code>
+              </td>
+              <td class="col-desc">
+                <div class="desc-text">${escapeHtml(fn.descricaoCurta)}</div>
+              </td>
+            `;
+
+            tr.addEventListener("click", () => {
+              navigateToDetail(fn.nome);
+            });
+
+            tableBody.appendChild(tr);
+          });
+        }
+      }
+
+      function navigateToDetail(funcName) {
+        window.location.hash = "#" + encodeURIComponent(funcName);
+      }
+
+      function showDetails(funcName) {
+        const fn = allFunctions.find((f) => f.nome.toLowerCase() === funcName.toLowerCase());
+        if (!fn) {
+          showList();
+          return;
+        }
+
+        detailTitle.textContent = fn.nome;
+        detailCategory.textContent = fn.categoria;
+        detailQuickDesc.textContent = fn.descricaoCurta;
+        detailSyntax.textContent = fn.sintaxe;
+        detailReturn.textContent = fn.retorno || "NIL";
+        detailFullDesc.textContent = fn.descricaoDetalhada || fn.descricaoCurta;
+        detailCodeExample.textContent = fn.exemplo || "// Sem exemplo";
+
+        detailParamsContainer.innerHTML = "";
+        if (fn.parametros && fn.parametros.length > 0) {
+          let tableHtml = `
+            <table class="params-table">
+              <thead>
+                <tr>
+                  <th style="width: 25%">Parâmetro</th>
+                  <th style="width: 20%">Tipo</th>
+                  <th style="width: 15%">Status</th>
+                  <th style="width: 40%">Descrição</th>
+                </tr>
+              </thead>
+              <tbody>
+          `;
+
+          fn.parametros.forEach((p) => {
+            const isOpt = p.opcional === true;
+            tableHtml += `
+              <tr>
+                <td><span class="param-name">&lt;${escapeHtml(p.nome)}&gt;</span></td>
+                <td><span class="param-type">${escapeHtml(p.tipo)}</span></td>
+                <td>
+                  <span class="param-req ${isOpt ? "optional" : "mandatory"}">
+                    ${isOpt ? "Opcional" : "Obrigatório"}
+                  </span>
+                </td>
+                <td>${escapeHtml(p.descricao)}</td>
+              </tr>
+            `;
+          });
+
+          tableHtml += "</tbody></table>";
+          detailParamsContainer.innerHTML = tableHtml;
+        } else {
+          detailParamsContainer.innerHTML = `
+            <div style="color: var(--text-muted); font-style: italic; padding: 0.5rem 0;">
+              Esta função não recebe parâmetros.
+            </div>
+          `;
+        }
+
+        viewList.style.display = "none";
+        viewDetails.style.display = "block";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function showList() {
+        viewDetails.style.display = "none";
+        viewList.style.display = "block";
+        if (window.location.hash) {
+          history.pushState("", document.title, window.location.pathname + window.location.search);
+        }
+      }
+
+      function handleHashChange() {
+        const hash = window.location.hash.replace(/^#/, "");
+        if (hash) {
+          showDetails(decodeURIComponent(hash));
+        } else {
+          showList();
+        }
+      }
+
+      function escapeHtml(text) {
+        if (!text) return "";
+        return String(text)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      copyCodeBtn.addEventListener("click", function () {
+        const code = detailCodeExample.textContent;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(code).then(feedbackCopy).catch(() => fallbackCopy(code));
+        } else {
+          fallbackCopy(code);
+        }
+      });
+
+      function fallbackCopy(text) {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand("copy");
+          feedbackCopy();
+        } catch (err) {
+          alert("Não foi possível copiar o código.");
+        }
+        document.body.removeChild(textArea);
+      }
+
+      function feedbackCopy() {
+        const originalText = copyCodeBtn.innerHTML;
+        copyCodeBtn.classList.add("copied");
+        copyCodeBtn.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Copiado!
+        `;
+        setTimeout(() => {
+          copyCodeBtn.classList.remove("copied");
+          copyCodeBtn.innerHTML = originalText;
+        }, 2000);
+      }
+
+      searchInput.addEventListener("input", function (e) {
+        searchTerm = e.target.value;
+        clearSearchBtn.style.display = searchTerm ? "block" : "none";
+        renderTable();
+      });
+
+      clearSearchBtn.addEventListener("click", function () {
+        searchInput.value = "";
+        searchTerm = "";
+        clearSearchBtn.style.display = "none";
+        searchInput.focus();
+        renderTable();
+      });
+
+      backToListBtn.addEventListener("click", showList);
+
+      window.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && viewDetails.style.display === "block") {
+          showList();
+        }
+      });
+
+      window.addEventListener("hashchange", handleHashChange);
+
+      initCategories();
+      renderTable();
+      handleHashChange();
+    });
+  </script>
+</body>
+</html>

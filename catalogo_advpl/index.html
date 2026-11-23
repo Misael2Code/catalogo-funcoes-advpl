@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo Técnico de Funções ADVPL - TOTVS Protheus</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Cabecalho Principal -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="logo-area">
+        <span class="logo-badge">ADVPL</span>
+        <div>
+          <h1 class="logo-title">Catálogo de Funções ADVPL</h1>
+          <p class="logo-subtitle">Documentação Técnica Oficial TOTVS Protheus</p>
+        </div>
+      </div>
+      <div class="header-meta">
+        <span class="offline-pill" title="Funcionamento 100% autônomo sem internet">
+          <span class="offline-dot"></span>
+          100% Offline
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Conteudo Principal -->
+  <main class="app-main">
+
+    <!-- TELA 1: LISTAGEM PRINCIPAL -->
+    <section id="viewList" class="view-list">
+      <!-- Painel de Filtros e Busca -->
+      <div class="controls-card">
+        <div class="search-box">
+          <span class="search-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </span>
+          <input 
+            type="text" 
+            id="searchInput" 
+            class="search-input" 
+            placeholder="Buscar por nome da função, sintaxe ou descrição (ex: StrTran, aScan, RecLock)..."
+            autocomplete="off"
+            spellcheck="false"
+          >
+          <button type="button" id="clearSearchBtn" class="clear-btn" title="Limpar busca">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <div class="categories-bar">
+          <span class="category-label">Categorias:</span>
+          <div id="categoryFilters" style="display: inline-flex; flex-wrap: wrap; gap: 0.5rem;">
+            <!-- Botoes de categoria gerados via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Barra de Metadados -->
+      <div class="table-meta-bar">
+        <span>Exibindo <span id="filteredCount" class="count-badge">0</span> de <span id="totalCount" class="count-badge">0</span> funções</span>
+        <span style="font-size: 0.85rem; color: var(--text-light);">Dica: Clique em qualquer linha para abrir a documentação detalhada</span>
+      </div>
+
+      <!-- Tabela Responsiva com as 3 Colunas Obrigatorias -->
+      <div id="tableContainer" class="table-container">
+        <table class="advpl-table">
+          <thead>
+            <tr>
+              <th class="col-func">1. Função</th>
+              <th class="col-syntax">2. Sintaxe</th>
+              <th class="col-desc">3. Breve Descrição</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <!-- Linhas geradas dinamicamente via app.js -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mensagem de Nenhum Resultado -->
+      <div id="noResults" class="no-results" style="display: none;">
+        <div class="no-results-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            <line x1="8" y1="11" x2="14" y2="11"></line>
+          </svg>
+        </div>
+        <h3>Nenhuma função encontrada</h3>
+        <p>Verifique o termo digitado ou altere o filtro de categoria selecionado.</p>
+      </div>
+    </section>
+
+    <!-- TELA 2: DETALHES DEDICADOS DA FUNCAO -->
+    <section id="viewDetails" class="view-details">
+      <div class="detail-nav-bar">
+        <button type="button" id="backToListBtn" class="back-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          ← Voltar para a lista <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: normal; margin-left: 0.35rem;">(ou pressione ESC)</span>
+        </button>
+      </div>
+
+      <article class="detail-card">
+        <!-- Cabecalho do Detalhe -->
+        <header class="detail-header">
+          <div class="detail-header-top">
+            <h2 id="detailTitle" class="detail-func-title">NomeDaFuncao</h2>
+            <span id="detailCategory" class="detail-cat-pill">Categoria</span>
+          </div>
+          <p id="detailQuickDesc" class="detail-quick-desc">Resumo rapido da funcao.</p>
+        </header>
+
+        <!-- Corpo dos Detalhes -->
+        <div class="detail-body">
+          <!-- 1. Sintaxe Completa -->
+          <section class="detail-section">
+            <h3 class="section-heading">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 18 22 12 16 6"></polyline>
+                <polyline points="8 6 2 12 8 18"></polyline>
+              </svg>
+              Sintaxe Oficial
+            </h3>
+            <pre id="detailSyntax" class="syntax-block">Sintaxe()</pre>
+          </section>
+
+          <!-- 2. Tipo de Retorno -->
+          <section class="detail-section">
+            <h3 class="section-heading">Tipo de Retorno</h3>
+            <div class="return-box">
+              <span class="return-badge">Retorno:</span>
+              <span id="detailReturn">NIL</span>
+            </div>
+          </section>
+
+          <!-- 3. Descricao Detalhada -->
+          <section class="detail-section">
+            <h3 class="section-heading">Descrição Detalhada e Comportamento</h3>
+            <p id="detailFullDesc" style="color: var(--text-main); line-height: 1.6; font-size: 0.98rem;"></p>
+          </section>
+
+          <!-- 4. Parametros -->
+          <section class="detail-section">
+            <h3 class="section-heading">Parâmetros da Função</h3>
+            <div id="detailParamsContainer">
+              <!-- Tabela de parametros gerada dinamicamente -->
+            </div>
+          </section>
+
+          <!-- 5. Exemplo Pratico em ADVPL -->
+          <section class="detail-section">
+            <h3 class="section-heading">Exemplo Prático em ADVPL</h3>
+            <div class="code-container">
+              <div class="code-header">
+                <span class="code-lang-tag">Código Fonte ADVPL / Protheus</span>
+                <button type="button" id="copyCodeBtn" class="copy-btn" title="Copiar código para a área de transferência">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  Copiar código
+                </button>
+              </div>
+              <pre id="detailCodeExample" class="code-pre"><code></code></pre>
+            </div>
+          </section>
+        </div>
+      </article>
+    </section>
+
+  </main>
+
+  <!-- Rodape -->
+  <footer class="app-footer">
+    <p>Catálogo de Documentação Técnica ADVPL &bull; Arquitetura 100% Offline para Protheus 12 &bull; Sem dependências de rede</p>
+  </footer>
+
+  <!-- Scripts de Dados (Carregados localmente via protocolo file://) -->
+  <script src="dados/strings.js"></script>
+  <script src="dados/arrays.js"></script>
+  <script src="dados/datas.js"></script>
+  <script src="dados/banco_dados.js"></script>
+  <script src="dados/framework_fw.js"></script>
+  <script src="dados/mensagens_telas.js"></script>
+
+  <!-- Script Principal da Aplicacao -->
+  <script src="app.js"></script>
+</body>
+</html>
