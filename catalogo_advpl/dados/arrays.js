@@ -240,5 +240,76 @@ User Function ExaFill()
     ConOut("Primeira posicao: " + cValToChar(aContadores[1])) // 0
     ConOut("Ultima posicao: " + cValToChar(aContadores[10]))  // 0
 Return`
+  },
+  {
+    nome: "aIns",
+    categoria: "Arrays",
+    sintaxe: "aIns( <aArray>, <nPos> )",
+    retorno: "Array",
+    descricaoCurta: "Insere uma nova posição vazia (NIL) em um índice determinado, deslocando os itens seguintes para a direita.",
+    descricaoDetalhada: "Insere um novo elemento na posição <nPos> com valor NIL. O último elemento do array é descartado mantendo o tamanho original. Se desejar expandir o vetor sem perder o último elemento, chame aSize(aArray, Len(aArray) + 1) antes de aIns.",
+    parametros: [
+      { nome: "aArray", tipo: "Array", descricao: "Vetor onde a posição será inserida.", opcional: false },
+      { nome: "nPos", tipo: "Numérico", descricao: "Posição (índice base 1) onde o novo elemento será alocado.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Inserção de elemento em posição intermediária
+User Function ExaIns()
+    Local aItens := {"PRIMEIRO", "TERCEIRO", "QUARTO"}
+
+    // Expande o tamanho do array antes de inserir
+    aSize(aItens, Len(aItens) + 1)
+    aIns(aItens, 2)
+    aItens[2] := "SEGUNDO"
+
+    ConOut("Posição 2: " + aItens[2]) // "SEGUNDO"
+Return`
+  },
+  {
+    nome: "aCopy",
+    categoria: "Arrays",
+    sintaxe: "aCopy( <aOrigem>, <aDestino>, [<nInicio>], [<nQtd>], [<nPosDest>] )",
+    retorno: "Array (Vetor destino)",
+    descricaoCurta: "Copia elementos de um array de origem para um array de destino preexistente.",
+    descricaoDetalhada: "Transfere elementos entre arrays já inicializados. Permite definir o índice de início na origem, quantidade de posições a copiar e o índice inicial no destino.",
+    parametros: [
+      { nome: "aOrigem", tipo: "Array", descricao: "Vetor de origem dos dados.", opcional: false },
+      { nome: "aDestino", tipo: "Array", descricao: "Vetor de destino preexistente.", opcional: false },
+      { nome: "nInicio", tipo: "Numérico", descricao: "Posição inicial na origem (padrão: 1).", opcional: true },
+      { nome: "nQtd", tipo: "Numérico", descricao: "Quantidade de elementos a copiar.", opcional: true },
+      { nome: "nPosDest", tipo: "Numérico", descricao: "Posição inicial no array destino (padrão: 1).", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Cópia parcial de elementos entre vetores
+User Function ExaCopy()
+    Local aOrigem  := {10, 20, 30, 40, 50}
+    Local aDestino := Array(3)
+
+    // Copia 3 elementos a partir da posição 2 para o destino
+    aCopy(aOrigem, aDestino, 2, 3, 1)
+
+    ConOut("Destino [1]: " + cValToChar(aDestino[1])) // 20
+    ConOut("Destino [2]: " + cValToChar(aDestino[2])) // 30
+    ConOut("Destino [3]: " + cValToChar(aDestino[3])) // 40
+Return`
+  },
+  {
+    nome: "aIgual",
+    categoria: "Arrays",
+    sintaxe: "aIgual( <aArray1>, <aArray2> )",
+    retorno: "Lógico (.T. / .F.)",
+    descricaoCurta: "Verifica se dois arrays possuem exatamente a mesma estrutura, tamanho e conteúdos idênticos.",
+    descricaoDetalhada: "Compara elemento por elemento de dois vetores, inclusive subarrays recursivos, retornando .T. se todos forem idênticos e .F. caso haja qualquer divergência.",
+    parametros: [
+      { nome: "aArray1", tipo: "Array", descricao: "Primeiro vetor a ser comparado.", opcional: false },
+      { nome: "aArray2", tipo: "Array", descricao: "Segundo vetor a ser comparado.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Comparação profunda de vetores
+User Function ExaIgual()
+    Local aVetorA := {"PROD01", 10.50, .T.}
+    Local aVetorB := {"PROD01", 10.50, .T.}
+    Local aVetorC := {"PROD01", 12.00, .T.}
+
+    ConOut("A e B são iguais: " + cValToChar(aIgual(aVetorA, aVetorB))) // .T.
+    ConOut("A e C são iguais: " + cValToChar(aIgual(aVetorA, aVetorC))) // .F.
+Return`
   }
 );

@@ -2917,6 +2917,1045 @@ User Function ExFWTemporaryTable()
     // Elimina a tabela temporária do banco de dados
     oTempTable:Delete()
 Return`
+      },
+
+      // -----------------------------------------------------------------------
+      // CATEGORIA: MATEMÁTICA E CÁLCULOS (8 NOVAS FUNÇÕES)
+      // -----------------------------------------------------------------------
+      {
+        nome: "Round",
+        categoria: "Matemática",
+        sintaxe: "Round( <nValor>, <nDecimais> )",
+        retorno: "Numérico",
+        descricaoCurta: "Arredonda um valor numérico para uma quantidade específica de casas decimais.",
+        descricaoDetalhada: "Realiza o arredondamento matemático tradicional (se o próximo dígito for 5 ou superior, arredonda para cima; caso contrário, para baixo). Se <nDecimais> for negativo, arredonda para potências de dez (dezenas, centenas).",
+        parametros: [
+          { nome: "nValor", tipo: "Numérico", descricao: "Valor numérico a ser arredondado.", opcional: false },
+          { nome: "nDecimais", tipo: "Numérico", descricao: "Quantidade de casas decimais desejada.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Arredondamento monetário e de valores decimais
+User Function ExRound()
+    Local nPreco  := 145.856
+    Local nArred1 := Round(nPreco, 2)  // 145.86
+    Local nArred2 := Round(1234.56, -1) // 1230.00 (arredonda para dezena)
+
+    ConOut("Preço arredondado: " + cValToChar(nArred1))
+Return`
+      },
+      {
+        nome: "NoRound",
+        categoria: "Matemática",
+        sintaxe: "NoRound( <nValor>, [<nDecimais>] )",
+        retorno: "Numérico",
+        descricaoCurta: "Trunca um valor numérico na quantidade especificada de casas decimais sem realizar arredondamento.",
+        descricaoDetalhada: "Descarta os dígitos excedentes a partir da casa decimal informada sem alterar os dígitos anteriores, diferentemente de Round(). Essencial em cálculos fiscais onde o truncamento é exigido por lei.",
+        parametros: [
+          { nome: "nValor", tipo: "Numérico", descricao: "Valor a ser truncado.", opcional: false },
+          { nome: "nDecimais", tipo: "Numérico", descricao: "Número de casas decimais a manter (padrão: 0).", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Truncamento de valor sem arredondar
+User Function ExNoRound()
+    Local nValor := 125.899
+    Local nTrunc := NoRound(nValor, 2) // 125.89 (não arredonda para 125.90)
+
+    ConOut("Valor truncado: " + cValToChar(nTrunc))
+Return`
+      },
+      {
+        nome: "Int",
+        categoria: "Matemática",
+        sintaxe: "Int( <nValor> )",
+        retorno: "Numérico",
+        descricaoCurta: "Retorna a parte inteira de um número, descartando todas as casas decimais.",
+        descricaoDetalhada: "Converte um número com decimais em um inteiro eliminando a parte fracionária (truncamento para zero).",
+        parametros: [
+          { nome: "nValor", tipo: "Numérico", descricao: "Número cuja parte inteira será extraída.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Extração de horas inteiras
+User Function ExInt()
+    Local nTotalHoras := 45.75
+    Local nHorasInt   := Int(nTotalHoras) // 45
+
+    ConOut("Horas inteiras: " + cValToChar(nHorasInt))
+Return`
+      },
+      {
+        nome: "Abs",
+        categoria: "Matemática",
+        sintaxe: "Abs( <nValor> )",
+        retorno: "Numérico",
+        descricaoCurta: "Retorna o valor absoluto (módulo) de um número, convertendo valores negativos em positivos.",
+        descricaoDetalhada: "Elimina o sinal negativo de um número. Se o valor for positivo ou zero, retorna o próprio valor.",
+        parametros: [
+          { nome: "nValor", tipo: "Numérico", descricao: "Número a ter seu valor absoluto calculado.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Conversão de saldo devedor em módulo positivo
+User Function ExAbs()
+    Local nSaldoDevedor := -1540.80
+    Local nModulo       := Abs(nSaldoDevedor) // 1540.80
+
+    ConOut("Valor positivo: " + cValToChar(nModulo))
+Return`
+      },
+      {
+        nome: "Mod",
+        categoria: "Matemática",
+        sintaxe: "Mod( <nDividendo>, <nDivisor> )",
+        retorno: "Numérico",
+        descricaoCurta: "Calcula e retorna o resto da divisão inteira entre dois números (módulo).",
+        descricaoDetalhada: "Equivale ao operador matemático de resto de divisão. Muito utilizado em algoritmos de dígito verificador (Módulo 10, Módulo 11) de CPF, CNPJ e boletos bancários.",
+        parametros: [
+          { nome: "nDividendo", tipo: "Numérico", descricao: "Número a ser dividido.", opcional: false },
+          { nome: "nDivisor", tipo: "Numérico", descricao: "Número divisor.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Cálculo de resto de divisão
+User Function ExMod()
+    Local nResto := Mod(17, 5) // Retorna 2 (17 = 5*3 + 2)
+
+    If Mod(Year(Date()), 4) == 0
+        ConOut("Ano potencialmente bissexto.")
+    EndIf
+Return`
+      },
+      {
+        nome: "Max",
+        categoria: "Matemática",
+        sintaxe: "Max( <exp1>, <exp2> )",
+        retorno: "Mesmo tipo dos parâmetros",
+        descricaoCurta: "Compara duas expressões do mesmo tipo (numérico, data ou caractere) e retorna o maior valor.",
+        descricaoDetalhada: "Avalia <exp1> e <exp2>. Se forem números, retorna o maior; se forem datas, a mais recente; se strings, a de maior valor alfabético.",
+        parametros: [
+          { nome: "exp1", tipo: "Numérico / Data / Caractere", descricao: "Primeiro valor a comparar.", opcional: false },
+          { nome: "exp2", tipo: "Numérico / Data / Caractere", descricao: "Segundo valor a comparar.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Obtenção do maior valor entre duas variáveis
+User Function ExMax()
+    Local nVal1  := 150.00
+    Local nVal2  := 280.50
+    Local nMaior := Max(nVal1, nVal2) // 280.50
+
+    ConOut("Maior valor: " + cValToChar(nMaior))
+Return`
+      },
+      {
+        nome: "Min",
+        categoria: "Matemática",
+        sintaxe: "Min( <exp1>, <exp2> )",
+        retorno: "Mesmo tipo dos parâmetros",
+        descricaoCurta: "Compara duas expressões do mesmo tipo (numérico, data ou caractere) e retorna o menor valor.",
+        descricaoDetalhada: "Avalia <exp1> e <exp2>. Se números, retorna o menor; se datas, a mais antiga; se strings, a de menor ordem lexicográfica.",
+        parametros: [
+          { nome: "exp1", tipo: "Numérico / Data / Caractere", descricao: "Primeiro valor a comparar.", opcional: false },
+          { nome: "exp2", tipo: "Numérico / Data / Caractere", descricao: "Segundo valor a comparar.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Verificação de valor mínimo de pedido
+User Function ExMin()
+    Local nEstoqueMinimo := 10
+    Local nEstoqueAtual  := 4
+    Local nMenor         := Min(nEstoqueMinimo, nEstoqueAtual) // 4
+
+    ConOut("Menor quantidade: " + cValToChar(nMenor))
+Return`
+      },
+      {
+        nome: "Sqrt",
+        categoria: "Matemática",
+        sintaxe: "Sqrt( <nValor> )",
+        retorno: "Numérico",
+        descricaoCurta: "Calcula e retorna a raiz quadrada de um número positivo.",
+        descricaoDetalhada: "Retorna a raiz quadrada do número informado. Se o valor for negativo, gera erro de execução matemático.",
+        parametros: [
+          { nome: "nValor", tipo: "Numérico", descricao: "Número positivo para cálculo da raiz quadrada.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Cálculo de raiz quadrada
+User Function ExSqrt()
+    Local nArea := 144
+    Local nLado := Sqrt(nArea) // 12
+
+    ConOut("Raiz quadrada de 144: " + cValToChar(nLado))
+Return`
+      },
+
+      // -----------------------------------------------------------------------
+      // CATEGORIA: STRINGS - COMPLEMENTARES LOTE 3 (5 NOVAS FUNÇÕES)
+      // -----------------------------------------------------------------------
+      {
+        nome: "NoAcento",
+        categoria: "Strings",
+        sintaxe: "NoAcento( <cString> )",
+        retorno: "Caractere (String)",
+        descricaoCurta: "Remove acentos e caracteres especiais gráficos de uma cadeia de caracteres, substituindo-os por letras simples.",
+        descricaoDetalhada: "Converte caracteres acentuados (á, é, í, ó, ú, ç, ã, etc.) para suas formas não acentuadas (a, e, i, o, u, c, a). Tradicionalmente utilizada na geração de arquivos de remessa bancária, SEFAZ e integração contábil.",
+        parametros: [
+          { nome: "cString", tipo: "Caractere", descricao: "Texto contendo acentuação a ser normalizado.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Remoção de acentuação para arquivos de remessa
+User Function ExNoAcento()
+    Local cOriginal := "João da Conceição & Filhos Ltda - São Paulo"
+    Local cLimpo    := NoAcento(cOriginal)
+
+    ConOut("Texto sem acento: " + cLimpo)
+    // "Joao da Conceicao & Filhos Ltda - Sao Paulo"
+Return`
+      },
+      {
+        nome: "FwNoAccent",
+        categoria: "Strings",
+        sintaxe: "FwNoAccent( <cTexto> )",
+        retorno: "Caractere (String)",
+        descricaoCurta: "Função moderna do Framework TOTVS para remoção abrangente de acentos e caracteres especiais.",
+        descricaoDetalhada: "Evolução da função NoAcento(). Oferece suporte completo a UTF-8 e tabelas Unicode estendidas, garantindo limpeza precisa para payloads de API REST e integração com cloud.",
+        parametros: [
+          { nome: "cTexto", tipo: "Caractere", descricao: "Texto com acentos a ser tratado.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Normalização moderna de caracteres no Framework Protheus
+User Function ExFwNoAccent()
+    Local cDescricao := "PRODUÇÃO AGRÍCOLA - CANA-DE-AÇÚCAR"
+    Local cTratado   := FwNoAccent(cDescricao)
+
+    ConOut("Resultado FW: " + cTratado)
+    // "PRODUCAO AGRICOLA - CANA-DE-ACUCAR"
+Return`
+      },
+      {
+        nome: "StrTokArr",
+        categoria: "Strings",
+        sintaxe: "StrTokArr( <cString>, <cDelimitador> )",
+        retorno: "Array (Vetor de strings)",
+        descricaoCurta: "Divide uma cadeia de caracteres em um array com base em um caractere delimitador (Split).",
+        descricaoDetalhada: "Converte uma string delimitada (como CSV, chaves compostas ou listas separadas por ponto-e-vírgula) em um array unidimensional onde cada posição corresponde a um elemento separado.",
+        parametros: [
+          { nome: "cString", tipo: "Caractere", descricao: "Texto a ser fragmentado.", opcional: false },
+          { nome: "cDelimitador", tipo: "Caractere", descricao: "Caractere ou sequência usada como separador (ex: ';', ',', '|').", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Divisão de linha CSV em vetor de campos
+User Function ExStrTokArr()
+    Local cLinhaCSV := "0001;MOUSE OPTICO;45.90;10"
+    Local aCampos   := StrTokArr(cLinhaCSV, ";")
+
+    ConOut("Código: " + aCampos[1])      // "0001"
+    ConOut("Descrição: " + aCampos[2])   // "MOUSE OPTICO"
+    ConOut("Preço: " + aCampos[3])       // "45.90"
+Return`
+      },
+      {
+        nome: "ArrTokStr",
+        categoria: "Strings",
+        sintaxe: "ArrTokStr( <aArray>, [<cDelimitador>] )",
+        retorno: "Caractere (String)",
+        descricaoCurta: "Une os elementos de um array em uma única string separados por um delimitador (Join).",
+        descricaoDetalhada: "Inverso de StrTokArr(). Concatena todos os elementos do vetor utilizando o caractere delimitador informado (padrão: vírgula).",
+        parametros: [
+          { nome: "aArray", tipo: "Array", descricao: "Vetor de elementos a serem unidos.", opcional: false },
+          { nome: "cDelimitador", tipo: "Caractere", descricao: "Separador entre os elementos (padrão: ',').", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Junção de elementos de vetor em string separada por barras
+User Function ExArrTokStr()
+    Local aCores := {"AZUL", "VERDE", "VERMELHO", "AMARELO"}
+    Local cLista := ArrTokStr(aCores, " | ")
+
+    ConOut("Lista unida: " + cLista)
+    // "AZUL | VERDE | VERMELHO | AMARELO"
+Return`
+      },
+      {
+        nome: "IsDigit",
+        categoria: "Strings",
+        sintaxe: "IsDigit( <cString> )",
+        retorno: "Lógico (.T. / .F.)",
+        descricaoCurta: "Verifica se o primeiro caractere de uma cadeia de caracteres é um dígito numérico (0 a 9).",
+        descricaoDetalhada: "Retorna .T. se o caractere inicial for um número entre 0 e 9; retorna .F. se for letra, espaço ou símbolo especial.",
+        parametros: [
+          { nome: "cString", tipo: "Caractere", descricao: "String a ser avaliada.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Validação se código inicia por número
+User Function ExIsDigit()
+    Local cValor1 := "987ABC"
+    Local cValor2 := "ABC987"
+
+    ConOut("Começa com dígito: " + cValToChar(IsDigit(cValor1))) // .T.
+    ConOut("Começa com dígito: " + cValToChar(IsDigit(cValor2))) // .F.
+Return`
+      },
+
+      // -----------------------------------------------------------------------
+      // CATEGORIA: ARRAYS - COMPLEMENTARES LOTE 3 (3 NOVAS FUNÇÕES)
+      // -----------------------------------------------------------------------
+      {
+        nome: "aIns",
+        categoria: "Arrays",
+        sintaxe: "aIns( <aArray>, <nPos> )",
+        retorno: "Array",
+        descricaoCurta: "Insere uma nova posição vazia (NIL) em um índice determinado, deslocando os itens seguintes para a direita.",
+        descricaoDetalhada: "Insere um novo elemento na posição <nPos> com valor NIL. O último elemento do array é descartado mantendo o tamanho original. Se desejar expandir o vetor sem perder o último elemento, chame aSize(aArray, Len(aArray) + 1) antes de aIns.",
+        parametros: [
+          { nome: "aArray", tipo: "Array", descricao: "Vetor onde a posição será inserida.", opcional: false },
+          { nome: "nPos", tipo: "Numérico", descricao: "Posição (índice base 1) onde o novo elemento será alocado.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Inserção de elemento em posição intermediária
+User Function ExaIns()
+    Local aItens := {"PRIMEIRO", "TERCEIRO", "QUARTO"}
+
+    // Expande o tamanho do array antes de inserir
+    aSize(aItens, Len(aItens) + 1)
+    aIns(aItens, 2)
+    aItens[2] := "SEGUNDO"
+
+    ConOut("Posição 2: " + aItens[2]) // "SEGUNDO"
+Return`
+      },
+      {
+        nome: "aCopy",
+        categoria: "Arrays",
+        sintaxe: "aCopy( <aOrigem>, <aDestino>, [<nInicio>], [<nQtd>], [<nPosDest>] )",
+        retorno: "Array (Vetor destino)",
+        descricaoCurta: "Copia elementos de um array de origem para um array de destino preexistente.",
+        descricaoDetalhada: "Transfere elementos entre arrays já inicializados. Permite definir o índice de início na origem, quantidade de posições a copiar e o índice inicial no destino.",
+        parametros: [
+          { nome: "aOrigem", tipo: "Array", descricao: "Vetor de origem dos dados.", opcional: false },
+          { nome: "aDestino", tipo: "Array", descricao: "Vetor de destino preexistente.", opcional: false },
+          { nome: "nInicio", tipo: "Numérico", descricao: "Posição inicial na origem (padrão: 1).", opcional: true },
+          { nome: "nQtd", tipo: "Numérico", descricao: "Quantidade de elementos a copiar.", opcional: true },
+          { nome: "nPosDest", tipo: "Numérico", descricao: "Posição inicial no array destino (padrão: 1).", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Cópia parcial de elementos entre vetores
+User Function ExaCopy()
+    Local aOrigem  := {10, 20, 30, 40, 50}
+    Local aDestino := Array(3)
+
+    // Copia 3 elementos a partir da posição 2 para o destino
+    aCopy(aOrigem, aDestino, 2, 3, 1)
+
+    ConOut("Destino [1]: " + cValToChar(aDestino[1])) // 20
+    ConOut("Destino [2]: " + cValToChar(aDestino[2])) // 30
+    ConOut("Destino [3]: " + cValToChar(aDestino[3])) // 40
+Return`
+      },
+      {
+        nome: "aIgual",
+        categoria: "Arrays",
+        sintaxe: "aIgual( <aArray1>, <aArray2> )",
+        retorno: "Lógico (.T. / .F.)",
+        descricaoCurta: "Verifica se dois arrays possuem exatamente a mesma estrutura, tamanho e conteúdos idênticos.",
+        descricaoDetalhada: "Compara elemento por elemento de dois vetores, inclusive subarrays recursivos, retornando .T. se todos forem idênticos e .F. caso haja qualquer divergência.",
+        parametros: [
+          { nome: "aArray1", tipo: "Array", descricao: "Primeiro vetor a ser comparado.", opcional: false },
+          { nome: "aArray2", tipo: "Array", descricao: "Segundo vetor a ser comparado.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Comparação profunda de vetores
+User Function ExaIgual()
+    Local aVetorA := {"PROD01", 10.50, .T.}
+    Local aVetorB := {"PROD01", 10.50, .T.}
+    Local aVetorC := {"PROD01", 12.00, .T.}
+
+    ConOut("A e B são iguais: " + cValToChar(aIgual(aVetorA, aVetorB))) // .T.
+    ConOut("A e C são iguais: " + cValToChar(aIgual(aVetorA, aVetorC))) // .F.
+Return`
+      },
+
+      // -----------------------------------------------------------------------
+      // CATEGORIA: DATAS - CALENDÁRIO LOTE 3 (6 NOVAS FUNÇÕES)
+      // -----------------------------------------------------------------------
+      {
+        nome: "FirstDay",
+        categoria: "Datas",
+        sintaxe: "FirstDay( <dData> )",
+        retorno: "Data (D)",
+        descricaoCurta: "Retorna a data correspondente ao primeiro dia do mês da data informada.",
+        descricaoDetalhada: "Inverso conceitual de LastDay(). Retorna sempre o dia 1º do mês e ano da data passada como argumento.",
+        parametros: [
+          { nome: "dData", tipo: "Data", descricao: "Data de referência.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Obtenção do primeiro dia do mês corrente
+User Function ExFirstDay()
+    Local dHoje     := Date()
+    Local dPrimeiro := FirstDay(dHoje)
+
+    ConOut("Primeiro dia do mês corrente: " + dToC(dPrimeiro))
+Return`
+      },
+      {
+        nome: "Dow",
+        categoria: "Datas",
+        sintaxe: "Dow( <dData> )",
+        retorno: "Numérico (1 a 7)",
+        descricaoCurta: "Retorna o dia da semana como um valor numérico de 1 (Domingo) a 7 (Sábado).",
+        descricaoDetalhada: "Sigla para 'Day of Week'. Retorna: 1 = Domingo, 2 = Segunda, 3 = Terça, 4 = Quarta, 5 = Quinta, 6 = Sexta, 7 = Sábado.",
+        parametros: [
+          { nome: "dData", tipo: "Data", descricao: "Data a ser inspecionada.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Verificação de final de semana
+User Function ExDow()
+    Local dData := Date()
+    Local nDiaSemana := Dow(dData)
+
+    If nDiaSemana == 1 .Or. nDiaSemana == 7
+        ConOut("Data cai em final de semana.")
+    Else
+        ConOut("Data em dia útil comercial.")
+    EndIf
+Return`
+      },
+      {
+        nome: "CDoW",
+        categoria: "Datas",
+        sintaxe: "CDoW( <dData> )",
+        retorno: "Caractere (String com o nome do dia da semana)",
+        descricaoCurta: "Retorna o nome do dia da semana por extenso conforme o idioma do ambiente.",
+        descricaoDetalhada: "Retorna string com o nome por extenso (ex: 'Segunda-feira', 'Domingo', ou 'Monday' em inglês).",
+        parametros: [
+          { nome: "dData", tipo: "Data", descricao: "Data de referência.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Exibição do dia da semana por extenso
+User Function ExCDoW()
+    Local dHoje := Date()
+    ConOut("Hoje é: " + CDoW(dHoje))
+Return`
+      },
+      {
+        nome: "CMonth",
+        categoria: "Datas",
+        sintaxe: "CMonth( <dData> )",
+        retorno: "Caractere (String com o nome do mês)",
+        descricaoCurta: "Retorna o nome do mês por extenso correspondente à data informada.",
+        descricaoDetalhada: "Retorna string com o nome do mês (ex: 'Janeiro', 'Fevereiro', 'Novembro') de acordo com o idioma configurado.",
+        parametros: [
+          { nome: "dData", tipo: "Data", descricao: "Data de onde o mês será extraído.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Nome do mês atual por extenso
+User Function ExCMonth()
+    Local dData := Date()
+    ConOut("Mês atual por extenso: " + CMonth(dData))
+Return`
+      },
+      {
+        nome: "MonthSub",
+        categoria: "Datas",
+        sintaxe: "MonthSub( <dData>, <nMeses> )",
+        retorno: "Data (D)",
+        descricaoCurta: "Subtrai uma quantidade de meses de uma data fornecida, recalculando os dias limites.",
+        descricaoDetalhada: "Função inversa de MonthSum(). Subtrai <nMeses> ajustando o último dia caso o mês de destino possua menos dias (ex: subtrair 1 mês de 31/03 resulta em 28/02).",
+        parametros: [
+          { nome: "dData", tipo: "Data", descricao: "Data inicial.", opcional: false },
+          { nome: "nMeses", tipo: "Numérico", descricao: "Quantidade de meses a subtrair.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Subtração de meses para busca de histórico
+User Function ExMonthSub()
+    Local dHoje      := Date()
+    Local dTresMeses := MonthSub(dHoje, 3)
+
+    ConOut("Data de 3 meses atrás: " + dToC(dTresMeses))
+Return`
+      },
+      {
+        nome: "DaySub",
+        categoria: "Datas",
+        sintaxe: "DaySub( <dData>, <nDias> )",
+        retorno: "Data (D)",
+        descricaoCurta: "Subtrai uma quantidade de dias corridos de uma data informada.",
+        descricaoDetalhada: "Subtrai <nDias> corridos da data. Equivale funcionalmente a dData - nDias.",
+        parametros: [
+          { nome: "dData", tipo: "Data", descricao: "Data de referência.", opcional: false },
+          { nome: "nDias", tipo: "Numérico", descricao: "Quantidade de dias corridos a subtrair.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Cálculo de data de tolerância
+User Function ExDaySub()
+    Local dLimite := DaySub(Date(), 7) // 7 dias atrás
+    ConOut("Data limite de tolerância: " + dToC(dLimite))
+Return`
+      },
+
+      // -----------------------------------------------------------------------
+      // CATEGORIA: ARQUIVOS E DIRETÓRIOS - LOTE 3 (3 NOVAS FUNÇÕES)
+      // -----------------------------------------------------------------------
+      {
+        nome: "CpyS2T",
+        categoria: "Arquivos e Diretórios",
+        sintaxe: "CpyS2T( <cOrigemServer>, <cDestinoClient>, [<lShowProgress>] )",
+        retorno: "Numérico (0 se sucesso)",
+        descricaoCurta: "Copia um arquivo do servidor Protheus (Server) para a máquina do usuário (Client / SmartClient).",
+        descricaoDetalhada: "Inverso de CpyT2S(). Sigla para 'Copy Server to Terminal'. Essencial para download de relatórios em Excel, PDFs e arquivos exportados para a máquina do usuário.",
+        parametros: [
+          { nome: "cOrigemServer", tipo: "Caractere", descricao: "Caminho do arquivo no servidor.", opcional: false },
+          { nome: "cDestinoClient", tipo: "Caractere", descricao: "Caminho de destino na máquina do operador.", opcional: false },
+          { nome: "lShowProgress", tipo: "Lógico", descricao: "Exibe régua de progresso (padrão: .T.).", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Download de arquivo do servidor para a estação local
+User Function ExCpyS2T()
+    Local cServer := "\\spool\\relatorio_geral.pdf"
+    Local cLocal  := "C:\\temp\\relatorio_geral.pdf"
+
+    If CpyS2T(cServer, cLocal, .T.) == 0
+        ConOut("Arquivo transferido com sucesso para a estação do usuário!")
+    EndIf
+Return`
+      },
+      {
+        nome: "MakeDir",
+        categoria: "Arquivos e Diretórios",
+        sintaxe: "MakeDir( <cDiretorio> )",
+        retorno: "Numérico (0 se sucesso ou -1 se falha)",
+        descricaoCurta: "Cria uma nova pasta ou diretório no sistema de arquivos do servidor Protheus.",
+        descricaoDetalhada: "Cria a pasta especificada a partir do RootPath ou no caminho indicado. Retorna 0 se criada com êxito.",
+        parametros: [
+          { nome: "cDiretorio", tipo: "Caractere", descricao: "Caminho da pasta a ser criada.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Criação de diretório no servidor
+User Function ExMakeDir()
+    Local cNovaPasta := "\\spool\\nfe_processadas"
+
+    If !ExistDir(cNovaPasta)
+        If MakeDir(cNovaPasta) == 0
+            ConOut("Pasta criada com sucesso!")
+        EndIf
+    EndIf
+Return`
+      },
+      {
+        nome: "ExistDir",
+        categoria: "Arquivos e Diretórios",
+        sintaxe: "ExistDir( <cDiretorio> )",
+        retorno: "Lógico (.T. / .F.)",
+        descricaoCurta: "Verifica se um determinado diretório ou pasta existe no servidor.",
+        descricaoDetalhada: "Retorna .T. se a pasta informada existir no disco e for um diretório válido; .F. caso contrário.",
+        parametros: [
+          { nome: "cDiretorio", tipo: "Caractere", descricao: "Caminho do diretório a testar.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Verificação de diretório
+User Function ExExistDir()
+    Local cPasta := "\\system"
+
+    If ExistDir(cPasta)
+        ConOut("Diretório de sistema confirmado no servidor.")
+    EndIf
+Return`
+      },
+
+      // -----------------------------------------------------------------------
+      // CATEGORIA: TIPOS E VALIDAÇÕES - DICIONÁRIO E SISTEMA LOTE 3 (6 NOVAS FUNÇÕES)
+      // -----------------------------------------------------------------------
+      {
+        nome: "Posicione",
+        categoria: "Tipos e Validações",
+        sintaxe: "Posicione( <cAlias>, <nOrdem>, <cChave>, <cCampoRetorno> )",
+        retorno: "Qualquer tipo (Conteúdo do campo pesquisado)",
+        descricaoCurta: "Busca e retorna o conteúdo de um campo em outra tabela com cache e posicionamento automático.",
+        descricaoDetalhada: "Uma das funções mais importantes do Protheus. Posiciona a tabela <cAlias> pelo índice <nOrdem> buscando <cChave>. Se encontrar, retorna o conteúdo de <cCampoRetorno>; se não encontrar, retorna o valor padrão vazio correspondente ao tipo do campo. Gerencia cache interno automático de alta velocidade.",
+        parametros: [
+          { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela a pesquisar (ex: 'SA1', 'SB1').", opcional: false },
+          { nome: "nOrdem", tipo: "Numérico", descricao: "Ordem do índice a ser pesquisado.", opcional: false },
+          { nome: "cChave", tipo: "Caractere", descricao: "Chave de busca montada (incluindo filial se exclusiva).", opcional: false },
+          { nome: "cCampoRetorno", tipo: "Caractere", descricao: "Nome do campo cujo conteúdo será retornado (ex: 'A1_NOME').", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Obtenção de nome do cliente em 1 linha
+User Function ExPosicione()
+    Local cFilialSA1 := xFilial("SA1")
+    Local cCodCli    := "000001"
+    Local cLojaCli   := "01"
+    Local cNomeCli   := ""
+
+    cNomeCli := Posicione("SA1", 1, cFilialSA1 + cCodCli + cLojaCli, "A1_NOME")
+    ConOut("Nome do Cliente: " + cNomeCli)
+Return`
+      },
+      {
+        nome: "SuperGetMV",
+        categoria: "Tipos e Validações",
+        sintaxe: "SuperGetMV( <cParametro>, [<lHelp>], [<xPadrao>] )",
+        retorno: "Qualquer tipo",
+        descricaoCurta: "Obtém o conteúdo de um parâmetro do sistema SX6 com cache em memória de alta performance.",
+        descricaoDetalhada: "Versão otimizada e recomendada que substitui a tradicional GetMV(). Mantém os parâmetros em cache de memória do processo/thread, evitando leituras repetidas e sobrecarga de banco de dados.",
+        parametros: [
+          { nome: "cParametro", tipo: "Caractere", descricao: "Nome do parâmetro no SX6 (ex: 'MV_ESTADO').", opcional: false },
+          { nome: "lHelp", tipo: "Lógico", descricao: "Dispara Help caso não exista (padrão: .F.).", opcional: true },
+          { nome: "xPadrao", tipo: "Qualquer tipo", descricao: "Valor de fallback retornado se o parâmetro não estiver cadastrado.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Leitura rápida de parâmetros com cache
+User Function ExSuperGetMV()
+    Local cUFPadrao   := SuperGetMV("MV_ESTADO", .F., "SP")
+    Local lEnviaEmail := SuperGetMV("MV_ENVMAIL", .F., .F.)
+
+    ConOut("UF Padrão: " + cUFPadrao)
+    ConOut("Envia E-mail: " + cValToChar(lEnviaEmail))
+Return`
+      },
+      {
+        nome: "GetNewPar",
+        categoria: "Tipos e Validações",
+        sintaxe: "GetNewPar( <cParametro>, <xPadrao> )",
+        retorno: "Qualquer tipo",
+        descricaoCurta: "Obtém o valor de um parâmetro do SX6 ou retorna um valor padrão sem gerar erro caso não exista.",
+        descricaoDetalhada: "Lê o parâmetro do SX6 de forma tolerante a falhas. Se o parâmetro não existir no dicionário de dados da instalação do cliente, retorna automaticamente <xPadrao> sem disparar help ou interromper a execução.",
+        parametros: [
+          { nome: "cParametro", tipo: "Caractere", descricao: "Nome do parâmetro no SX6.", opcional: false },
+          { nome: "xPadrao", tipo: "Qualquer tipo", descricao: "Valor padrão retornado caso não cadastrado.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Leitura segura de parâmetro customizado
+User Function ExGetNewPar()
+    Local nLimiteCredito := GetNewPar("MV_X_LIMCR", 10000.00)
+    ConOut("Limite configurado: R$ " + cValToChar(nLimiteCredito))
+Return`
+      },
+      {
+        nome: "IsBlind",
+        categoria: "Tipos e Validações",
+        sintaxe: "IsBlind()",
+        retorno: "Lógico (.T. / .F.)",
+        descricaoCurta: "Indica se a execução atual está rodando em modo não visual / cego (Schedule, Job, Web Service).",
+        descricaoDetalhada: "Retorna .T. quando a rotina está em execução em segundo plano sem interface gráfica ativa (SmartClient), como Jobs, Schedules, Threads automáticas e Web Services REST/SOAP. Permite desviar a chamada de mensagens visuais (MsgInfo, Aviso) para logs no ConOut.",
+        parametros: [],
+        exemplo: `// Exemplo prático: Diferenciação entre execução visual e batch/schedule
+User Function ExIsBlind()
+    If IsBlind()
+        ConOut("[JOB] Processamento finalizado com sucesso via Schedule.")
+    Else
+        MsgInfo("Processamento finalizado com sucesso!", "Concluído")
+    EndIf
+Return`
+      },
+      {
+        nome: "GetSX3Cache",
+        categoria: "Tipos e Validações",
+        sintaxe: "GetSX3Cache( <cCampo>, <cPropriedade> )",
+        retorno: "Qualquer tipo",
+        descricaoCurta: "Consulta propriedades de metadados de campos do dicionário SX3 através do cache de memória.",
+        descricaoDetalhada: "Permite ler atributos de campos do dicionário de dados do Protheus em altíssima velocidade sem abrir o arquivo SX3. Propriedades suportadas: 'X3_TITULO', 'X3_TIPO', 'X3_TAMANHO', 'X3_DECIMAL', 'X3_PICTURE', 'X3_VALID', etc.",
+        parametros: [
+          { nome: "cCampo", tipo: "Caractere", descricao: "Nome do campo no dicionário (ex: 'A1_NOME').", opcional: false },
+          { nome: "cPropriedade", tipo: "Caractere", descricao: "Propriedade SX3 desejada (ex: 'X3_TITULO', 'X3_TIPO').", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Consulta rápida de metadados de campos
+User Function ExGetSX3Cache()
+    Local cTitulo := GetSX3Cache("A1_NOME", "X3_TITULO")
+    Local nTam    := GetSX3Cache("A1_NOME", "X3_TAMANHO")
+    Local cTipo   := GetSX3Cache("A1_NOME", "X3_TIPO")
+
+    ConOut("Campo: A1_NOME | Título: " + cTitulo + " | Tipo: " + cTipo + " | Tam: " + cValToChar(nTam))
+Return`
+      },
+      {
+        nome: "GetAdvFVal",
+        categoria: "Tipos e Validações",
+        sintaxe: "GetAdvFVal( <cAlias>, <cCampoRetorno>, <cChaveBusca>, [<nOrdem>], [<xPadrao>] )",
+        retorno: "Qualquer tipo",
+        descricaoCurta: "Busca o valor de um campo de tabela via DBAccess/OpenQuery de alta performance.",
+        descricaoDetalhada: "Busca rápida de valor de campo que consulta o cache ou executa uma query direta sem mover o ponteiro da área de trabalho ativa.",
+        parametros: [
+          { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela pesquisada.", opcional: false },
+          { nome: "cCampoRetorno", tipo: "Caractere", descricao: "Campo desejado.", opcional: false },
+          { nome: "cChaveBusca", tipo: "Caractere", descricao: "Chave de índice pesquisada.", opcional: false },
+          { nome: "nOrdem", tipo: "Numérico", descricao: "Ordem de índice (padrão: 1).", opcional: true },
+          { nome: "xPadrao", tipo: "Qualquer tipo", descricao: "Valor padrão retornado caso não encontre.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Leitura de valor de campo sem mover a área ativa
+User Function ExGetAdvFVal()
+    Local cDescProd := GetAdvFVal("SB1", "B1_DESC", xFilial("SB1") + "PROD001", 1, "PRODUTO NÃO ENCONTRADO")
+    ConOut("Descrição: " + cDescProd)
+Return`
+      },
+
+      // -----------------------------------------------------------------------
+      // CATEGORIA: FRAMEWORK PROTHEUS & MVC - LOTE 3 (5 NOVAS FUNÇÕES)
+      // -----------------------------------------------------------------------
+      {
+        nome: "FWMBrowse",
+        categoria: "Framework Protheus",
+        sintaxe: "FWMBrowse():New()",
+        retorno: "Objeto (Instância da classe FWMBrowse)",
+        descricaoCurta: "Instancia e gerencia o componente oficial de navegação e listagem de registros em tabelas (Browse Protheus).",
+        descricaoDetalhada: "Componente visual padrão de grids de dados do Protheus. Suporta colunas com legendas, paginação, filtros avançados, botões de ação e integração com MVC.",
+        parametros: [],
+        exemplo: `// Exemplo prático: Construção de tela de Browse com FWMBrowse
+User Function ExFWMBrowse()
+    Local oBrowse := FWMBrowse():New()
+
+    oBrowse:SetAlias("SA1")
+    oBrowse:SetDescription("Cadastro de Clientes")
+    oBrowse:Activate()
+Return`
+      },
+      {
+        nome: "FwLoadMenuDef",
+        categoria: "Framework Protheus",
+        sintaxe: "FwLoadMenuDef( <cRotina> )",
+        retorno: "Array (Estrutura do menu de operações)",
+        descricaoCurta: "Carrega dinamicamente a definição de menus (MenuDef) de uma rotina Protheus.",
+        descricaoDetalhada: "Lê e compõe o array de opções de aRotina/MenuDef de um fonte MVC ou padrão Protheus, retornando as ações de Visualizar, Incluir, Alterar e Excluir.",
+        parametros: [
+          { nome: "cRotina", tipo: "Caractere", descricao: "Nome do fonte onde reside o MenuDef (ex: 'MATA010').", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Carregamento dinâmico de opções de menu
+User Function ExFwLoadMenuDef()
+    Local aMenu := FwLoadMenuDef("MATA030")
+    ConOut("Total de opções no menu da rotina: " + cValToChar(Len(aMenu)))
+Return`
+      },
+      {
+        nome: "FWModelActive",
+        categoria: "Framework Protheus",
+        sintaxe: "FWModelActive()",
+        retorno: "Objeto (Instância de MPFormModel) ou NIL",
+        descricaoCurta: "Retorna o modelo de dados MVC ativo na thread corrente de execução.",
+        descricaoDetalhada: "Permite obter referência direta ao objeto MPFormModel que está sendo manipulado em uma tela MVC em execução (em pontos de validação, gatilhos ou eventos).",
+        parametros: [],
+        exemplo: `// Exemplo prático: Obtenção do modelo MVC em tempo de execução
+User Function ExFWModelActive()
+    Local oModel := FWModelActive()
+
+    If oModel != NIL
+        ConOut("ID do modelo ativo: " + oModel:GetId())
+        ConOut("Operação ativa: " + cValToChar(oModel:GetOperation()))
+    EndIf
+Return`
+      },
+      {
+        nome: "FwFldGet",
+        categoria: "Framework Protheus",
+        sintaxe: "FwFldGet( <cCampo> )",
+        retorno: "Qualquer tipo (Conteúdo atual do campo no modelo MVC)",
+        descricaoCurta: "Obtém o valor de um campo diretamente do modelo de dados MVC ativo sem precisar instanciar objetos.",
+        descricaoDetalhada: "Função atalho para leitura do buffer de dados de um campo do formulário MVC em edição. Muito utilizada em validações de linha (VldLine) e regras de pré-validação.",
+        parametros: [
+          { nome: "cCampo", tipo: "Caractere", descricao: "Nome do campo a obter o valor (ex: 'A1_COD').", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Leitura de valor de campo no modelo MVC ativo
+User Function ExFwFldGet()
+    Local cCodCliente := FwFldGet("A1_COD")
+    ConOut("Código preenchido no formulário MVC: " + cCodCliente)
+Return`
+      },
+      {
+        nome: "FwFldPut",
+        categoria: "Framework Protheus",
+        sintaxe: "FwFldPut( <cCampo>, <xConteudo> )",
+        retorno: "Lógico (.T. se atribuição realizada)",
+        descricaoCurta: "Atribui um novo valor a um campo do formulário no modelo de dados MVC ativo.",
+        descricaoDetalhada: "Atualiza o buffer do modelo de dados MVC sem necessidade de manipular manualmente o submodelo. Dispara as regras de validação associadas ao campo se configurado.",
+        parametros: [
+          { nome: "cCampo", tipo: "Caractere", descricao: "Nome do campo a ser modificado.", opcional: false },
+          { nome: "xConteudo", tipo: "Qualquer tipo", descricao: "Novo valor a ser atribuído.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Atribuição de valor em campo MVC ativo
+User Function ExFwFldPut()
+    FwFldPut("A1_TIPO", "F")
+    ConOut("Campo A1_TIPO atualizado para 'F'.")
+Return`
+      },
+
+      // -----------------------------------------------------------------------
+      // CATEGORIA: MENSAGENS E TELAS - PROCESSAMENTO EM TELA LOTE 3 (4 NOVAS FUNÇÕES)
+      // -----------------------------------------------------------------------
+      {
+        nome: "MsgRun",
+        categoria: "Mensagens e Telas",
+        sintaxe: "MsgRun( <cMensagem>, <cTitulo>, <bAcao> )",
+        retorno: "Qualquer tipo (Resultado do bloco de código)",
+        descricaoCurta: "Executa um bloco de código exibindo uma janela de aviso modal com animação de aguarde.",
+        descricaoDetalhada: "Apresenta uma janela com mensagem de espera para o usuário enquanto o bloco de código <bAcao> é executado em segundo plano, fechando a janela automaticamente ao término.",
+        parametros: [
+          { nome: "cMensagem", tipo: "Caractere", descricao: "Mensagem exibida na janela (ex: 'Processando notas...').", opcional: false },
+          { nome: "cTitulo", tipo: "Caractere", descricao: "Título da janela modal.", opcional: false },
+          { nome: "bAcao", tipo: "Bloco de Código", descricao: "Code-block a ser executado {|oDlg| ...}.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Execução de rotina com tela modal de aguarde
+User Function ExMsgRun()
+    MsgRun("Aguarde, calculando comissões...", "Processamento", {|| Sleep(2000) })
+Return`
+      },
+      {
+        nome: "Processa",
+        categoria: "Mensagens e Telas",
+        sintaxe: "Processa( <bAcao>, [<cTitulo>], [<cMensagem>], [<lCancela>] )",
+        retorno: "NIL",
+        descricaoCurta: "Inicia uma régua de processamento padrão do Protheus para rotinas de longa duração.",
+        descricaoDetalhada: "Abre a janela padrão de processamento com barra de progresso (régua). O bloco de código recebe o controle e pode incrementar a régua através de IncProc() e SetRegua().",
+        parametros: [
+          { nome: "bAcao", tipo: "Bloco de Código", descricao: "Bloco com a rotina de processamento.", opcional: false },
+          { nome: "cTitulo", tipo: "Caractere", descricao: "Título da janela de processamento.", opcional: true },
+          { nome: "cMensagem", tipo: "Caractere", descricao: "Mensagem descritiva da etapa.", opcional: true },
+          { nome: "lCancela", tipo: "Lógico", descricao: "Habilita botão Cancelar na tela (padrão: .F.).", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Abertura de régua de processamento
+User Function ExProcessa()
+    Processa({|| MinhaRotina() }, "Processamento em Lote", "Atualizando cadastros...")
+Return
+
+Static Function MinhaRotina()
+    Local nI := 0
+    ProcRegua(100) // Define limite
+    For nI := 1 To 100
+        IncProc("Processando item " + cValToChar(nI))
+        Sleep(50)
+    Next nI
+Return`
+      },
+      {
+        nome: "IncProc",
+        categoria: "Mensagens e Telas",
+        sintaxe: "IncProc( [<cTexto>] )",
+        retorno: "NIL",
+        descricaoCurta: "Incrementa a régua de processamento em 1 unidade e opcionalmente atualiza o texto de status.",
+        descricaoDetalhada: "Avança a barra de progresso exibida pela função Processa(). Mantém o operador informado sobre o progresso de laços extensos.",
+        parametros: [
+          { nome: "cTexto", tipo: "Caractere", descricao: "Mensagem descritiva exibida abaixo da régua.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Incremento de régua de processamento
+User Function ExIncProc()
+    // Dentro de um laço acionado por Processa:
+    IncProc("Atualizando registro...")
+Return`
+      },
+      {
+        nome: "SetRegua",
+        categoria: "Mensagens e Telas",
+        sintaxe: "SetRegua( <nTotal> )",
+        retorno: "NIL",
+        descricaoCurta: "Define o valor máximo (100%) da régua de processamento aberta pela função Processa.",
+        descricaoDetalhada: "Configura a escala da barra de progresso. A cada chamada subsequente de IncProc(), a porcentagem concluída é calculada em relação a este total.",
+        parametros: [
+          { nome: "nTotal", tipo: "Numérico", descricao: "Total de iterações ou registros a processar.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Configuração da escala da régua
+User Function ExSetRegua()
+    Local nQtdRegistros := 500
+    SetRegua(nQtdRegistros) // Define o 100% da barra
+Return`
+      },
+
+      // -----------------------------------------------------------------------
+      // CATEGORIA: INTEGRAÇÕES E WEB (10 NOVAS FUNÇÕES)
+      // -----------------------------------------------------------------------
+      {
+        nome: "XmlParser",
+        categoria: "Integrações e Web",
+        sintaxe: "XmlParser( <cXml>, <cIdent>, @<cError>, @<cWarning> )",
+        retorno: "Objeto (Instância do objeto DOM do XML parseado)",
+        descricaoCurta: "Realiza o parse completo de uma string XML gerando um objeto com estrutura de propriedades navegáveis.",
+        descricaoDetalhada: "Função nativa do ADVPL para leitura e interpretação de XMLs de NF-e, CT-e, MDF-e e Web Services SOAP. Gera um objeto com nós acessíveis via operadores de propriedade (ex: oXml:_NFE:_INFNFE:_IDE:_NNF:TEXT).",
+        parametros: [
+          { nome: "cXml", tipo: "Caractere", descricao: "String contendo o XML a ser interpretado.", opcional: false },
+          { nome: "cIdent", tipo: "Caractere", descricao: "Prefixo identificador para nós internos (usualmente '_').", opcional: false },
+          { nome: "cError", tipo: "Caractere", descricao: "Variável por referência que receberá mensagens de erro de parse.", opcional: false },
+          { nome: "cWarning", tipo: "Caractere", descricao: "Variável por referência que receberá mensagens de aviso.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Leitura de dados de XML
+User Function ExXmlParser()
+    Local cXml     := "<pedido><numero>1020</numero><valor>150.00</valor></pedido>"
+    Local cError   := ""
+    Local cWarning := ""
+    Local oXml     := XmlParser(cXml, "_", @cError, @cWarning)
+
+    If oXml != NIL
+        ConOut("Número do pedido: " + oXml:_PEDIDO:_NUMERO:TEXT)
+        ConOut("Valor total: " + oXml:_PEDIDO:_VALOR:TEXT)
+    Else
+        ConOut("Erro no parse do XML: " + cError)
+    EndIf
+Return`
+      },
+      {
+        nome: "XmlChildEx",
+        categoria: "Integrações e Web",
+        sintaxe: "XmlChildEx( <oNode>, <cNomeFilho> )",
+        retorno: "Objeto (Nó filho) ou NIL",
+        descricaoCurta: "Busca e retorna um nó filho específico dentro de uma estrutura de objeto XML gerada por XmlParser.",
+        descricaoDetalhada: "Permite verificar se um determinado nó filho existe antes de tentar acessá-lo diretamente, evitando erros de execução por acesso a propriedade inexistente.",
+        parametros: [
+          { nome: "oNode", tipo: "Objeto", descricao: "Objeto do nó pai no XML.", opcional: false },
+          { nome: "cNomeFilho", tipo: "Caractere", descricao: "Nome da tag filha a procurar (incluindo prefixo de identificador).", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Verificação segura de tag opcional no XML
+User Function ExXmlChildEx()
+    Local oNodeFilho := XmlChildEx(oXml:_PEDIDO, "_OBSERVACOES")
+
+    If oNodeFilho != NIL
+        ConOut("Observações: " + oNodeFilho:TEXT)
+    Else
+        ConOut("Tag de observações não presente no XML.")
+    EndIf
+Return`
+      },
+      {
+        nome: "EncodeUTF8",
+        categoria: "Integrações e Web",
+        sintaxe: "EncodeUTF8( <cStringAnsi> )",
+        retorno: "Caractere (String codificada em UTF-8)",
+        descricaoCurta: "Converte uma cadeia de caracteres do padrão ANSI (Windows-1252) para a codificação UTF-8.",
+        descricaoDetalhada: "Essencial na geração de payloads JSON, XMLs de documentos fiscais eletrônicos e integração com APIs REST para preservar caracteres acentuados sem corrupção.",
+        parametros: [
+          { nome: "cStringAnsi", tipo: "Caractere", descricao: "Texto na codificação local do Protheus.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Codificação de texto para payload JSON
+User Function ExEncodeUTF8()
+    Local cTextoAnsi := "Relatório de Operação de Produção"
+    Local cTextoUTF8 := EncodeUTF8(cTextoAnsi)
+
+    ConOut("Texto codificado para UTF-8 com sucesso.")
+Return`
+      },
+      {
+        nome: "DecodeUTF8",
+        categoria: "Integrações e Web",
+        sintaxe: "DecodeUTF8( <cStringUTF8> )",
+        retorno: "Caractere (String decodificada em ANSI/Windows-1252)",
+        descricaoCurta: "Converte uma cadeia de caracteres no formato UTF-8 para o padrão local ANSI do Protheus.",
+        descricaoDetalhada: "Inverso de EncodeUTF8(). Utilizada ao receber dados de requisições REST externas, web services e arquivos JSON codificados em UTF-8, garantindo gravação correta nos campos do banco de dados.",
+        parametros: [
+          { nome: "cStringUTF8", tipo: "Caractere", descricao: "Texto em formato UTF-8.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Decodificação de resposta de API REST
+User Function ExDecodeUTF8()
+    Local cRecebidoAPI := "SÃ£o Paulo" // UTF-8 lido de endpoint
+    Local cConvertido  := DecodeUTF8(cRecebidoAPI)
+
+    ConOut("Texto decodificado: " + cConvertido) // "São Paulo"
+Return`
+      },
+      {
+        nome: "Escape",
+        categoria: "Integrações e Web",
+        sintaxe: "Escape( <cString> )",
+        retorno: "Caractere (String com caracteres codificados para URL/Percent-encoding)",
+        descricaoCurta: "Codifica caracteres especiais em formato URL-encoded (%20, %2F, etc.) para uso em query strings.",
+        descricaoDetalhada: "Converte espaços, caracteres especiais e pontuações para sua notação hexadecimal compatível com parâmetros de URLs HTTP.",
+        parametros: [
+          { nome: "cString", tipo: "Caractere", descricao: "Texto a ser codificado para URL.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Codificação de parâmetros para URL de busca
+User Function ExEscape()
+    Local cBusca    := "PRODUTO TESTE & CIA"
+    Local cUrlParam := Escape(cBusca)
+
+    ConOut("URL Encoded: " + cUrlParam)
+    // "PRODUTO%20TESTE%20%26%20CIA"
+Return`
+      },
+      {
+        nome: "HttpGet",
+        categoria: "Integrações e Web",
+        sintaxe: "HttpGet( <cUrl>, [<cParams>], [<nTimeout>], [<aHeaders>], [@<cHeaderRet>] )",
+        retorno: "Caractere (Corpo da resposta HTTP)",
+        descricaoCurta: "Executa uma requisição HTTP do tipo GET para uma URL externa e retorna a resposta do servidor.",
+        descricaoDetalhada: "Permite consultar APIs REST, serviços de CEP, cotações e web services via protocolo HTTP/HTTPS de forma síncrona.",
+        parametros: [
+          { nome: "cUrl", tipo: "Caractere", descricao: "Endereço URL de destino.", opcional: false },
+          { nome: "cParams", tipo: "Caractere", descricao: "Parâmetros de consulta (query string).", opcional: true },
+          { nome: "nTimeout", tipo: "Numérico", descricao: "Tempo limite em segundos (padrão: 30).", opcional: true },
+          { nome: "aHeaders", tipo: "Array", descricao: "Vetor com cabeçalhos HTTP customizados.", opcional: true },
+          { nome: "cHeaderRet", tipo: "Caractere", descricao: "Variável por referência que receberá os cabeçalhos de resposta.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Consulta a serviço de CEP via HTTP GET
+User Function ExHttpGet()
+    Local cUrl       := "https://viacep.com.br/ws/01001000/json/"
+    Local aHeaders   := {"Content-Type: application/json"}
+    Local cHeaderRet := ""
+    Local cResposta  := HttpGet(cUrl, , 15, aHeaders, @cHeaderRet)
+
+    ConOut("Resposta da API: " + cResposta)
+Return`
+      },
+      {
+        nome: "HttpPost",
+        categoria: "Integrações e Web",
+        sintaxe: "HttpPost( <cUrl>, [<cParams>], <cPostData>, [<nTimeout>], [<aHeaders>], [@<cHeaderRet>] )",
+        retorno: "Caractere (Corpo da resposta HTTP do servidor)",
+        descricaoCurta: "Executa uma requisição HTTP do tipo POST enviando dados no corpo da mensagem.",
+        descricaoDetalhada: "Função nativa de envio de dados para APIs REST e web services externos. Suporta envio de payloads JSON, XML e formulários com cabeçalhos customizados.",
+        parametros: [
+          { nome: "cUrl", tipo: "Caractere", descricao: "URL do endpoint de destino.", opcional: false },
+          { nome: "cParams", tipo: "Caractere", descricao: "Parâmetros adicionais de URL.", opcional: true },
+          { nome: "cPostData", tipo: "Caractere", descricao: "Conteúdo textual enviado no corpo (Body) da requisição.", opcional: false },
+          { nome: "nTimeout", tipo: "Numérico", descricao: "Tempo limite em segundos (padrão: 30).", opcional: true },
+          { nome: "aHeaders", tipo: "Array", descricao: "Cabeçalhos HTTP adicionais (ex: Authorization).", opcional: true },
+          { nome: "cHeaderRet", tipo: "Caractere", descricao: "Variável por referência que receberá os cabeçalhos de retorno.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Envio de pedido via API REST com HTTP POST
+User Function ExHttpPost()
+    Local cUrl       := "https://api.empresa.com.br/v1/pedidos"
+    Local cBody      := '{"cliente": "000001", "total": 250.00}'
+    Local aHeaders   := {"Content-Type: application/json", "Authorization: Bearer TOKEN123"}
+    Local cHeaderRet := ""
+    Local cRetorno   := HttpPost(cUrl, , cBody, 30, aHeaders, @cHeaderRet)
+
+    ConOut("Resposta do envio: " + cRetorno)
+Return`
+      },
+      {
+        nome: "FWJsonSerialize",
+        categoria: "Integrações e Web",
+        sintaxe: "FWJsonSerialize( <xObjeto>, [<lCompact>], [<lEscaped>] )",
+        retorno: "Caractere (String JSON formatada)",
+        descricaoCurta: "Serializa um objeto, array ou HashMap do ADVPL para uma cadeia de caracteres no formato JSON.",
+        descricaoDetalhada: "Componente oficial moderno do Protheus para geração de JSON. Transforma estruturas de dados em texto JSON padronizado com alta performance, essencial para construção de endpoints REST.",
+        parametros: [
+          { nome: "xObjeto", tipo: "Objeto / Array / HashMap", descricao: "Estrutura de dados a serializar.", opcional: false },
+          { nome: "lCompact", tipo: "Lógico", descricao: "Se .T., gera JSON compacto sem quebras de linha (padrão: .T.).", opcional: true },
+          { nome: "lEscaped", tipo: "Lógico", descricao: "Escapa caracteres especiais automaticamente (padrão: .T.).", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Geração de JSON a partir de objeto ADVPL
+User Function ExFWJsonSerialize()
+    Local oCliente := JsonObject():New()
+    Local cJson    := ""
+
+    oCliente["codigo"] := "000150"
+    oCliente["nome"]   := "EMPRESA MODELO S.A."
+    oCliente["limite"] := 50000.00
+
+    cJson := FWJsonSerialize(oCliente)
+    ConOut("JSON Gerado: " + cJson)
+Return`
+      },
+      {
+        nome: "FWJsonDeserialize",
+        categoria: "Integrações e Web",
+        sintaxe: "FWJsonDeserialize( <cJson>, @<xObjeto> )",
+        retorno: "Lógico (.T. se sucesso ou .F. se JSON inválido)",
+        descricaoCurta: "Converte uma string JSON em um objeto ou estrutura de dados nativa do ADVPL.",
+        descricaoDetalhada: "Realiza a decodificação de texto JSON diretamente para uma variável de objeto ou array nativo, permitindo acesso imediato às propriedades (ex: oObj['nome']).",
+        parametros: [
+          { nome: "cJson", tipo: "Caractere", descricao: "String de texto em formato JSON.", opcional: false },
+          { nome: "xObjeto", tipo: "Qualquer tipo", descricao: "Variável passada por referência (@) que receberá o objeto parseado.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Parse de string JSON para objeto
+User Function ExFWJsonDeserialize()
+    Local cPayload := '{"codigo": "0001", "status": "APROVADO"}'
+    Local oDados   := NIL
+
+    If FWJsonDeserialize(cPayload, @oDados)
+        ConOut("Código: " + oDados["codigo"])
+        ConOut("Status: " + oDados["status"])
+    Else
+        ConOut("Erro: JSON inválido ou malformado!")
+    EndIf
+Return`
+      },
+      {
+        nome: "MsExecAuto",
+        categoria: "Integrações e Web",
+        sintaxe: "MsExecAuto( <bRotina>, [<xParam1>], [<xParam2>], ... )",
+        retorno: "NIL",
+        descricaoCurta: "Executa uma rotina padrão do Protheus em segundo plano de forma automática (ExecAuto).",
+        descricaoDetalhada: "A ferramenta primordial de integração nativa do Protheus. Executa rotinas padrão de cadastro e movimentos (como inclusão de pedidos MATA410, notas MATA461 e clientes MATA030) validando todas as regras de negócio, tabelas SX e integridade sem interface gráfica.",
+        parametros: [
+          { nome: "bRotina", tipo: "Bloco de Código", descricao: "Bloco de código que invoca a rotina padrão (ex: {|x, y| MATA410(x, y)}).", opcional: false },
+          { nome: "xParam1, xParam2...", tipo: "Qualquer tipo", descricao: "Parâmetros esperados pela rotina (cabeçalho, itens, opção 3: Inclusão, 4: Alteração, 5: Exclusão).", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Chamada de rotina automática com controle de erro
+User Function ExMsExecAuto()
+    Private lMsErroAuto := .F.
+    Private lMsHelpAuto := .T.
+    Local aCabec        := {}
+    Local aItens        := {}
+
+    // Exemplo conceitual de inclusão via ExecAuto
+    // MsExecAuto({|x, y, z| MATA410(x, y, z)}, aCabec, aItens, 3)
+
+    If lMsErroAuto
+        ConOut("Erro na rotina automática! Consulte MostraErro().")
+    Else
+        ConOut("Rotina automática concluída com sucesso!")
+    EndIf
+Return`
       }
     ];
 

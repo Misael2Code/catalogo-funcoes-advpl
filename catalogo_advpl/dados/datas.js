@@ -286,5 +286,113 @@ User Function ExDataValida()
     ConOut("Data original: " + dToC(dVenc))
     ConOut("Data ajustada para dia útil: " + dToC(dUtil))
 Return`
+  },
+  {
+    nome: "FirstDay",
+    categoria: "Datas",
+    sintaxe: "FirstDay( <dData> )",
+    retorno: "Data (D)",
+    descricaoCurta: "Retorna a data correspondente ao primeiro dia do mês da data informada.",
+    descricaoDetalhada: "Inverso conceitual de LastDay(). Retorna sempre o dia 1º do mês e ano da data passada como argumento.",
+    parametros: [
+      { nome: "dData", tipo: "Data", descricao: "Data de referência.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Obtenção do primeiro dia do mês corrente
+User Function ExFirstDay()
+    Local dHoje     := Date()
+    Local dPrimeiro := FirstDay(dHoje)
+
+    ConOut("Primeiro dia do mês corrente: " + dToC(dPrimeiro))
+Return`
+  },
+  {
+    nome: "Dow",
+    categoria: "Datas",
+    sintaxe: "Dow( <dData> )",
+    retorno: "Numérico (1 a 7)",
+    descricaoCurta: "Retorna o dia da semana como um valor numérico de 1 (Domingo) a 7 (Sábado).",
+    descricaoDetalhada: "Sigla para 'Day of Week'. Retorna: 1 = Domingo, 2 = Segunda, 3 = Terça, 4 = Quarta, 5 = Quinta, 6 = Sexta, 7 = Sábado.",
+    parametros: [
+      { nome: "dData", tipo: "Data", descricao: "Data a ser inspecionada.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Verificação de final de semana
+User Function ExDow()
+    Local dData := Date()
+    Local nDiaSemana := Dow(dData)
+
+    If nDiaSemana == 1 .Or. nDiaSemana == 7
+        ConOut("Data cai em final de semana.")
+    Else
+        ConOut("Data em dia útil comercial.")
+    EndIf
+Return`
+  },
+  {
+    nome: "CDoW",
+    categoria: "Datas",
+    sintaxe: "CDoW( <dData> )",
+    retorno: "Caractere (String com o nome do dia da semana)",
+    descricaoCurta: "Retorna o nome do dia da semana por extenso conforme o idioma do ambiente.",
+    descricaoDetalhada: "Retorna string com o nome por extenso (ex: 'Segunda-feira', 'Domingo', ou 'Monday' em inglês).",
+    parametros: [
+      { nome: "dData", tipo: "Data", descricao: "Data de referência.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Exibição do dia da semana por extenso
+User Function ExCDoW()
+    Local dHoje := Date()
+    ConOut("Hoje é: " + CDoW(dHoje))
+Return`
+  },
+  {
+    nome: "CMonth",
+    categoria: "Datas",
+    sintaxe: "CMonth( <dData> )",
+    retorno: "Caractere (String com o nome do mês)",
+    descricaoCurta: "Retorna o nome do mês por extenso correspondente à data informada.",
+    descricaoDetalhada: "Retorna string com o nome do mês (ex: 'Janeiro', 'Fevereiro', 'Novembro') de acordo com o idioma configurado.",
+    parametros: [
+      { nome: "dData", tipo: "Data", descricao: "Data de onde o mês será extraído.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Nome do mês atual por extenso
+User Function ExCMonth()
+    Local dData := Date()
+    ConOut("Mês atual por extenso: " + CMonth(dData))
+Return`
+  },
+  {
+    nome: "MonthSub",
+    categoria: "Datas",
+    sintaxe: "MonthSub( <dData>, <nMeses> )",
+    retorno: "Data (D)",
+    descricaoCurta: "Subtrai uma quantidade de meses de uma data fornecida, recalculando os dias limites.",
+    descricaoDetalhada: "Função inversa de MonthSum(). Subtrai <nMeses> ajustando o último dia caso o mês de destino possua menos dias (ex: subtrair 1 mês de 31/03 resulta em 28/02).",
+    parametros: [
+      { nome: "dData", tipo: "Data", descricao: "Data inicial.", opcional: false },
+      { nome: "nMeses", tipo: "Numérico", descricao: "Quantidade de meses a subtrair.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Subtração de meses para busca de histórico
+User Function ExMonthSub()
+    Local dHoje      := Date()
+    Local dTresMeses := MonthSub(dHoje, 3)
+
+    ConOut("Data de 3 meses atrás: " + dToC(dTresMeses))
+Return`
+  },
+  {
+    nome: "DaySub",
+    categoria: "Datas",
+    sintaxe: "DaySub( <dData>, <nDias> )",
+    retorno: "Data (D)",
+    descricaoCurta: "Subtrai uma quantidade de dias corridos de uma data informada.",
+    descricaoDetalhada: "Subtrai <nDias> corridos da data. Equivale funcionalmente a dData - nDias.",
+    parametros: [
+      { nome: "dData", tipo: "Data", descricao: "Data de referência.", opcional: false },
+      { nome: "nDias", tipo: "Numérico", descricao: "Quantidade de dias corridos a subtrair.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Cálculo de data de tolerância
+User Function ExDaySub()
+    Local dLimite := DaySub(Date(), 7) // 7 dias atrás
+    ConOut("Data limite de tolerância: " + dToC(dLimite))
+Return`
   }
 );

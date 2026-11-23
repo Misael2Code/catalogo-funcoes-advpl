@@ -484,5 +484,103 @@ User Function ExSpace()
 
     ConOut("Comprimento da variável: " + cValToChar(Len(cNomeVazio))) // 40
 Return`
+  },
+  {
+    nome: "NoAcento",
+    categoria: "Strings",
+    sintaxe: "NoAcento( <cString> )",
+    retorno: "Caractere (String)",
+    descricaoCurta: "Remove acentos e caracteres especiais gráficos de uma cadeia de caracteres, substituindo-os por letras simples.",
+    descricaoDetalhada: "Converte caracteres acentuados (á, é, í, ó, ú, ç, ã, etc.) para suas formas não acentuadas (a, e, i, o, u, c, a). Tradicionalmente utilizada na geração de arquivos de remessa bancária, SEFAZ e integração contábil.",
+    parametros: [
+      { nome: "cString", tipo: "Caractere", descricao: "Texto contendo acentuação a ser normalizado.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Remoção de acentuação para arquivos de remessa
+User Function ExNoAcento()
+    Local cOriginal := "João da Conceição & Filhos Ltda - São Paulo"
+    Local cLimpo    := NoAcento(cOriginal)
+
+    ConOut("Texto sem acento: " + cLimpo)
+    // "Joao da Conceicao & Filhos Ltda - Sao Paulo"
+Return`
+  },
+  {
+    nome: "FwNoAccent",
+    categoria: "Strings",
+    sintaxe: "FwNoAccent( <cTexto> )",
+    retorno: "Caractere (String)",
+    descricaoCurta: "Função moderna do Framework TOTVS para remoção abrangente de acentos e caracteres especiais.",
+    descricaoDetalhada: "Evolução da função NoAcento(). Oferece suporte completo a UTF-8 e tabelas Unicode estendidas, garantindo limpeza precisa para payloads de API REST e integração com cloud.",
+    parametros: [
+      { nome: "cTexto", tipo: "Caractere", descricao: "Texto com acentos a ser tratado.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Normalização moderna de caracteres no Framework Protheus
+User Function ExFwNoAccent()
+    Local cDescricao := "PRODUÇÃO AGRÍCOLA - CANA-DE-AÇÚCAR"
+    Local cTratado   := FwNoAccent(cDescricao)
+
+    ConOut("Resultado FW: " + cTratado)
+    // "PRODUCAO AGRICOLA - CANA-DE-ACUCAR"
+Return`
+  },
+  {
+    nome: "StrTokArr",
+    categoria: "Strings",
+    sintaxe: "StrTokArr( <cString>, <cDelimitador> )",
+    retorno: "Array (Vetor de strings)",
+    descricaoCurta: "Divide uma cadeia de caracteres em um array com base em um caractere delimitador (Split).",
+    descricaoDetalhada: "Converte uma string delimitada (como CSV, chaves compostas ou listas separadas por ponto-e-vírgula) em um array unidimensional onde cada posição corresponde a um elemento separado.",
+    parametros: [
+      { nome: "cString", tipo: "Caractere", descricao: "Texto a ser fragmentado.", opcional: false },
+      { nome: "cDelimitador", tipo: "Caractere", descricao: "Caractere ou sequência usada como separador (ex: ';', ',', '|').", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Divisão de linha CSV em vetor de campos
+User Function ExStrTokArr()
+    Local cLinhaCSV := "0001;MOUSE OPTICO;45.90;10"
+    Local aCampos   := StrTokArr(cLinhaCSV, ";")
+
+    ConOut("Código: " + aCampos[1])      // "0001"
+    ConOut("Descrição: " + aCampos[2])   // "MOUSE OPTICO"
+    ConOut("Preço: " + aCampos[3])       // "45.90"
+Return`
+  },
+  {
+    nome: "ArrTokStr",
+    categoria: "Strings",
+    sintaxe: "ArrTokStr( <aArray>, [<cDelimitador>] )",
+    retorno: "Caractere (String)",
+    descricaoCurta: "Une os elementos de um array em uma única string separados por um delimitador (Join).",
+    descricaoDetalhada: "Inverso de StrTokArr(). Concatena todos os elementos do vetor utilizando o caractere delimitador informado (padrão: vírgula).",
+    parametros: [
+      { nome: "aArray", tipo: "Array", descricao: "Vetor de elementos a serem unidos.", opcional: false },
+      { nome: "cDelimitador", tipo: "Caractere", descricao: "Separador entre os elementos (padrão: ',').", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Junção de elementos de vetor em string separada por barras
+User Function ExArrTokStr()
+    Local aCores := {"AZUL", "VERDE", "VERMELHO", "AMARELO"}
+    Local cLista := ArrTokStr(aCores, " | ")
+
+    ConOut("Lista unida: " + cLista)
+    // "AZUL | VERDE | VERMELHO | AMARELO"
+Return`
+  },
+  {
+    nome: "IsDigit",
+    categoria: "Strings",
+    sintaxe: "IsDigit( <cString> )",
+    retorno: "Lógico (.T. / .F.)",
+    descricaoCurta: "Verifica se o primeiro caractere de uma cadeia de caracteres é um dígito numérico (0 a 9).",
+    descricaoDetalhada: "Retorna .T. se o caractere inicial for um número entre 0 e 9; retorna .F. se for letra, espaço ou símbolo especial.",
+    parametros: [
+      { nome: "cString", tipo: "Caractere", descricao: "String a ser avaliada.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Validação se código inicia por número
+User Function ExIsDigit()
+    Local cValor1 := "987ABC"
+    Local cValor2 := "ABC987"
+
+    ConOut("Começa com dígito: " + cValToChar(IsDigit(cValor1))) // .T.
+    ConOut("Começa com dígito: " + cValToChar(IsDigit(cValor2))) // .F.
+Return`
   }
 );

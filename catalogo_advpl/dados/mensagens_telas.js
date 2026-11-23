@@ -147,5 +147,81 @@ User Function ExConOut()
     ConOut("[STATUS] Registros processados no lote: " + cValToChar(nRegs))
     ConOut("==================================================")
 Return`
+  },
+  {
+    nome: "MsgRun",
+    categoria: "Mensagens e Telas",
+    sintaxe: "MsgRun( <cMensagem>, <cTitulo>, <bAcao> )",
+    retorno: "Qualquer tipo (Resultado do bloco de código)",
+    descricaoCurta: "Executa um bloco de código exibindo uma janela de aviso modal com animação de aguarde.",
+    descricaoDetalhada: "Apresenta uma janela com mensagem de espera para o usuário enquanto o bloco de código <bAcao> é executado em segundo plano, fechando a janela automaticamente ao término.",
+    parametros: [
+      { nome: "cMensagem", tipo: "Caractere", descricao: "Mensagem exibida na janela (ex: 'Processando notas...').", opcional: false },
+      { nome: "cTitulo", tipo: "Caractere", descricao: "Título da janela modal.", opcional: false },
+      { nome: "bAcao", tipo: "Bloco de Código", descricao: "Code-block a ser executado {|oDlg| ...}.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Execução de rotina com tela modal de aguarde
+User Function ExMsgRun()
+    MsgRun("Aguarde, calculando comissões...", "Processamento", {|| Sleep(2000) })
+Return`
+  },
+  {
+    nome: "Processa",
+    categoria: "Mensagens e Telas",
+    sintaxe: "Processa( <bAcao>, [<cTitulo>], [<cMensagem>], [<lCancela>] )",
+    retorno: "NIL",
+    descricaoCurta: "Inicia uma régua de processamento padrão do Protheus para rotinas de longa duração.",
+    descricaoDetalhada: "Abre a janela padrão de processamento com barra de progresso (régua). O bloco de código recebe o controle e pode incrementar a régua através de IncProc() e SetRegua().",
+    parametros: [
+      { nome: "bAcao", tipo: "Bloco de Código", descricao: "Bloco com a rotina de processamento.", opcional: false },
+      { nome: "cTitulo", tipo: "Caractere", descricao: "Título da janela de processamento.", opcional: true },
+      { nome: "cMensagem", tipo: "Caractere", descricao: "Mensagem descritiva da etapa.", opcional: true },
+      { nome: "lCancela", tipo: "Lógico", descricao: "Habilita botão Cancelar na tela (padrão: .F.).", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Abertura de régua de processamento
+User Function ExProcessa()
+    Processa({|| MinhaRotina() }, "Processamento em Lote", "Atualizando cadastros...")
+Return
+
+Static Function MinhaRotina()
+    Local nI := 0
+    ProcRegua(100) // Define limite
+    For nI := 1 To 100
+        IncProc("Processando item " + cValToChar(nI))
+        Sleep(50)
+    Next nI
+Return`
+  },
+  {
+    nome: "IncProc",
+    categoria: "Mensagens e Telas",
+    sintaxe: "IncProc( [<cTexto>] )",
+    retorno: "NIL",
+    descricaoCurta: "Incrementa a régua de processamento em 1 unidade e opcionalmente atualiza o texto de status.",
+    descricaoDetalhada: "Avança a barra de progresso exibida pela função Processa(). Mantém o operador informado sobre o progresso de laços extensos.",
+    parametros: [
+      { nome: "cTexto", tipo: "Caractere", descricao: "Mensagem descritiva exibida abaixo da régua.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Incremento de régua de processamento
+User Function ExIncProc()
+    // Dentro de um laço acionado por Processa:
+    IncProc("Atualizando registro...")
+Return`
+  },
+  {
+    nome: "SetRegua",
+    categoria: "Mensagens e Telas",
+    sintaxe: "SetRegua( <nTotal> )",
+    retorno: "NIL",
+    descricaoCurta: "Define o valor máximo (100%) da régua de processamento aberta pela função Processa.",
+    descricaoDetalhada: "Configura a escala da barra de progresso. A cada chamada subsequente de IncProc(), a porcentagem concluída é calculada em relação a este total.",
+    parametros: [
+      { nome: "nTotal", tipo: "Numérico", descricao: "Total de iterações ou registros a processar.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Configuração da escala da régua
+User Function ExSetRegua()
+    Local nQtdRegistros := 500
+    SetRegua(nQtdRegistros) // Define o 100% da barra
+Return`
   }
 );

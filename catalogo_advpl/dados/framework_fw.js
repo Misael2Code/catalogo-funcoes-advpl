@@ -192,5 +192,89 @@ User Function ExFWTemporaryTable()
     // Elimina a tabela temporária do banco de dados
     oTempTable:Delete()
 Return`
+  },
+  {
+    nome: "FWMBrowse",
+    categoria: "Framework Protheus",
+    sintaxe: "FWMBrowse():New()",
+    retorno: "Objeto (Instância da classe FWMBrowse)",
+    descricaoCurta: "Instancia e gerencia o componente oficial de navegação e listagem de registros em tabelas (Browse Protheus).",
+    descricaoDetalhada: "Componente visual padrão de grids de dados do Protheus. Suporta colunas com legendas, paginação, filtros avançados, botões de ação e integração com MVC.",
+    parametros: [],
+    exemplo: `// Exemplo prático: Construção de tela de Browse com FWMBrowse
+User Function ExFWMBrowse()
+    Local oBrowse := FWMBrowse():New()
+
+    oBrowse:SetAlias("SA1")
+    oBrowse:SetDescription("Cadastro de Clientes")
+    oBrowse:Activate()
+Return`
+  },
+  {
+    nome: "FwLoadMenuDef",
+    categoria: "Framework Protheus",
+    sintaxe: "FwLoadMenuDef( <cRotina> )",
+    retorno: "Array (Estrutura do menu de operações)",
+    descricaoCurta: "Carrega dinamicamente a definição de menus (MenuDef) de uma rotina Protheus.",
+    descricaoDetalhada: "Lê e compõe o array de opções de aRotina/MenuDef de um fonte MVC ou padrão Protheus, retornando as ações de Visualizar, Incluir, Alterar e Excluir.",
+    parametros: [
+      { nome: "cRotina", tipo: "Caractere", descricao: "Nome do fonte onde reside o MenuDef (ex: 'MATA010').", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Carregamento dinâmico de opções de menu
+User Function ExFwLoadMenuDef()
+    Local aMenu := FwLoadMenuDef("MATA030")
+    ConOut("Total de opções no menu da rotina: " + cValToChar(Len(aMenu)))
+Return`
+  },
+  {
+    nome: "FWModelActive",
+    categoria: "Framework Protheus",
+    sintaxe: "FWModelActive()",
+    retorno: "Objeto (Instância de MPFormModel) ou NIL",
+    descricaoCurta: "Retorna o modelo de dados MVC ativo na thread corrente de execução.",
+    descricaoDetalhada: "Permite obter referência direta ao objeto MPFormModel que está sendo manipulado em uma tela MVC em execução (em pontos de validação, gatilhos ou eventos).",
+    parametros: [],
+    exemplo: `// Exemplo prático: Obtenção do modelo MVC em tempo de execução
+User Function ExFWModelActive()
+    Local oModel := FWModelActive()
+
+    If oModel != NIL
+        ConOut("ID do modelo ativo: " + oModel:GetId())
+        ConOut("Operação ativa: " + cValToChar(oModel:GetOperation()))
+    EndIf
+Return`
+  },
+  {
+    nome: "FwFldGet",
+    categoria: "Framework Protheus",
+    sintaxe: "FwFldGet( <cCampo> )",
+    retorno: "Qualquer tipo (Conteúdo atual do campo no modelo MVC)",
+    descricaoCurta: "Obtém o valor de um campo diretamente do modelo de dados MVC ativo sem precisar instanciar objetos.",
+    descricaoDetalhada: "Função atalho para leitura do buffer de dados de um campo do formulário MVC em edição. Muito utilizada em validações de linha (VldLine) e regras de pré-validação.",
+    parametros: [
+      { nome: "cCampo", tipo: "Caractere", descricao: "Nome do campo a obter o valor (ex: 'A1_COD').", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Leitura de valor de campo no modelo MVC ativo
+User Function ExFwFldGet()
+    Local cCodCliente := FwFldGet("A1_COD")
+    ConOut("Código preenchido no formulário MVC: " + cCodCliente)
+Return`
+  },
+  {
+    nome: "FwFldPut",
+    categoria: "Framework Protheus",
+    sintaxe: "FwFldPut( <cCampo>, <xConteudo> )",
+    retorno: "Lógico (.T. se atribuição realizada)",
+    descricaoCurta: "Atribui um novo valor a um campo do formulário no modelo de dados MVC ativo.",
+    descricaoDetalhada: "Atualiza o buffer do modelo de dados MVC sem necessidade de manipular manualmente o submodelo. Dispara as regras de validação associadas ao campo se configurado.",
+    parametros: [
+      { nome: "cCampo", tipo: "Caractere", descricao: "Nome do campo a ser modificado.", opcional: false },
+      { nome: "xConteudo", tipo: "Qualquer tipo", descricao: "Novo valor a ser atribuído.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Atribuição de valor em campo MVC ativo
+User Function ExFwFldPut()
+    FwFldPut("A1_TIPO", "F")
+    ConOut("Campo A1_TIPO atualizado para 'F'.")
+Return`
   }
 );

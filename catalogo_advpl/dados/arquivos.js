@@ -286,5 +286,67 @@ User Function ExCpyT2S()
         ConOut("Falha na cópia do arquivo do cliente para o servidor!")
     EndIf
 Return`
+  },
+  {
+    nome: "CpyS2T",
+    categoria: "Arquivos e Diretórios",
+    sintaxe: "CpyS2T( <cOrigemServer>, <cDestinoClient>, [<lShowProgress>] )",
+    retorno: "Numérico (0 se sucesso)",
+    descricaoCurta: "Copia um arquivo do servidor Protheus (Server) para a máquina do usuário (Client / SmartClient).",
+    descricaoDetalhada: "Inverso de CpyT2S(). Sigla para 'Copy Server to Terminal'. Essencial para download de relatórios em Excel, PDFs e arquivos exportados para a máquina do usuário.",
+    parametros: [
+      { nome: "cOrigemServer", tipo: "Caractere", descricao: "Caminho do arquivo no servidor.", opcional: false },
+      { nome: "cDestinoClient", tipo: "Caractere", descricao: "Caminho de destino na máquina do operador.", opcional: false },
+      { nome: "lShowProgress", tipo: "Lógico", descricao: "Exibe régua de progresso (padrão: .T.).", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Download de arquivo do servidor para a estação local
+User Function ExCpyS2T()
+    Local cServer := "\\spool\\relatorio_geral.pdf"
+    Local cLocal  := "C:\\temp\\relatorio_geral.pdf"
+
+    If CpyS2T(cServer, cLocal, .T.) == 0
+        ConOut("Arquivo transferido com sucesso para a estação do usuário!")
+    EndIf
+Return`
+  },
+  {
+    nome: "MakeDir",
+    categoria: "Arquivos e Diretórios",
+    sintaxe: "MakeDir( <cDiretorio> )",
+    retorno: "Numérico (0 se sucesso ou -1 se falha)",
+    descricaoCurta: "Cria uma nova pasta ou diretório no sistema de arquivos do servidor Protheus.",
+    descricaoDetalhada: "Cria a pasta especificada a partir do RootPath ou no caminho indicado. Retorna 0 se criada com êxito.",
+    parametros: [
+      { nome: "cDiretorio", tipo: "Caractere", descricao: "Caminho da pasta a ser criada.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Criação de diretório no servidor
+User Function ExMakeDir()
+    Local cNovaPasta := "\\spool\\nfe_processadas"
+
+    If !ExistDir(cNovaPasta)
+        If MakeDir(cNovaPasta) == 0
+            ConOut("Pasta criada com sucesso!")
+        EndIf
+    EndIf
+Return`
+  },
+  {
+    nome: "ExistDir",
+    categoria: "Arquivos e Diretórios",
+    sintaxe: "ExistDir( <cDiretorio> )",
+    retorno: "Lógico (.T. / .F.)",
+    descricaoCurta: "Verifica se um determinado diretório ou pasta existe no servidor.",
+    descricaoDetalhada: "Retorna .T. se a pasta informada existir no disco e for um diretório válido; .F. caso contrário.",
+    parametros: [
+      { nome: "cDiretorio", tipo: "Caractere", descricao: "Caminho do diretório a testar.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Verificação de diretório
+User Function ExExistDir()
+    Local cPasta := "\\system"
+
+    If ExistDir(cPasta)
+        ConOut("Diretório de sistema confirmado no servidor.")
+    EndIf
+Return`
   }
 );

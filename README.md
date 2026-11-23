@@ -4,8 +4,8 @@ Documentação técnica interativa e **100% offline** das principais funções n
 
 ## 🌐 Acessar Online (GitHub Pages)
 
-- 👉 **[Abrir Catálogo Interativo (Versão Modular)](https://github.io)**
-- 👉 **[Abrir Catálogo Interativo (Arquivo Único)](https://github.io)**
+- 👉 **[Versão Modular (Principal)](https://misael2code.github.io/catalogo-funcoes-advpl/)**
+- 👉 **[Versão Arquivo Único](https://misael2code.github.io/catalogo-funcoes-advpl/documentacao_advpl.html)**
 
 ## ✨ Funcionalidades
 
@@ -21,18 +21,23 @@ O projeto oferece duas modalidades de uso para atender tanto o compartilhamento 
 
 ```text
 catalogo_funcoes_advpl/
-├── documentacao_advpl.html         # Arquivo único autocontido (HTML + CSS + JS + Dados)
+├── index.html                      # Redirecionamento da raiz para GitHub Pages
+├── documentacao_advpl.html         # Arquivo único autocontido com 150 funções (HTML + CSS + JS)
 └── catalogo_advpl/                 # Versão modular para manutenção e expansão
-    ├── index.html                  # Interface principal e tela de detalhes
-    ├── style.css                   # Estilização limpa e responsiva
-    ├── app.js                      # Lógica de busca, filtros e roteamento
+    ├── index.html                  # Interface principal e tela de detalhes SPA
+    ├── style.css                   # Estilização limpa, moderna e responsiva
+    ├── app.js                      # Lógica de busca, filtros dinâmicos e roteamento por hash
     └── dados/                      # Arquivos de dados separados por categoria
-        ├── strings.js              # Manipulação de textos (StrTran, PadL, SubStr, etc.)
-        ├── arrays.js               # Manipulação de vetores (aAdd, aScan, aSort, etc.)
-        ├── datas.js                # Datas e horas (Date, dToS, MonthSum, etc.)
-        ├── banco_dados.js          # ISAM, SX6 e SQL (DbSeek, RecLock, GetMV, TCQuery, etc.)
-        ├── framework_fw.js         # Funções do Framework (FWxFilial, etc.)
-        └── mensagens_telas.js      # Diálogos e logs (MsgInfo, Aviso, ConOut, etc.)
+        ├── strings.js              # Manipulação de textos (25 funções)
+        ├── arrays.js               # Vetores e matrizes (12 funções)
+        ├── datas.js                # Datas, horas e calendário (20 funções)
+        ├── banco_dados.js          # Navegação ISAM, locks, SX6 e SQL (20 funções)
+        ├── arquivos.js             # Arquivos e diretórios locais/servidor (15 funções)
+        ├── sistema_tipos.js        # Tipos, condicionais, metadados e validações (16 funções)
+        ├── framework_fw.js         # Framework Protheus moderno e MVC (14 funções)
+        ├── mensagens_telas.js      # Diálogos, logs e réguas de processamento (10 funções)
+        ├── matematica.js           # Arredondamentos, truncamentos e cálculos (8 funções)
+        └── integracoes_web.js      # REST, SOAP, XML, JSON e ExecAuto (10 funções)
 ```
 
 ## 🚀 Como Usar Offline

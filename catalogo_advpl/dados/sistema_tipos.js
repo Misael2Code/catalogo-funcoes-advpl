@@ -220,5 +220,124 @@ User Function ExHelp()
     Local cMsg := "O campo Quantidade deve conter valor superior a zero para este produto."
     Help("", 1, "QTDINVALIDA", , cMsg, 1, 0)
 Return`
+  },
+  {
+    nome: "Posicione",
+    categoria: "Tipos e Validações",
+    sintaxe: "Posicione( <cAlias>, <nOrdem>, <cChave>, <cCampoRetorno> )",
+    retorno: "Qualquer tipo (Conteúdo do campo pesquisado)",
+    descricaoCurta: "Busca e retorna o conteúdo de um campo em outra tabela com cache e posicionamento automático.",
+    descricaoDetalhada: "Uma das funções mais importantes do Protheus. Posiciona a tabela <cAlias> pelo índice <nOrdem> buscando <cChave>. Se encontrar, retorna o conteúdo de <cCampoRetorno>; se não encontrar, retorna o valor padrão vazio correspondente ao tipo do campo. Gerencia cache interno automático de alta velocidade.",
+    parametros: [
+      { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela a pesquisar (ex: 'SA1', 'SB1').", opcional: false },
+      { nome: "nOrdem", tipo: "Numérico", descricao: "Ordem do índice a ser pesquisado.", opcional: false },
+      { nome: "cChave", tipo: "Caractere", descricao: "Chave de busca montada (incluindo filial se exclusiva).", opcional: false },
+      { nome: "cCampoRetorno", tipo: "Caractere", descricao: "Nome do campo cujo conteúdo será retornado (ex: 'A1_NOME').", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Obtenção de nome do cliente em 1 linha
+User Function ExPosicione()
+    Local cFilialSA1 := xFilial("SA1")
+    Local cCodCli    := "000001"
+    Local cLojaCli   := "01"
+    Local cNomeCli   := ""
+
+    cNomeCli := Posicione("SA1", 1, cFilialSA1 + cCodCli + cLojaCli, "A1_NOME")
+    ConOut("Nome do Cliente: " + cNomeCli)
+Return`
+  },
+  {
+    nome: "SuperGetMV",
+    categoria: "Tipos e Validações",
+    sintaxe: "SuperGetMV( <cParametro>, [<lHelp>], [<xPadrao>] )",
+    retorno: "Qualquer tipo",
+    descricaoCurta: "Obtém o conteúdo de um parâmetro do sistema SX6 com cache em memória de alta performance.",
+    descricaoDetalhada: "Versão otimizada e recomendada que substitui a tradicional GetMV(). Mantém os parâmetros em cache de memória do processo/thread, evitando leituras repetidas e sobrecarga de banco de dados.",
+    parametros: [
+      { nome: "cParametro", tipo: "Caractere", descricao: "Nome do parâmetro no SX6 (ex: 'MV_ESTADO').", opcional: false },
+      { nome: "lHelp", tipo: "Lógico", descricao: "Dispara Help caso não exista (padrão: .F.).", opcional: true },
+      { nome: "xPadrao", tipo: "Qualquer tipo", descricao: "Valor de fallback retornado se o parâmetro não estiver cadastrado.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Leitura rápida de parâmetros com cache
+User Function ExSuperGetMV()
+    Local cUFPadrao   := SuperGetMV("MV_ESTADO", .F., "SP")
+    Local lEnviaEmail := SuperGetMV("MV_ENVMAIL", .F., .F.)
+
+    ConOut("UF Padrão: " + cUFPadrao)
+    ConOut("Envia E-mail: " + cValToChar(lEnviaEmail))
+Return`
+  },
+  {
+    nome: "GetNewPar",
+    categoria: "Tipos e Validações",
+    sintaxe: "GetNewPar( <cParametro>, <xPadrao> )",
+    retorno: "Qualquer tipo",
+    descricaoCurta: "Obtém o valor de um parâmetro do SX6 ou retorna um valor padrão sem gerar erro caso não exista.",
+    descricaoDetalhada: "Lê o parâmetro do SX6 de forma tolerante a falhas. Se o parâmetro não existir no dicionário de dados da instalação do cliente, retorna automaticamente <xPadrao> sem disparar help ou interromper a execução.",
+    parametros: [
+      { nome: "cParametro", tipo: "Caractere", descricao: "Nome do parâmetro no SX6.", opcional: false },
+      { nome: "xPadrao", tipo: "Qualquer tipo", descricao: "Valor padrão retornado caso não cadastrado.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Leitura segura de parâmetro customizado
+User Function ExGetNewPar()
+    Local nLimiteCredito := GetNewPar("MV_X_LIMCR", 10000.00)
+    ConOut("Limite configurado: R$ " + cValToChar(nLimiteCredito))
+Return`
+  },
+  {
+    nome: "IsBlind",
+    categoria: "Tipos e Validações",
+    sintaxe: "IsBlind()",
+    retorno: "Lógico (.T. / .F.)",
+    descricaoCurta: "Indica se a execução atual está rodando em modo não visual / cego (Schedule, Job, Web Service).",
+    descricaoDetalhada: "Retorna .T. quando a rotina está em execução em segundo plano sem interface gráfica ativa (SmartClient), como Jobs, Schedules, Threads automáticas e Web Services REST/SOAP. Permite desviar a chamada de mensagens visuais (MsgInfo, Aviso) para logs no ConOut.",
+    parametros: [],
+    exemplo: `// Exemplo prático: Diferenciação entre execução visual e batch/schedule
+User Function ExIsBlind()
+    If IsBlind()
+        ConOut("[JOB] Processamento finalizado com sucesso via Schedule.")
+    Else
+        MsgInfo("Processamento finalizado com sucesso!", "Concluído")
+    EndIf
+Return`
+  },
+  {
+    nome: "GetSX3Cache",
+    categoria: "Tipos e Validações",
+    sintaxe: "GetSX3Cache( <cCampo>, <cPropriedade> )",
+    retorno: "Qualquer tipo",
+    descricaoCurta: "Consulta propriedades de metadados de campos do dicionário SX3 através do cache de memória.",
+    descricaoDetalhada: "Permite ler atributos de campos do dicionário de dados do Protheus em altíssima velocidade sem abrir o arquivo SX3. Propriedades suportadas: 'X3_TITULO', 'X3_TIPO', 'X3_TAMANHO', 'X3_DECIMAL', 'X3_PICTURE', 'X3_VALID', etc.",
+    parametros: [
+      { nome: "cCampo", tipo: "Caractere", descricao: "Nome do campo no dicionário (ex: 'A1_NOME').", opcional: false },
+      { nome: "cPropriedade", tipo: "Caractere", descricao: "Propriedade SX3 desejada (ex: 'X3_TITULO', 'X3_TIPO').", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Consulta rápida de metadados de campos
+User Function ExGetSX3Cache()
+    Local cTitulo := GetSX3Cache("A1_NOME", "X3_TITULO")
+    Local nTam    := GetSX3Cache("A1_NOME", "X3_TAMANHO")
+    Local cTipo   := GetSX3Cache("A1_NOME", "X3_TIPO")
+
+    ConOut("Campo: A1_NOME | Título: " + cTitulo + " | Tipo: " + cTipo + " | Tam: " + cValToChar(nTam))
+Return`
+  },
+  {
+    nome: "GetAdvFVal",
+    categoria: "Tipos e Validações",
+    sintaxe: "GetAdvFVal( <cAlias>, <cCampoRetorno>, <cChaveBusca>, [<nOrdem>], [<xPadrao>] )",
+    retorno: "Qualquer tipo",
+    descricaoCurta: "Busca o valor de um campo de tabela via DBAccess/OpenQuery de alta performance.",
+    descricaoDetalhada: "Busca rápida de valor de campo que consulta o cache ou executa uma query direta sem mover o ponteiro da área de trabalho ativa.",
+    parametros: [
+      { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela pesquisada.", opcional: false },
+      { nome: "cCampoRetorno", tipo: "Caractere", descricao: "Campo desejado.", opcional: false },
+      { nome: "cChaveBusca", tipo: "Caractere", descricao: "Chave de índice pesquisada.", opcional: false },
+      { nome: "nOrdem", tipo: "Numérico", descricao: "Ordem de índice (padrão: 1).", opcional: true },
+      { nome: "xPadrao", tipo: "Qualquer tipo", descricao: "Valor padrão retornado caso não encontre.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Leitura de valor de campo sem mover a área ativa
+User Function ExGetAdvFVal()
+    Local cDescProd := GetAdvFVal("SB1", "B1_DESC", xFilial("SB1") + "PROD001", 1, "PRODUTO NÃO ENCONTRADO")
+    ConOut("Descrição: " + cDescProd)
+Return`
   }
 );
