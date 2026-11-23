@@ -2,6 +2,11 @@
 
 Documentação técnica interativa e **100% offline** das principais funções nativas do ADVPL e do Framework TOTVS Protheus, desenvolvida com foco em consulta rápida, precisão de sintaxe e exemplos práticos do dia a dia.
 
+## 🌐 Acessar Online (GitHub Pages)
+
+- 👉 **[Abrir Catálogo Interativo (Versão Modular)](https://github.io)**
+- 👉 **[Abrir Catálogo Interativo (Arquivo Único)](https://github.io)**
+
 ## ✨ Funcionalidades
 
 - **100% Offline (Zero Dependências Externas):** Não utiliza CDNs, fontes externas ou requisições de rede (`fetch`). Funciona diretamente via protocolo `file://` com duplo clique no navegador, sem erros de CORS e sem necessidade de servidor web.
@@ -30,7 +35,7 @@ catalogo_funcoes_advpl/
         └── mensagens_telas.js      # Diálogos e logs (MsgInfo, Aviso, ConOut, etc.)
 ```
 
-## 🚀 Como Usar
+## 🚀 Como Usar Offline
 
 1. **Uso Rápido (Arquivo Único):**
    - Baixe ou clone este repositório e dê um duplo clique em `documentacao_advpl.html`.
