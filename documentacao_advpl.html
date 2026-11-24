@@ -3805,7 +3805,7 @@ Return`
         ],
         exemplo: `// Exemplo prático: Decodificação de resposta de API REST
 User Function ExDecodeUTF8()
-    Local cRecebidoAPI := "SÃ£o Paulo" // UTF-8 lido de endpoint
+    Local cRecebidoAPI := "S" + Chr(195) + Chr(163) + "o Paulo" // Bytes UTF-8 recebidos
     Local cConvertido  := DecodeUTF8(cRecebidoAPI)
 
     ConOut("Texto decodificado: " + cConvertido) // "São Paulo"
@@ -5192,6 +5192,1088 @@ Return`
         Else
             ConOut("Aviso: Função de JSON não disponível nesta versão do RPO.")
         EndIf
+    Return`
+      },
+      {
+        nome: "AxCadastro",
+        categoria: "Mensagens e Telas",
+        sintaxe: "AxCadastro( <cAlias>, <cTitle>, [<cVldExc>], [<cVldAlt>] )",
+        retorno: "NIL",
+        descricaoCurta: "Cria e executa uma interface completa e padrão de cadastro Protheus (Browse com CRUD completo).",
+        descricaoDetalhada: "Função clássica fundamental para geração rápida de telas de cadastro (CRUD) no Protheus. Monta automaticamente o MBrowse com base no dicionário de dados (SX2/SX3/SIX), fornecendo os botões de ação e permitindo definir validações customizadas para exclusão e alteração.",
+        parametros: [
+          { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela no dicionário de dados (ex: 'SA1', 'SZ1').", opcional: false },
+          { nome: "cTitle", tipo: "Caractere", descricao: "Título exibido na barra superior da janela de cadastro.", opcional: false },
+          { nome: "cVldExc", tipo: "Caractere", descricao: "Função ou expressão ADVPL executada para validar a exclusão de registros.", opcional: true },
+          { nome: "cVldAlt", tipo: "Caractere", descricao: "Função ou expressão ADVPL executada para validar a alteração de registros.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Criação de cadastro rápido para tabela customizada
+    User Function CadTabela()
+        Local cAlias   := "SZ1"
+        Local cTitulo  := "Cadastro de Transportadoras Parceiras"
+        Local cVldExc  := "U_VldExcSZ1()" // Validação prévia de exclusão
+        Local cVldAlt  := ".T."            // Permite alteração
+    
+        AxCadastro(cAlias, cTitulo, cVldExc, cVldAlt)
+    Return
+    
+    User Function VldExcSZ1()
+        If SZ1->Z1_STATUS == "A"
+            MsgAlert("Não é permitido excluir transportadora com status Ativo!", "Validação")
+            Return .F.
+        EndIf
+    Return .T.`
+      },
+      {
+        nome: "AxInclui",
+        categoria: "Mensagens e Telas",
+        sintaxe: "AxInclui( <cAlias>, <nReg>, [<nOpc>], [<aAcho>], [<cFunc>], [<aCpos>], [<cTudoOk>], [<lF3>], [<cTransact>], [<aButtons>], [<aParam>] )",
+        retorno: "Numérico (1 se confirmado ou 0 se cancelado)",
+        descricaoCurta: "Abre a tela padrão de inclusão de registro (Enchoice) para a tabela informada.",
+        descricaoDetalhada: "Invoca o formulário padrão de inclusão do Protheus baseado no SX3 para a tabela indicada por cAlias. Executa as validações de campo, validação de TudoOk e grava o novo registro caso confirmado.",
+        parametros: [
+          { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela onde o registro será incluído.", opcional: false },
+          { nome: "nReg", tipo: "Numérico", descricao: "Número do RecNo posicionado (normalmente RecNo() atual ou 0).", opcional: false },
+          { nome: "nOpc", tipo: "Numérico", descricao: "Opção da rotina (padrão 3: Inclusão).", opcional: true },
+          { nome: "aAcho", tipo: "Array", descricao: "Vetor com nomes dos campos a serem exibidos na interface.", opcional: true },
+          { nome: "cFunc", tipo: "Caractere", descricao: "Função executada na validação de campos ou gatilhos.", opcional: true },
+          { nome: "aCpos", tipo: "Array", descricao: "Vetor com a relação de campos editáveis.", opcional: true },
+          { nome: "cTudoOk", tipo: "Caractere", descricao: "Expressão ou função ADVPL de validação final executada ao confirmar.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Abertura direta de tela padrão de inclusão
+    User Function IncCliente()
+        Local nOpcao := 0
+    
+        DbSelectArea("SA1")
+        nOpcao := AxInclui("SA1", RecNo(), 3, Nil, Nil, Nil, "U_CliTudoOk()")
+    
+        If nOpcao == 1
+            ConOut("Cliente gravado com sucesso no banco de dados!")
+        Else
+            ConOut("Operação de inclusão cancelada pelo usuário.")
+        EndIf
+    Return`
+      },
+      {
+        nome: "AxAltera",
+        categoria: "Mensagens e Telas",
+        sintaxe: "AxAltera( <cAlias>, <nReg>, <nOpc>, [<aAcho>], [<aCpos>], [<nColMens>], [<cMensagem>], [<cTudoOk>], [<cTransact>], [<cFunc>], [<aButtons>], [<aParam>] )",
+        retorno: "Numérico (1 se confirmado ou 0 se cancelado)",
+        descricaoCurta: "Abre a tela padrão de alteração de registro para a tabela e RecNo posicionados.",
+        descricaoDetalhada: "Exibe o diálogo de alteração de dados do registro corrente posicionado pelo RecNo (nReg). Aplica bloqueio de registro (RecLock), validações de campo e executa o bloco de TudoOk antes de comitar as alterações.",
+        parametros: [
+          { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela do registro a alterar.", opcional: false },
+          { nome: "nReg", tipo: "Numérico", descricao: "RecNo do registro que será alterado.", opcional: false },
+          { nome: "nOpc", tipo: "Numérico", descricao: "Opção da operação (padrão 4: Alteração).", opcional: false },
+          { nome: "aAcho", tipo: "Array", descricao: "Lista de campos visíveis na tela.", opcional: true },
+          { nome: "aCpos", tipo: "Array", descricao: "Lista de campos permitidos para edição.", opcional: true },
+          { nome: "cTudoOk", tipo: "Caractere", descricao: "Validação final para permitir a confirmação da alteração.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Tela padrão de alteração com bloqueio automático
+    User Function AltCliente()
+        DbSelectArea("SA1")
+        DbSetOrder(1)
+    
+        If DbSeek(xFilial("SA1") + "00000101")
+            If AxAltera("SA1", SA1->(RecNo()), 4, Nil, Nil, Nil, Nil, "U_AltTudoOk()") == 1
+                MsgInfo("Alterações salvas com sucesso!", "Protheus")
+            EndIf
+        EndIf
+    Return`
+      },
+      {
+        nome: "AxDeleta",
+        categoria: "Mensagens e Telas",
+        sintaxe: "AxDeleta( <cAlias>, <nReg>, <nOpc>, [<cFunc>], [<cTudoOk>], [<aAcho>], [<aCpos>], [<cTransact>] )",
+        retorno: "Numérico (1 se excluído ou 0 se cancelado)",
+        descricaoCurta: "Abre a tela de confirmação e executa a exclusão padrão de um registro da tabela.",
+        descricaoDetalhada: "Apresenta os dados do registro para conferência do usuário e confirmação de exclusão. Se confirmado e atendidas as validações de exclusão, marca o registro como deletado (DbDelete) e libera bloqueios.",
+        parametros: [
+          { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela do registro a excluir.", opcional: false },
+          { nome: "nReg", tipo: "Numérico", descricao: "Número de RecNo do registro posicionado.", opcional: false },
+          { nome: "nOpc", tipo: "Numérico", descricao: "Opção da rotina (padrão 5: Exclusão).", opcional: false },
+          { nome: "cFunc", tipo: "Caractere", descricao: "Função complementar de validação da exclusão.", opcional: true },
+          { nome: "cTudoOk", tipo: "Caractere", descricao: "Validação de confirmação de exclusão.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Exclusão com confirmação visual
+    User Function DelCliente()
+        DbSelectArea("SA1")
+    
+        If AxDeleta("SA1", SA1->(RecNo()), 5) == 1
+            ConOut("Registro excluído da tabela SA1.")
+        EndIf
+    Return`
+      },
+      {
+        nome: "AxVisual",
+        categoria: "Mensagens e Telas",
+        sintaxe: "AxVisual( <cAlias>, <nReg>, <nOpc>, [<aAcho>], [<nColMens>], [<cMensagem>], [<cFunc>], [<aButtons>], [<aParam>] )",
+        retorno: "Numérico (1 ao fechar a tela)",
+        descricaoCurta: "Abre a tela de visualização somente leitura dos dados do registro posicionado.",
+        descricaoDetalhada: "Carrega os campos da tabela em modo somente leitura (desabilitados para edição), permitindo ao usuário consultar todas as informações do registro posicionado sem risco de alteração acidental.",
+        parametros: [
+          { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela a consultar.", opcional: false },
+          { nome: "nReg", tipo: "Numérico", descricao: "Número de RecNo do registro a visualizar.", opcional: false },
+          { nome: "nOpc", tipo: "Numérico", descricao: "Opção da rotina (padrão 2: Visualização).", opcional: false },
+          { nome: "aAcho", tipo: "Array", descricao: "Lista dos campos a exibir na visualização.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Visualização rápida de registro sem edição
+    User Function VisRegistro()
+        DbSelectArea("SB1")
+        AxVisual("SB1", SB1->(RecNo()), 2)
+    Return`
+      },
+      {
+        nome: "MBrowse",
+        categoria: "Mensagens e Telas",
+        sintaxe: "MBrowse( [<nLin1>], [<nCol1>], [<nLin2>], [<nCol2>], <cAlias>, [<aFixe>], [<cCpo>], [<nPar8>], [<cPar9>], [<nPar10>], [<aColors>], [<uPar12>], [<uPar13>], [<uPar14>], [<uPar15>], [<lTopFun>], [<lBotFun>] )",
+        retorno: "NIL",
+        descricaoCurta: "Constrói a grade clássica de navegação e listagem de registros em tabela do Protheus.",
+        descricaoDetalhada: "Função clássica essencial de listagem em grade do Protheus (escrita sem o 'r' final: MBrowse, embora muitos pesquisem por 'MBrowser'). Diferencia-se do moderno FWMBrowse por utilizar o padrão procedural legado do Protheus, exibindo colunas do SX3, barra de ferramentas e suporte a legendas de cores via aColors.",
+        parametros: [
+          { nome: "nLin1, nCol1, nLin2, nCol2", tipo: "Numéricos", descricao: "Coordenadas de posicionamento da janela (opcional, padrão tela cheia).", opcional: true },
+          { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela principal exibida no browse.", opcional: false },
+          { nome: "aFixe", tipo: "Array", descricao: "Vetor de colunas fixadas no grid.", opcional: true },
+          { nome: "cCpo", tipo: "Caractere", descricao: "Campo inicial para pesquisa.", opcional: true },
+          { nome: "aColors", tipo: "Array", descricao: "Matriz de regras de cores e status de linhas (ex: {{'C5_TIPO==\"N\"', 'BR_VERDE'}}).", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Browse clássico com menu de operações e cores
+    User Function MeuBrowse()
+        Private cCadastro := "Cadastro de Produtos Especiais"
+        Private aRotina   := {}
+    
+        // Define menu padrão
+        AAdd(aRotina, {"Pesquisar",  "AxPesqui", 0, 1})
+        AAdd(aRotina, {"Visualizar", "AxVisual", 0, 2})
+        AAdd(aRotina, {"Incluir",    "AxInclui", 0, 3})
+        AAdd(aRotina, {"Alterar",    "AxAltera", 0, 4})
+        AAdd(aRotina, {"Excluir",    "AxDeleta", 0, 5})
+    
+        DbSelectArea("SB1")
+        DbSetOrder(1)
+    
+        // Aciona o MBrowse clássico
+        MBrowse(,,,,"SB1")
+    Return`
+      },
+      {
+        nome: "BrwLegenda",
+        categoria: "Mensagens e Telas",
+        sintaxe: "BrwLegenda( <cTitulo>, <cDescricao>, <aLegenda> )",
+        retorno: "NIL",
+        descricaoCurta: "Exibe uma janela modal informativa com a legenda visual de cores dos registros do browse.",
+        descricaoDetalhada: "Apresenta ao operador um diálogo contendo as cores de status (semáforo) e suas respectivas descrições textuais, explicando os critérios que determinam as cores dos registros no MBrowse ou FWMBrowse.",
+        parametros: [
+          { nome: "cTitulo", tipo: "Caractere", descricao: "Título exibido na barra superior da janela de legenda.", opcional: false },
+          { nome: "cDescricao", tipo: "Caractere", descricao: "Subtítulo ou mensagem introdutória explicativa.", opcional: false },
+          { nome: "aLegenda", tipo: "Array", descricao: "Matriz de pares com identificador da cor e texto descritivo.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Exibição da legenda de status do browse
+    User Function ExBrwLegenda()
+        Local aCores := {}
+    
+        AAdd(aCores, {"BR_VERDE",    "Pedido Liberado"})
+        AAdd(aCores, {"BR_AMARELO",  "Pedido Bloqueado por Crédito"})
+        AAdd(aCores, {"BR_VERMELHO", "Pedido Faturado"})
+        AAdd(aCores, {"BR_AZUL",     "Pedido Cancelado"})
+    
+        BrwLegenda("Legenda de Status", "Status dos Pedidos de Venda:", aCores)
+    Return`
+      },
+      {
+        nome: "MaWndBrowse",
+        categoria: "Mensagens e Telas",
+        sintaxe: "MaWndBrowse( [<nTop>], [<nLeft>], [<nBottom>], [<nRight>], <cAlias>, [<aFixe>], [<aRotina>], [<aColors>], [<cFiltro>], [<bBloco>] )",
+        retorno: "Objeto (Instância da janela de browse)",
+        descricaoCurta: "Cria e encapsula uma janela de browse completa integrada às rotinas e menus definidos em aRotina.",
+        descricaoDetalhada: "Rotina de controle do browse clássico de módulos padrão do Protheus (como Faturamento, Estoque e Compras), vinculando a navegação na tabela diretamente ao vetor de operações aRotina e suas opções de menu.",
+        parametros: [
+          { nome: "nTop, nLeft, nBottom, nRight", tipo: "Numéricos", descricao: "Dimensões da janela em pixels.", opcional: true },
+          { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela gerenciada.", opcional: false },
+          { nome: "aFixe", tipo: "Array", descricao: "Vetor com os campos fixados à esquerda.", opcional: true },
+          { nome: "aRotina", tipo: "Array", descricao: "Estrutura do menu de operações da tela.", opcional: true },
+          { nome: "aColors", tipo: "Array", descricao: "Vetor de legendas e cores condicionais.", opcional: true },
+          { nome: "cFiltro", tipo: "Caractere", descricao: "Expressão de filtro aplicada à tabela.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Criação de browse com MaWndBrowse
+    User Function ExMaWndBrowse()
+        Local oBrowse := Nil
+    
+        DbSelectArea("SC5")
+        DbSetOrder(1)
+    
+        oBrowse := MaWndBrowse(0, 0, 400, 600, "SC5", Nil, aRotina)
+    Return oBrowse`
+      },
+      {
+        nome: "Enchoice",
+        categoria: "Mensagens e Telas",
+        sintaxe: "Enchoice( <cAlias>, <nReg>, <nOpc>, [<aAcho>], [<cFunc>], [<aCpos>], [<oDlg>], [<lF3>], [<aCols>], [<aHeader>], [<lTop>], [<lBot>] )",
+        retorno: "Objeto / NIL",
+        descricaoCurta: "Monta a área de cabeçalho de formulários com campos editáveis baseados no dicionário SX3.",
+        descricaoDetalhada: "Componente clássico de interface para desenho de telas no padrão Protheus. Desenha os campos da tabela em grupos/pastas na parte superior da tela (cabeçalho), frequentemente associado ao MsGetDados para compor formulários mestre-detalhe (como Pedidos de Venda e Notas Fiscais).",
+        parametros: [
+          { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela que fornece os campos do cabeçalho.", opcional: false },
+          { nome: "nReg", tipo: "Numérico", descricao: "RecNo do registro posicionado.", opcional: false },
+          { nome: "nOpc", tipo: "Numérico", descricao: "Opção da operação (3: Inclui, 4: Altera, 2: Visualiza).", opcional: false },
+          { nome: "aAcho", tipo: "Array", descricao: "Lista dos campos visíveis na área do cabeçalho.", opcional: true },
+          { nome: "oDlg", tipo: "Objeto", descricao: "Janela pai (TDialog) onde o cabeçalho será renderizado.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Construção de cabeçalho Enchoice em diálogo modal
+    User Function ExEnchoice()
+        Local oDlg := Nil
+    
+        DEFINE MSDIALOG oDlg TITLE "Pedido de Venda" FROM 0, 0 TO 500, 700 PIXEL
+    
+        // Desenha o cabeçalho do pedido (SC5)
+        Enchoice("SC5", SC5->(RecNo()), 3, Nil, Nil, Nil, oDlg)
+    
+        ACTIVATE MSDIALOG oDlg CENTERED
+    Return`
+      },
+      {
+        nome: "MsGetDados",
+        categoria: "Mensagens e Telas",
+        sintaxe: "MsGetDados( <nTop>, <nLeft>, <nBottom>, <nRight>, <nOpc>, [<cLinOk>], [<cTudOk>], [<cFieldOk>], [<lVirtual>], [<aAlter>], [<nFreeze>], [<nMaxLin>], [<cFieldAuto>], [<cFieldDel>], [<oWnd>], [<aHeader>], [<aCols>] )",
+        retorno: "Objeto (Instância do controle de grid MsGetDados)",
+        descricaoCurta: "Cria uma grade clássica (grid de itens) editável com validação linha a linha e exclusão.",
+        descricaoDetalhada: "Componente legado essencial para telas mestre-detalhe no Protheus. Gerencia a matriz aCols (linhas de dados) e o vetor aHeader (definição das colunas), provendo suporte a inserção de linhas, exclusão com tecla Delete e validações de linha (cLinOk) e total (cTudOk).",
+        parametros: [
+          { nome: "nTop, nLeft, nBottom, nRight", tipo: "Numéricos", descricao: "Coordenadas do grid na janela pai em pixels.", opcional: false },
+          { nome: "nOpc", tipo: "Numérico", descricao: "Opção da rotina (3: Inclusão, 4: Alteração, 2: Visualização).", opcional: false },
+          { nome: "cLinOk", tipo: "Caractere", descricao: "Função ou expressão ADVPL executada ao trocar ou validar linha.", opcional: true },
+          { nome: "cTudOk", tipo: "Caractere", descricao: "Validação geral de todas as linhas do grid ao confirmar.", opcional: true },
+          { nome: "oWnd", tipo: "Objeto", descricao: "Diálogo container pai (TDialog/MSDialog).", opcional: true },
+          { nome: "aHeader", tipo: "Array", descricao: "Estrutura descritiva das colunas do grid.", opcional: true },
+          { nome: "aCols", tipo: "Array", descricao: "Matriz multidimensional contendo os dados das linhas.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Criação de grid clássico de itens com MsGetDados
+    User Function ExMsGetDados(oDlg, aHeader, aCols)
+        Local oGrid := Nil
+    
+        // Cria grid de itens editável na parte inferior do diálogo
+        oGrid := MsGetDados(150, 10, 320, 480, 3, "U_LinhaOk()", "U_TudoOk()", "", .F., Nil, 2, 999, "", "", oDlg, aHeader, aCols)
+    Return oGrid`
+      },
+      {
+        nome: "MsNewGetDados",
+        categoria: "Mensagens e Telas",
+        sintaxe: "MsNewGetDados():New( <nTop>, <nLeft>, <nBottom>, <nRight>, [<nOpc>], [<cLinOk>], [<cTudOk>], [<cFieldOk>], [<aAlter>], [<nFreeze>], [<nMaxLin>], [<cFieldAuto>], [<cFieldDel>], [<oWnd>], [<aHeader>], [<aCols>] )",
+        retorno: "Objeto (Instância da classe MsNewGetDados)",
+        descricaoCurta: "Classe orientada a objetos para criação de grades editáveis de itens (evolução do MsGetDados).",
+        descricaoDetalhada: "Evolução em classe do MsGetDados tradicional. Proporciona controle dinâmico dos métodos de grid (:oBrowse, :Refresh(), :nAt, :ForceRefresh()), facilitando o manuseio de colunas, congelamento e validação de matrizes aHeader e aCols em janelas customizadas.",
+        parametros: [
+          { nome: "nTop, nLeft, nBottom, nRight", tipo: "Numéricos", descricao: "Posicionamento e dimensões do grid em pixels.", opcional: false },
+          { nome: "nOpc", tipo: "Numérico", descricao: "Código da operação (3: Inclusão, 4: Alteração, 2: Visualização).", opcional: true },
+          { nome: "cLinOk", tipo: "Caractere", descricao: "Validação de linha executada ao avançar/trocar registro.", opcional: true },
+          { nome: "cTudOk", tipo: "Caractere", descricao: "Validação global de todas as linhas preenchidas.", opcional: true },
+          { nome: "oWnd", tipo: "Objeto", descricao: "Container pai (TDialog ou MSDialog).", opcional: true },
+          { nome: "aHeader", tipo: "Array", descricao: "Vetor de cabeçalhos das colunas.", opcional: true },
+          { nome: "aCols", tipo: "Array", descricao: "Matriz com os dados e linhas da grade.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Grid orientado a objetos com métodos da classe
+    User Function ExMsNewGetDados(oDlg, aHeader, aCols)
+        Local oNewGrid := Nil
+    
+        oNewGrid := MsNewGetDados():New(160, 10, 330, 500, 3, "U_LinOk()", "U_TudOk()",,,, 999,,, oDlg, aHeader, aCols)
+        oNewGrid:oBrowse:bChange := {|| ConOut("Linha atual: " + Str(oNewGrid:nAt)) }
+    Return oNewGrid`
+      },
+      {
+        nome: "SetKey",
+        categoria: "Mensagens e Telas",
+        sintaxe: "SetKey( <nKey>, [<bAction>] )",
+        retorno: "Bloco de Código (Ação anterior associada à tecla ou NIL)",
+        descricaoCurta: "Associa ou desassocia uma ação em bloco de código a uma tecla de atalho do teclado (F1 a F12).",
+        descricaoDetalhada: "Função nativa para captura global de teclas de função ou atalhos em interfaces do Protheus. Muito utilizada para acionar consultas rápidas, calculadoras, janelas de ajuda customizadas ou rotinas auxiliares quando o operador pressiona teclas específicas como F4, F5, F6, etc.",
+        parametros: [
+          { nome: "nKey", tipo: "Numérico", descricao: "Código da tecla de função (ex: -3 para F4, -4 para F5, -5 para F6).", opcional: false },
+          { nome: "bAction", tipo: "Bloco de Código", descricao: "Bloco de código executado quando a tecla for pressionada. Se omitido, desassocia.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Vinculação de tecla F5 para consulta de estoque
+    User Function ConfiguraAtalhos()
+        // Tecla F5 (código -4 no InKey)
+        SetKey(-4, {|| U_ConsultaSaldoEstoque()})
+        ConOut("Atalho F5 configurado para consulta de estoque.")
+    Return`
+      },
+      {
+        nome: "Begin Transaction",
+        categoria: "Banco de Dados",
+        sintaxe: "Begin Transaction ... End Transaction",
+        retorno: "NIL",
+        descricaoCurta: "Inicia um bloco de transação atômica no banco de dados relacional e arquivos locais.",
+        descricaoDetalhada: "Comando fundamental de controle transacional no Protheus. Assegura que todas as alterações e gravações realizadas entre o Begin Transaction e o End Transaction sejam tratadas como uma única unidade lógica de trabalho (ACID). Se ocorrer qualquer falha crítica ou chamada a DisarmTransaction(), todas as operações são revertidas (rollback automático).",
+        parametros: [],
+        exemplo: `// Exemplo prático: Transação atômica de pedido e itens com Begin Transaction
+    User Function GravaPedido()
+        Local lSucesso := .T.
+    
+        Begin Transaction
+            // Gravação do cabeçalho
+            DbSelectArea("SC5")
+            RecLock("SC5", .T.)
+            SC5->C5_NUM := "000100"
+            MsUnlock()
+    
+            // Gravação dos itens
+            DbSelectArea("SC6")
+            RecLock("SC6", .T.)
+            SC6->C6_NUM := "000100"
+            MsUnlock()
+    
+            If !lSucesso
+                DisarmTransaction() // Cancela alterações em caso de erro
+            EndIf
+        End Transaction
+    Return`
+      },
+      {
+        nome: "End Transaction",
+        categoria: "Banco de Dados",
+        sintaxe: "End Transaction",
+        retorno: "NIL",
+        descricaoCurta: "Finaliza e confirma definitivamente a transação aberta pelo Begin Transaction (commit).",
+        descricaoDetalhada: "Encerra com sucesso o bloco transacional, persistindo permanentemente todas as operações pendentes no banco de dados e liberando os bloqueios mantidos durante a transação.",
+        parametros: [],
+        exemplo: `// Exemplo prático: Fechamento com confirmação de transação
+    User Function ConfirmaTransacao()
+        Begin Transaction
+            // Atualizações críticas...
+            ConOut("Processando dados protegidos por transação...")
+        End Transaction // Realiza o COMMIT definitivo no banco
+        ConOut("Transação comitada com sucesso.")
+    Return`
+      },
+      {
+        nome: "DisarmTransaction",
+        categoria: "Banco de Dados",
+        sintaxe: "DisarmTransaction()",
+        retorno: "NIL",
+        descricaoCurta: "Desarma a transação corrente, forçando o rollback de todas as alterações ao atingir End Transaction.",
+        descricaoDetalhada: "Sinaliza ao motor do Protheus que a transação ativa não deve ser confirmada. Ao alcançar o comando End Transaction subsequente, o sistema executará automaticamente o rollback de todas as tabelas e registros manipulados no bloco.",
+        parametros: [],
+        exemplo: `// Exemplo prático: Desarme de transação ao detectar inconsistência de dados
+    User Function ExDisarmTransaction()
+        Begin Transaction
+            DbSelectArea("SB2")
+            RecLock("SB2", .F.)
+            SB2->B2_QATU -= 10
+            MsUnlock()
+    
+            // Valida se o saldo ficou negativo indevidamente
+            If SB2->B2_QATU < 0
+                DisarmTransaction() // Força cancelamento total
+                ConOut("Transação desarmada! Saldo não pode ficar negativo.")
+            EndIf
+        End Transaction
+    Return`
+      },
+      {
+        nome: "SimpleLock",
+        categoria: "Banco de Dados",
+        sintaxe: "SimpleLock()",
+        retorno: "Lógico (.T. se bloqueado com sucesso, .F. caso contrário)",
+        descricaoCurta: "Tenta efetuar o bloqueio do registro corrente de forma simplificada sem interface de espera.",
+        descricaoDetalhada: "Tenta bloquear o registro na tabela ativa para atualização exclusiva. Retorna imediatamente .F. caso o registro já esteja bloqueado por outro usuário ou thread, evitando paradas indesejadas na execução de rotinas automáticas.",
+        parametros: [],
+        exemplo: `// Exemplo prático: Bloqueio sem espera para atualização rápida
+    User Function ExSimpleLock()
+        DbSelectArea("SA1")
+    
+        If SimpleLock()
+            SA1->A1_NOME := "NOME ATUALIZADO"
+            MsUnlock()
+            ConOut("Registro alterado com sucesso.")
+        Else
+            ConOut("Registro ocupado por outro usuário no momento.")
+        EndIf
+    Return`
+      },
+      {
+        nome: "MsRLock",
+        categoria: "Banco de Dados",
+        sintaxe: "MsRLock( [<nRecNo>] )",
+        retorno: "Lógico (.T. se bloqueado com sucesso, .F. se timeout ou bloqueado)",
+        descricaoCurta: "Aplica bloqueio de registro (RLock) com controle de concorrência e tentativas automáticas do Protheus.",
+        descricaoDetalhada: "Rotina padrão do Framework Protheus para lock de registro. Tenta obter exclusividade sobre o registro indicado (ou corrente) efetuando tentativas com intervalo de espera antes de desistir, garantindo maior estabilidade que o RLock puro do Clipper.",
+        parametros: [
+          { nome: "nRecNo", tipo: "Numérico", descricao: "Número do RecNo a bloquear (padrão: registro corrente posicionado).", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Bloqueio seguro de registro com retentativas do Protheus
+    User Function ExMsRLock()
+        DbSelectArea("SC5")
+    
+        If MsRLock(SC5->(RecNo()))
+            SC5->C5_LIBEROK := "S"
+            MsRUnlock(SC5->(RecNo()))
+            ConOut("Pedido liberado com segurança.")
+        EndIf
+    Return`
+      },
+      {
+        nome: "MsRUnlock",
+        categoria: "Banco de Dados",
+        sintaxe: "MsRUnlock( [<nRecNo>] )",
+        retorno: "NIL",
+        descricaoCurta: "Libera o bloqueio de registro previamente obtido por MsRLock() ou RecLock().",
+        descricaoDetalhada: "Desfaz a trava exclusiva sobre o registro especificado na tabela corrente, tornando-o novamente disponível para alteração por outras threads ou operadores no Protheus.",
+        parametros: [
+          { nome: "nRecNo", tipo: "Numérico", descricao: "Número do RecNo a desbloquear (padrão: registro corrente).", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Liberação explícita de bloqueio de registro
+    User Function ExMsRUnlock()
+        DbSelectArea("SB1")
+        If MsRLock()
+            // Executa atualização...
+            MsRUnlock() // Libera imediatamente o bloqueio
+        EndIf
+    Return`
+      },
+      {
+        nome: "SoftLock",
+        categoria: "Banco de Dados",
+        sintaxe: "SoftLock( <cAlias> )",
+        retorno: "Lógico (.T. se obteve o semáforo, .F. caso já esteja bloqueado)",
+        descricaoCurta: "Cria um bloqueio lógico (semáforo de concorrência) sem travar fisicamente a linha no SGBD.",
+        descricaoDetalhada: "Utilizado principalmente em rotinas de tela e cadastros do Protheus para sinalizar que determinado registro está sendo editado por um usuário, evitando que outro operador inicie a edição simultânea, sem manter locks longos no SGBD.",
+        parametros: [
+          { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela cujo registro corrente receberá o semáforo.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Criação de semáforo de tela com SoftLock
+    User Function ExSoftLock()
+        DbSelectArea("SA1")
+    
+        If SoftLock("SA1")
+            ConOut("Semáforo obtido com sucesso! Abrindo tela para edição...")
+            // Abre tela de edição...
+        Else
+            MsgAlert("Este cliente já está em manutenção por outro operador!", "Aviso")
+        EndIf
+    Return`
+      },
+      {
+        nome: "DbRLock",
+        categoria: "Banco de Dados",
+        sintaxe: "DbRLock( [<nRecNo>] )",
+        retorno: "Lógico (.T. se o registro foi bloqueado, .F. caso contrário)",
+        descricaoCurta: "Função oficial do RDD para bloqueio do registro especificado pelo seu número de RecNo.",
+        descricaoDetalhada: "Comando nativo da camada RDD/DBAccess que solicita o bloqueio exclusivo de um registro na área de trabalho ativa. Aceita como parâmetro o número do registro a ser travado sem necessidade de posicionamento prévio.",
+        parametros: [
+          { nome: "nRecNo", tipo: "Numérico", descricao: "Identificador físico (RecNo) do registro a ser bloqueado.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Bloqueio direto via RDD com DbRLock
+    User Function ExDbRLock()
+        DbSelectArea("SB1")
+    
+        If DbRLock(150)
+            ConOut("Registro 150 bloqueado com sucesso na camada RDD.")
+            DbRUnlock(150)
+        EndIf
+    Return`
+      },
+      {
+        nome: "Trim",
+        categoria: "Strings",
+        sintaxe: "Trim( <cString> )",
+        retorno: "Caractere (String sem espaços à direita)",
+        descricaoCurta: "Remove todos os espaços em branco presentes no final (lado direito) de uma string.",
+        descricaoDetalhada: "Função clássica de manipulação de texto em ADVPL equivalente ao RTrim(). Elimina os espaços excedentes à direita gerados por campos de tamanho fixo do banco de dados.",
+        parametros: [
+          { nome: "cString", tipo: "Caractere", descricao: "String a ser desprovida de espaços finais.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Remoção de espaços à direita com Trim
+    User Function ExTrim()
+        Local cTexto := "TOTVS Protheus    "
+        ConOut("[" + Trim(cTexto) + "]") // "[TOTVS Protheus]"
+    Return`
+      },
+      {
+        nome: "LTrim",
+        categoria: "Strings",
+        sintaxe: "LTrim( <cString> )",
+        retorno: "Caractere (String sem espaços à esquerda)",
+        descricaoCurta: "Remove todos os espaços em branco presentes no início (lado esquerdo) de uma string.",
+        descricaoDetalhada: "Elimina espaços precedentes de um texto, muito utilizada após conversões de números via Str() para remover os espaços de alinhamento à esquerda.",
+        parametros: [
+          { nome: "cString", tipo: "Caractere", descricao: "String da qual os espaços iniciais serão eliminados.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Remoção de espaços à esquerda com LTrim
+    User Function ExLTrim()
+        Local cNumero := Str(150, 10) // "       150"
+        ConOut("[" + LTrim(cNumero) + "]") // "[150]"
+    Return`
+      },
+      {
+        nome: "RTrim",
+        categoria: "Strings",
+        sintaxe: "RTrim( <cString> )",
+        retorno: "Caractere (String sem espaços à direita)",
+        descricaoCurta: "Remove todos os espaços em branco presentes à direita de uma cadeia de caracteres.",
+        descricaoDetalhada: "Equivalente direto da função Trim(). Muito utilizada para concatenar campos de tabelas do Protheus (que possuem tamanho fixo preenchido com espaços) sem criar espaçamentos indesejados.",
+        parametros: [
+          { nome: "cString", tipo: "Caractere", descricao: "Cadeia de caracteres a ser truncada.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Concatenação limpa de campos com RTrim
+    User Function ExRTrim()
+        Local cNome := RTrim(SA1->A1_NOME)
+        Local cMun  := RTrim(SA1->A1_MUN)
+        ConOut(cNome + " - " + cMun)
+    Return`
+      },
+      {
+        nome: "IsAlpha",
+        categoria: "Strings",
+        sintaxe: "IsAlpha( <cString> )",
+        retorno: "Lógico (.T. se o primeiro caractere for letra, .F. caso contrário)",
+        descricaoCurta: "Verifica se o primeiro caractere de uma string é uma letra do alfabeto (A-Z ou a-z).",
+        descricaoDetalhada: "Avalia se o caractere inicial da string informada pertence ao alfabeto. Retorna .F. para números, espaços, pontuações ou símbolos especiais.",
+        parametros: [
+          { nome: "cString", tipo: "Caractere", descricao: "String a ser avaliada.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Verificação se identificador inicia por letra
+    User Function ExIsAlpha()
+        ConOut("Começa com letra: " + cValToChar(IsAlpha("Cliente123"))) // .T.
+        ConOut("Começa com letra: " + cValToChar(IsAlpha("123Cliente"))) // .F.
+    Return`
+      },
+      {
+        nome: "IsUpper",
+        categoria: "Strings",
+        sintaxe: "IsUpper( <cString> )",
+        retorno: "Lógico (.T. se o primeiro caractere for letra maiúscula, .F. caso contrário)",
+        descricaoCurta: "Verifica se o primeiro caractere de uma string é uma letra maiúscula.",
+        descricaoDetalhada: "Retorna .T. se o primeiro caractere for uma letra alfabética maiúscula ('A' a 'Z'). Retorna .F. se for minúscula, número ou símbolo.",
+        parametros: [
+          { nome: "cString", tipo: "Caractere", descricao: "String a inspecionar.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Checagem de letra maiúscula com IsUpper
+    User Function ExIsUpper()
+        ConOut("Maiúscula: " + cValToChar(IsUpper("PROTHEUS"))) // .T.
+        ConOut("Maiúscula: " + cValToChar(IsUpper("protheus"))) // .F.
+    Return`
+      },
+      {
+        nome: "IsLower",
+        categoria: "Strings",
+        sintaxe: "IsLower( <cString> )",
+        retorno: "Lógico (.T. se o primeiro caractere for letra minúscula, .F. caso contrário)",
+        descricaoCurta: "Verifica se o primeiro caractere de uma string é uma letra minúscula.",
+        descricaoDetalhada: "Retorna .T. se o primeiro caractere for uma letra alfabética minúscula ('a' a 'z'). Retorna .F. se for maiúscula, número ou símbolo.",
+        parametros: [
+          { nome: "cString", tipo: "Caractere", descricao: "String a inspecionar.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Checagem de letra minúscula com IsLower
+    User Function ExIsLower()
+        ConOut("Minúscula: " + cValToChar(IsLower("teste"))) // .T.
+        ConOut("Minúscula: " + cValToChar(IsLower("Teste"))) // .F.
+    Return`
+      },
+      {
+        nome: "Capital",
+        categoria: "Strings",
+        sintaxe: "Capital( <cString> )",
+        retorno: "Caractere (String com iniciais das palavras em maiúsculas)",
+        descricaoCurta: "Converte a primeira letra de cada palavra para maiúscula e as demais para minúsculas.",
+        descricaoDetalhada: "Padroniza a capitalização de nomes próprios, títulos ou endereços no Protheus, convertendo o texto para o padrão 'Title Case' (ex: converte 'JOAO DA SILVA' em 'Joao Da Silva').",
+        parametros: [
+          { nome: "cString", tipo: "Caractere", descricao: "Texto a ser capitalizado.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Formatação de nomes em Title Case com Capital
+    User Function ExCapital()
+        Local cNome := "CARLOS EDUARDO DE SOUZA"
+        ConOut("Nome formatado: " + Capital(cNome))
+        // "Carlos Eduardo De Souza"
+    Return`
+      },
+      {
+        nome: "Encode64",
+        categoria: "Strings",
+        sintaxe: "Encode64( <cString> )",
+        retorno: "Caractere (String codificada em Base64)",
+        descricaoCurta: "Codifica uma cadeia de caracteres ou dados binários no padrão Base64.",
+        descricaoDetalhada: "Função essencial de criptografia e formatação para integrações web, APIs REST, SOAP e envio de anexos por e-mail no Protheus. Converte qualquer string ou payload binário em sua representação textual segura Base64.",
+        parametros: [
+          { nome: "cString", tipo: "Caractere", descricao: "Conteúdo a ser codificado para Base64.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Codificação de credenciais para autenticação Basic
+    User Function ExEncode64()
+        Local cCredenciais := "usuario:senha123"
+        Local cBase64      := Encode64(cCredenciais)
+    
+        ConOut("Header Authorization: Basic " + cBase64)
+    Return`
+      },
+      {
+        nome: "Eval",
+        categoria: "Arrays",
+        sintaxe: "Eval( <bCodeBlock>, [<xArg1>], [<xArg2>], ... )",
+        retorno: "Qualquer tipo (Resultado retornado pela execução do bloco)",
+        descricaoCurta: "Executa (avalia) um bloco de código passando argumentos opcionais e devolvendo o resultado.",
+        descricaoDetalhada: "Mecanismo primordial da linguagem ADVPL para execução de funções de alta ordem e chamadas dinâmicas. Permite disparar codeblocks com parâmetros variáveis, amplamente utilizado em rotinas de busca, ordenação customizada, gatilhos e validações de interface.",
+        parametros: [
+          { nome: "bCodeBlock", tipo: "Bloco de Código", descricao: "Bloco de código a ser avaliado e executado.", opcional: false },
+          { nome: "xArg1, xArg2...", tipo: "Qualquer tipo", descricao: "Argumentos passados como parâmetros para o bloco de código.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Execução dinâmica de cálculo com Eval
+    User Function ExEval()
+        Local bCalculo := {|nPreco, nDesc| nPreco * (1 - (nDesc / 100))}
+        Local nTotal   := Eval(bCalculo, 200, 15) // Aplica 15% de desconto em 200
+    
+        ConOut("Valor final calculado: " + cValToChar(nTotal)) // 170
+    Return`
+      },
+      {
+        nome: "bSetGet",
+        categoria: "Arrays",
+        sintaxe: "bSetGet( <xVar> )",
+        retorno: "Bloco de Código (Bloco de Get/Set da variável)",
+        descricaoCurta: "Gera automaticamente um bloco de código de leitura e gravação (Get/Set) para a variável informada.",
+        descricaoDetalhada: "Cria o bloco no formato {|u| If(PCount() > 0, xVar := u, xVar)}. Essencial na criação de controles visuais (TGet, TCheckBox, TComboBox) onde o componente necessita de um codeblock bidirecional para ler o valor inicial e atualizar a variável ao ser editada.",
+        parametros: [
+          { nome: "xVar", tipo: "Qualquer tipo", descricao: "Variável que será associada ao bloco Get/Set.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Associação bidirecional de variável com bSetGet
+    User Function ExbSetGet()
+        Local cNome := "TOTVS"
+        Local bGetSet := bSetGet(cNome)
+    
+        ConOut("Valor lido via Get: " + Eval(bGetSet)) // "TOTVS"
+        Eval(bGetSet, "Novo Nome")
+        ConOut("Valor atualizado via Set: " + Eval(bGetSet)) // "Novo Nome"
+    Return`
+      },
+      {
+        nome: "Array",
+        categoria: "Arrays",
+        sintaxe: "Array( <nDim1>, [<nDim2>], ... )",
+        retorno: "Array (Novo array alocado com as dimensões especificadas)",
+        descricaoCurta: "Cria e dimensiona dinamicamente um novo array com uma ou mais dimensões preenchidas com NIL.",
+        descricaoDetalhada: "Função nativa para alocação de matrizes multidimensionais no Protheus. Por exemplo, Array(10, 5) cria uma matriz de 10 linhas por 5 colunas com todos os elementos inicialmente inicializados como NIL.",
+        parametros: [
+          { nome: "nDim1", tipo: "Numérico", descricao: "Tamanho da primeira dimensão (quantidade de linhas).", opcional: false },
+          { nome: "nDim2", tipo: "Numérico", descricao: "Tamanho da segunda dimensão (quantidade de colunas).", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Criação e preenchimento de matriz bidimensional
+    User Function ExArray()
+        Local aMatriz := Array(3, 2) // Matriz 3x2
+    
+        aMatriz[1][1] := "Linha 1 Coluna 1"
+        aMatriz[1][2] := 100
+        aMatriz[2][1] := "Linha 2 Coluna 1"
+        aMatriz[2][2] := 200
+    
+        ConOut("Total de linhas: " + cValToChar(Len(aMatriz)))
+    Return`
+      },
+      {
+        nome: "HMNew",
+        categoria: "Arrays",
+        sintaxe: "HMNew()",
+        retorno: "Objeto / Identificador (Instância da tabela Hash/HashMap)",
+        descricaoCurta: "Cria uma nova tabela Hash em memória (HashMap nativo) de altíssima performance para busca O(1).",
+        descricaoDetalhada: "Recurso nativo do Protheus para armazenamento e busca de pares chave-valor em memória com complexidade O(1). Extremamente mais rápido do que arrays tradicionais manipulados com AScan() quando se trabalha com milhares de registros.",
+        parametros: [],
+        exemplo: `// Exemplo prático: Inicialização de tabela Hash de alta velocidade
+    User Function ExHMNew()
+        Local oHash := HMNew()
+    
+        HMSet(oHash, "CLIENTE_01", "Acme Corporation")
+        HMSet(oHash, "CLIENTE_02", "Globex Indústria")
+    
+        ConOut("Cliente 01: " + HMGet(oHash, "CLIENTE_01"))
+    Return`
+      },
+      {
+        nome: "HMSet",
+        categoria: "Arrays",
+        sintaxe: "HMSet( <oHash>, <cKey>, <xValue> )",
+        retorno: "Lógico (.T. se inserido/atualizado com sucesso, .F. caso contrário)",
+        descricaoCurta: "Insere ou atualiza um par chave-valor dentro de uma tabela Hash (HashMap).",
+        descricaoDetalhada: "Atribui o valor <xValue> (de qualquer tipo de dado: string, número, array, objeto) associado à chave textual <cKey> no HashMap fornecido. Se a chave já existir, seu valor anterior será sobrescrito.",
+        parametros: [
+          { nome: "oHash", tipo: "Objeto / Identificador", descricao: "Tabela Hash previamente criada com HMNew().", opcional: false },
+          { nome: "cKey", tipo: "Caractere", descricao: "Chave identificadora textual do registro no HashMap.", opcional: false },
+          { nome: "xValue", tipo: "Qualquer tipo", descricao: "Valor a ser armazenado sob a chave correspondente.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Armazenamento de dados complexos em Hash
+    User Function ExHMSet()
+        Local oMap := HMNew()
+        Local aPrecos := {15.50, 18.90, 22.00}
+    
+        HMSet(oMap, "PROD_A", aPrecos)
+        HMSet(oMap, "STATUS", .T.)
+        ConOut("Valores inseridos no mapa com sucesso.")
+    Return`
+      },
+      {
+        nome: "HMGet",
+        categoria: "Arrays",
+        sintaxe: "HMGet( <oHash>, <cKey>, [<xDefault>] )",
+        retorno: "Qualquer tipo (Valor associado à chave ou xDefault se não localizada)",
+        descricaoCurta: "Recupera instantaneamente em tempo constante O(1) o valor associado a uma chave na tabela Hash.",
+        descricaoDetalhada: "Busca no HashMap o valor armazenado sob a chave <cKey>. Caso a chave não exista no mapa, retorna o valor padrão opcional <xDefault> ou NIL, eliminando laços de repetição lentos em grandes massas de dados.",
+        parametros: [
+          { nome: "oHash", tipo: "Objeto / Identificador", descricao: "Tabela Hash onde a busca será executada.", opcional: false },
+          { nome: "cKey", tipo: "Caractere", descricao: "Chave textual cujo valor associado será retornado.", opcional: false },
+          { nome: "xDefault", tipo: "Qualquer tipo", descricao: "Valor padrão retornado se a chave não for localizada.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Busca ultrarrápida O(1) de cadastro via HashMap
+    User Function ExHMGet()
+        Local oTabela := HMNew()
+    
+        HMSet(oTabela, "001", "Filial Matriz - SP")
+        HMSet(oTabela, "002", "Filial Filial - RJ")
+    
+        ConOut("Filial 001: " + HMGet(oTabela, "001"))
+        ConOut("Filial 999: " + HMGet(oTabela, "999", "NÃO ENCONTRADA"))
+    Return`
+      },
+      {
+        nome: "Month2Str",
+        categoria: "Datas",
+        sintaxe: "Month2Str( <dData> )",
+        retorno: "Caractere (String de 2 dígitos com o mês)",
+        descricaoCurta: "Retorna o mês de uma data em formato string de 2 dígitos (preenchido com zero à esquerda).",
+        descricaoDetalhada: "Extrai o mês da data informada e converte em texto de tamanho 2 (ex: '01' para janeiro, '12' para dezembro). Útil para composição de códigos contábeis, competências (MMAAAA) e nomes de arquivos de fechamento.",
+        parametros: [
+          { nome: "dData", tipo: "Data", descricao: "Data da qual o mês de 2 dígitos será extraído.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Montagem de competência fiscal no formato MMAAAA
+    User Function ExMonth2Str()
+        Local dHoje       := Date()
+        Local cMes        := Month2Str(dHoje)
+        Local cAno        := StrZero(Year(dHoje), 4)
+        Local cCompetencia := cMes + "/" + cAno
+    
+        ConOut("Competência atual: " + cCompetencia) // "11/2026"
+    Return`
+      },
+      {
+        nome: "Day2Str",
+        categoria: "Datas",
+        sintaxe: "Day2Str( <dData> )",
+        retorno: "Caractere (String de 2 dígitos com o dia)",
+        descricaoCurta: "Retorna o dia do mês de uma data em formato string de 2 dígitos com zero à esquerda.",
+        descricaoDetalhada: "Converte o dia da data informada para string fixa de 2 caracteres (ex: '05' para o dia 5, '28' para o dia 28). Muito utilizada na formatação de datas customizadas e máscaras de exportação bancária.",
+        parametros: [
+          { nome: "dData", tipo: "Data", descricao: "Data da qual o dia do mês será extraído.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Formatação de arquivo de remessa com Day2Str
+    User Function ExDay2Str()
+        Local dProcesso := Date()
+        Local cDia      := Day2Str(dProcesso)
+        Local cNomeArq  := "REMESSA_" + cDia + ".TXT"
+    
+        ConOut("Arquivo do dia: " + cNomeArq)
+    Return`
+      },
+      {
+        nome: "Sec2Time",
+        categoria: "Datas",
+        sintaxe: "Sec2Time( <nSegundos> )",
+        retorno: "Caractere (String formatada no padrão 'HH:MM:SS')",
+        descricaoCurta: "Converte uma quantidade total de segundos em string formatada de horas, minutos e segundos ('HH:MM:SS').",
+        descricaoDetalhada: "Função indispensável para exibição de durações e tempos de processamento no Protheus. Converte um valor numérico em segundos (como o tempo retornado pela medição com Seconds()) para o formato legível 'HH:MM:SS'.",
+        parametros: [
+          { nome: "nSegundos", tipo: "Numérico", descricao: "Quantidade total de segundos decorridos.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Exibição legível da duração de rotina de fechamento
+    User Function ExSec2Time()
+        Local nInicio  := Seconds()
+        Local nDuracao := 0
+    
+        // Simula execução de processo
+        Sleep(2500) // Aguarda 2.5 segundos
+    
+        nDuracao := Seconds() - nInicio
+        ConOut("Duração formatada: " + Sec2Time(nDuracao)) // "00:00:02"
+    Return`
+      },
+      {
+        nome: "Time2Sec",
+        categoria: "Datas",
+        sintaxe: "Time2Sec( <cHora> )",
+        retorno: "Numérico (Total de segundos decorridos no dia)",
+        descricaoCurta: "Converte uma string de hora no formato 'HH:MM:SS' no número total de segundos correspondentes.",
+        descricaoDetalhada: "Função inversa do Sec2Time. Recebe uma hora em texto (como '02:30:00' ou Time()) e calcula o total acumulado de segundos desde o início do dia, facilitando operações de soma e subtração de intervalos de tempo.",
+        parametros: [
+          { nome: "cHora", tipo: "Caractere", descricao: "String contendo o horário no padrão 'HH:MM:SS'.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Cálculo da diferença em segundos entre dois horários
+    User Function ExTime2Sec()
+        Local cHoraIni := "08:00:00"
+        Local cHoraFim := "10:30:00"
+        Local nDiferenca := Time2Sec(cHoraFim) - Time2Sec(cHoraIni)
+    
+        ConOut("Segundos decorridos no intervalo: " + cValToChar(nDiferenca)) // 9000 segundos
+    Return`
+      },
+      {
+        nome: "GetCbSource",
+        categoria: "Tipos e Validações",
+        sintaxe: "GetCbSource( <bBloco> )",
+        retorno: "Caractere (Código fonte em texto do bloco de código)",
+        descricaoCurta: "Descompila e retorna o texto do código fonte original que compõe um bloco de código (Codeblock).",
+        descricaoDetalhada: "Função de depuração e inspeção dinâmica que decompõe um codeblock e retorna sua representação em string legível (ex: '{|x| x * 2}'). Extremamente útil para logs de auditoria e depuração de gatilhos e regras de negócio parametrizadas.",
+        parametros: [
+          { nome: "bBloco", tipo: "Bloco de Código", descricao: "Codeblock cujo código fonte em texto será inspecionado.", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Auditoria de código fonte de codeblock dinâmico
+    User Function ExGetCbSource()
+        Local bRegra := {|cDoc| Val(cDoc) > 1000}
+        Local cFonte := GetCbSource(bRegra)
+    
+        ConOut("Expressão fonte do bloco: " + cFonte)
+        // "{|cDoc| Val(cDoc) > 1000}"
+    Return`
+      },
+      {
+        nome: "ErrorBlock",
+        categoria: "Tipos e Validações",
+        sintaxe: "ErrorBlock( [<bNovoTratador>] )",
+        retorno: "Bloco de Código (Tratador de erro anterior)",
+        descricaoCurta: "Define um tratador global customizado de erros para interceptar falhas em tempo de execução.",
+        descricaoDetalhada: "Substitui o mecanismo padrão de tratamento de erro do Protheus por um bloco de código customizado {|e| MeuTrataErro(e)}. O bloco recebe um objeto de erro (Error Object) contendo descrição, pilha de chamadas e operação com falha, permitindo capturar exceções sem abortar o sistema.",
+        parametros: [
+          { nome: "bNovoTratador", tipo: "Bloco de Código", descricao: "Novo bloco de tratamento de erro. Se omitido, mantém o tratador atual.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Interceptação controlada de erros de execução
+    User Function ExErrorBlock()
+        Local bErroPadrao := ErrorBlock({|oErro| TrataErroCustom(oErro)})
+    
+        // Código protegido contra quedas abruptas
+        U_RotinaSensivel()
+    
+        // Restaura o tratador padrão do Protheus
+        ErrorBlock(bErroPadrao)
+    Return
+    
+    Static Function TrataErroCustom(oErro)
+        ConOut("[ERRO INTERCEPTADO] " + oErro:Description)
+        Break(oErro)
+    Return Nil`
+      },
+      {
+        nome: "Break",
+        categoria: "Tipos e Validações",
+        sintaxe: "Break( [<xValor>] )",
+        retorno: "NIL",
+        descricaoCurta: "Interrompe a execução normal e desvia o fluxo para o bloco de captura RECOVER de uma estrutura SEQUENCE.",
+        descricaoDetalhada: "Mecanismo de controle de fluxo para sinalização de exceções em ADVPL. Quando invocado dentro de uma estrutura BEGIN SEQUENCE ... RECOVER ... END SEQUENCE, interrompe as instruções seguintes e salta imediatamente para a cláusula RECOVER, passando opcionalmente um valor.",
+        parametros: [
+          { nome: "xValor", tipo: "Qualquer tipo", descricao: "Valor opcional transmitido para a variável de captura da cláusula RECOVER.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Desvio controlado de exceção com Break e Recover
+    User Function ExBreak()
+        Local cMsgErro := ""
+    
+        Begin Sequence
+            If Empty(cUsuario)
+                Break("Usuário obrigatório não informado!")
+            EndIf
+            ConOut("Processamento realizado com sucesso.")
+        Recover Using cMsgErro
+            ConOut("Exceção capturada: " + cMsgErro)
+        End Sequence
+    Return`
+      },
+      {
+        nome: "Sleep",
+        categoria: "Tipos e Validações",
+        sintaxe: "Sleep( <nMilisegundos> )",
+        retorno: "NIL",
+        descricaoCurta: "Pausa a execução da thread corrente pelo período informado em milissegundos.",
+        descricaoDetalhada: "Suspende temporariamente o processamento da thread ativa no AppServer pelo tempo especificado (ex: Sleep(1000) para 1 segundo). Muito utilizada em rotinas de integração, pooling de fila, retentativas com backoff e sincronização de jobs em background.",
+        parametros: [
+          { nome: "nMilisegundos", tipo: "Numérico", descricao: "Tempo de pausa da thread em milissegundos (ex: 1000 = 1 segundo).", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Retentativa com pausa via Sleep
+    User Function TentaConexao()
+        Local nTentativas := 0
+        Local lConectou   := .F.
+    
+        While nTentativas < 3 .And. !lConectou
+            lConectou := U_ConectaWS()
+            If !lConectou
+                nTentativas++
+                ConOut("Falha na tentativa " + Str(nTentativas) + ". Aguardando 2 segundos...")
+                Sleep(2000) // Aguarda 2 segundos antes de tentar novamente
+            EndIf
+        EndDo
+    Return lConectou`
+      },
+      {
+        nome: "MPFormModel",
+        categoria: "Framework Protheus",
+        sintaxe: "MPFormModel():New( <cIdModel>, [<bPreValid>], [<bPosValid>], [<bCommit>], [<bCancel>] )",
+        retorno: "Objeto (Instância da classe MPFormModel)",
+        descricaoCurta: "Classe central de Modelo de Dados do Framework MVC no Protheus para regras de negócio e validações.",
+        descricaoDetalhada: "Coração do MVC no Protheus. Representa o Modelo (Model) que isola totalmente a regra de negócio da interface visual, gerenciando componentes de formulário (FWFormModelStruct), submodelos de itens (Grid), eventos de pré/pós-validação e comutação segura no banco de dados.",
+        parametros: [
+          { nome: "cIdModel", tipo: "Caractere", descricao: "Identificador único do modelo de dados (ex: 'COMP011M').", opcional: false },
+          { nome: "bPreValid", tipo: "Bloco de Código", descricao: "Bloco de pré-validação antes da edição dos dados.", opcional: true },
+          { nome: "bPosValid", tipo: "Bloco de Código", descricao: "Bloco de pós-validação executado ao confirmar o formulário.", opcional: true },
+          { nome: "bCommit", tipo: "Bloco de Código", descricao: "Bloco customizado de persistência no banco de dados.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Definição da função ModelDef padrão MVC
+    Static Function ModelDef()
+        Local oModel := MPFormModel():New("MEUMODEL", /*bPre*/, {|oMdl| MinhaPosValid(oMdl)})
+        Local oStruSA1 := FWFormStruct(1, "SA1")
+    
+        oModel:AddFields("SA1MASTER", /*cOwner*/, oStruSA1)
+        oModel:SetDescription("Modelo de Clientes MVC")
+    Return oModel`
+      },
+      {
+        nome: "FWFormStruct",
+        categoria: "Framework Protheus",
+        sintaxe: "FWFormStruct( <nTipo>, <cAlias>, [<bAvalCampo>] )",
+        retorno: "Objeto (Instância de FWFormModelStruct ou FWFormViewStruct)",
+        descricaoCurta: "Cria a estrutura de metadados e validações para modelos e visões MVC com base no dicionário SX3.",
+        descricaoDetalhada: "Função essencial de construção no padrão MVC. Quando nTipo é 1 (MODEL), monta a estrutura de regras e campos para o Model; quando nTipo é 2 (VIEW), monta as propriedades visuais de interface (Picture, Título, Pasta, Ordem) para a View.",
+        parametros: [
+          { nome: "nTipo", tipo: "Numérico", descricao: "Tipo de estrutura desejada (1 = ModelStruct, 2 = ViewStruct).", opcional: false },
+          { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela no dicionário SX3 (ex: 'SA1', 'SB1').", opcional: false },
+          { nome: "bAvalCampo", tipo: "Bloco de Código", descricao: "Filtro opcional para seleção de campos específicos.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Criação de estruturas Model e View via FWFormStruct
+    User Function ExFWFormStruct()
+        // Estrutura de dados para o Model
+        Local oStructModel := FWFormStruct(1, "SB1")
+    
+        // Estrutura visual para a View
+        Local oStructView  := FWFormStruct(2, "SB1")
+    
+        ConOut("Estruturas criadas com sucesso para a tabela SB1.")
+    Return`
+      },
+      {
+        nome: "FWFormView",
+        categoria: "Framework Protheus",
+        sintaxe: "FWFormView():New()",
+        retorno: "Objeto (Instância da classe FWFormView)",
+        descricaoCurta: "Classe de Visão (View) do Framework MVC responsável pela interface gráfica e layout de formulários.",
+        descricaoDetalhada: "Gerencia a interface de usuário no MVC do Protheus. Define a disposição visual de painéis, formulários (FormFields), grades (FormGrid), agrupamento em abas/pastas horizontais ou verticais e amarração aos submodelos do MPFormModel.",
+        parametros: [],
+        exemplo: `// Exemplo prático: Definição da função ViewDef padrão MVC
+    Static Function ViewDef()
+        Local oModel := FWLoadModel("MEUMODEL")
+        Local oView  := FWFormView():New()
+        Local oStru  := FWFormStruct(2, "SA1")
+    
+        oView:SetModel(oModel)
+        oView:AddField("VIEW_SA1", oStru, "SA1MASTER")
+        oView:CreateHorizontalBox("TELA_PRINCIPAL", 100)
+        oView:SetOwnerView("VIEW_SA1", "TELA_PRINCIPAL")
+    Return oView`
+      },
+      {
+        nome: "MPReport",
+        categoria: "Framework Protheus",
+        sintaxe: "MPReport():New( <cReport>, <cTitle>, [<uParam>], [<bAction>], [<cDescription>] )",
+        retorno: "Objeto (Instância da classe MPReport)",
+        descricaoCurta: "Classe base de geração de relatórios integrados ao Framework Protheus (evolução do TReport).",
+        descricaoDetalhada: "Classe do TOTVS Framework que herda e expande o TReport, fornecendo recursos aprimorados para internacionalização, gráficos integrados, suporte a exportação nativa e compatibilidade total com dicionários de parâmetros.",
+        parametros: [
+          { nome: "cReport", tipo: "Caractere", descricao: "Nome identificador interno do relatório.", opcional: false },
+          { nome: "cTitle", tipo: "Caractere", descricao: "Título principal do relatório.", opcional: false },
+          { nome: "uParam", tipo: "Caractere / Array", descricao: "Grupo de perguntas do SX1 para filtros.", opcional: true },
+          { nome: "bAction", tipo: "Bloco de Código", descricao: "Bloco de código de processamento e impressão das seções.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Criação de relatório integrado com MPReport
+    User Function RelFaturamento()
+        Local oReport := MPReport():New("RELFAT", "Faturamento Mensal", "MTR500", {|oRpt| ImprimeRel(oRpt)})
+        oReport:PrintDialog()
+    Return`
+      },
+      {
+        nome: "FWMVCRotAuto",
+        categoria: "Framework Protheus",
+        sintaxe: "FWMVCRotAuto( <oModel>, <cAlias>, <nOpc>, [<aAutoCab>], [<aAutoItens>] )",
+        retorno: "Lógico (.T. se processado com sucesso, .F. caso ocorra erro)",
+        descricaoCurta: "Executa uma rotina automática em segundo plano para fontes desenvolvidos na arquitetura MVC.",
+        descricaoDetalhada: "Equivalente moderno do MsExecAuto() para programas desenvolvidos em MVC. Carrega o MPFormModel da rotina sem interface gráfica, alimenta os campos de cabeçalho e linhas de itens através de arrays e valida todas as regras do modelo, retornando o status da gravação.",
+        parametros: [
+          { nome: "oModel", tipo: "Objeto", descricao: "Instância carregada do MPFormModel da rotina.", opcional: false },
+          { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela principal gerenciada pelo modelo.", opcional: false },
+          { nome: "nOpc", tipo: "Numérico", descricao: "Opção da operação (3: Inclusão, 4: Alteração, 5: Exclusão).", opcional: false },
+          { nome: "aAutoCab", tipo: "Array", descricao: "Vetor com os campos do cabeçalho {{campo, valor, nil}}.", opcional: true },
+          { nome: "aAutoItens", tipo: "Array", descricao: "Matriz com as linhas dos itens para modelos mestre-detalhe.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Execução de rotina automática MVC sem interface
+    User Function IncClienteMVC()
+        Local oModel   := FWLoadModel("CRMA980") // Modelo padrão de clientes
+        Local aCampos  := {}
+        Local lSucesso := .F.
+    
+        AAdd(aCampos, {"A1_COD",  "CLI001", Nil})
+        AAdd(aCampos, {"A1_LOJA", "01",     Nil})
+        AAdd(aCampos, {"A1_NOME", "NOVO CLIENTE SA", Nil})
+    
+        lSucesso := FWMVCRotAuto(oModel, "SA1", 3, aCampos)
+        If lSucesso
+            ConOut("Cliente inserido via rotina automática MVC!")
+        EndIf
+    Return lSucesso`
+      },
+      {
+        nome: "FWLogMsg",
+        categoria: "Framework Protheus",
+        sintaxe: "FWLogMsg( <cSeveridade>, [<cMsgId>], <cGrupo>, <cSubGrupo>, [<cMensagem>], [<cSolucao>] )",
+        retorno: "NIL",
+        descricaoCurta: "Registra mensagens estruturadas de auditoria, alerta e erro no serviço centralizado de log do Protheus.",
+        descricaoDetalhada: "Mecanismo padrão moderno do Protheus para gravação de logs (console.log / TOTVS Log). Suporta severidades 'INFO', 'WARN', 'ERROR', 'FATAL' com rastreamento por categorias, facilitando a identificação de problemas em monitoramentos corporativos.",
+        parametros: [
+          { nome: "cSeveridade", tipo: "Caractere", descricao: "Nível do log: 'INFO', 'WARN', 'ERROR' ou 'FATAL'.", opcional: false },
+          { nome: "cMsgId", tipo: "Caractere", descricao: "Identificador ou código único da mensagem.", opcional: true },
+          { nome: "cGrupo", tipo: "Caractere", descricao: "Categoria ou módulo da aplicação (ex: 'FATURAMENTO').", opcional: false },
+          { nome: "cSubGrupo", tipo: "Caractere", descricao: "Subgrupo ou rotina específica (ex: 'INTEGRACAO_API').", opcional: false },
+          { nome: "cMensagem", tipo: "Caractere", descricao: "Texto descritivo do evento registrado.", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Gravação estruturada de log corporativo
+    User Function ExFWLogMsg()
+        FWLogMsg("INFO", "LOG001", "INTEGRACOES", "REST_PEDIDOS", "Sincronização de pedidos iniciada com sucesso.")
+        FWLogMsg("WARN", "LOG002", "INTEGRACOES", "REST_PEDIDOS", "Alerta: Tempo de resposta do parceiro acima de 3 segundos.")
+    Return`
+      },
+      {
+        nome: "FWGetDialog",
+        categoria: "Framework Protheus",
+        sintaxe: "FWGetDialog( [<oWnd>] )",
+        retorno: "Objeto (Instância da janela de diálogo ativa)",
+        descricaoCurta: "Retorna o objeto da janela de diálogo (TDialog/MSDialog) atualmente ativa na pilha de execução.",
+        descricaoDetalhada: "Função utilitária que permite recuperar o contexto visual da janela corrente em execução, muito útil em gatilhos, validações de campo ou pontos de entrada onde se precisa atualizar componentes de tela sem ter a variável do diálogo no escopo local.",
+        parametros: [
+          { nome: "oWnd", tipo: "Objeto", descricao: "Janela de referência inicial (opcional).", opcional: true }
+        ],
+        exemplo: `// Exemplo prático: Recuperação da janela corrente em ponto de entrada
+    User Function ExFWGetDialog()
+        Local oDlgAtual := FWGetDialog()
+    
+        If oDlgAtual != Nil
+            ConOut("Janela ativa identificada. Atualizando componentes visuais...")
+            oDlgAtual:Refresh()
+        EndIf
+    Return`
+      },
+      {
+        nome: "FWSX3Util",
+        categoria: "Framework Protheus",
+        sintaxe: "FWSX3Util():GetDescription( <cCampo> )",
+        retorno: "Qualquer tipo (Varia conforme o método estático executado)",
+        descricaoCurta: "Classe utilitária de alta performance para consulta de metadados e propriedades de campos do SX3 em memória.",
+        descricaoDetalhada: "Disponibiliza métodos estáticos otimizados (:GetDescription, :GetTitle, :GetType, :GetSize, :GetDecimal, :GetValid) que consultam o cache de metadados do Protheus sem necessidade de realizar consultas lentas na tabela física do dicionário SX3.",
+        parametros: [
+          { nome: "cCampo", tipo: "Caractere", descricao: "Nome do campo no dicionário de dados (ex: 'A1_NOME').", opcional: false }
+        ],
+        exemplo: `// Exemplo prático: Consulta ultrarrápida de propriedades do dicionário
+    User Function ExFWSX3Util()
+        Local cTitulo := FWSX3Util():GetTitle("A1_NOME")
+        Local cTipo   := FWSX3Util():GetType("A1_NOME")
+        Local nTam    := FWSX3Util():GetSize("A1_NOME")
+    
+        ConOut("Campo: A1_NOME | Título: " + cTitulo + " | Tipo: " + cTipo + " | Tamanho: " + cValToChar(nTam))
     Return`
       }
     ];

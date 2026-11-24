@@ -686,5 +686,180 @@ User Function ExDbCreateIndex()
         SA1->(DbSkip())
     EndDo
 Return`
+  },
+  {
+    nome: "Begin Transaction",
+    categoria: "Banco de Dados",
+    sintaxe: "Begin Transaction ... End Transaction",
+    retorno: "NIL",
+    descricaoCurta: "Inicia um bloco de transação atômica no banco de dados relacional e arquivos locais.",
+    descricaoDetalhada: "Comando fundamental de controle transacional no Protheus. Assegura que todas as alterações e gravações realizadas entre o Begin Transaction e o End Transaction sejam tratadas como uma única unidade lógica de trabalho (ACID). Se ocorrer qualquer falha crítica ou chamada a DisarmTransaction(), todas as operações são revertidas (rollback automático).",
+    parametros: [],
+    exemplo: `// Exemplo prático: Transação atômica de pedido e itens com Begin Transaction
+User Function GravaPedido()
+    Local lSucesso := .T.
+
+    Begin Transaction
+        // Gravação do cabeçalho
+        DbSelectArea("SC5")
+        RecLock("SC5", .T.)
+        SC5->C5_NUM := "000100"
+        MsUnlock()
+
+        // Gravação dos itens
+        DbSelectArea("SC6")
+        RecLock("SC6", .T.)
+        SC6->C6_NUM := "000100"
+        MsUnlock()
+
+        If !lSucesso
+            DisarmTransaction() // Cancela alterações em caso de erro
+        EndIf
+    End Transaction
+Return`
+  },
+  {
+    nome: "End Transaction",
+    categoria: "Banco de Dados",
+    sintaxe: "End Transaction",
+    retorno: "NIL",
+    descricaoCurta: "Finaliza e confirma definitivamente a transação aberta pelo Begin Transaction (commit).",
+    descricaoDetalhada: "Encerra com sucesso o bloco transacional, persistindo permanentemente todas as operações pendentes no banco de dados e liberando os bloqueios mantidos durante a transação.",
+    parametros: [],
+    exemplo: `// Exemplo prático: Fechamento com confirmação de transação
+User Function ConfirmaTransacao()
+    Begin Transaction
+        // Atualizações críticas...
+        ConOut("Processando dados protegidos por transação...")
+    End Transaction // Realiza o COMMIT definitivo no banco
+    ConOut("Transação comitada com sucesso.")
+Return`
+  },
+  {
+    nome: "DisarmTransaction",
+    categoria: "Banco de Dados",
+    sintaxe: "DisarmTransaction()",
+    retorno: "NIL",
+    descricaoCurta: "Desarma a transação corrente, forçando o rollback de todas as alterações ao atingir End Transaction.",
+    descricaoDetalhada: "Sinaliza ao motor do Protheus que a transação ativa não deve ser confirmada. Ao alcançar o comando End Transaction subsequente, o sistema executará automaticamente o rollback de todas as tabelas e registros manipulados no bloco.",
+    parametros: [],
+    exemplo: `// Exemplo prático: Desarme de transação ao detectar inconsistência de dados
+User Function ExDisarmTransaction()
+    Begin Transaction
+        DbSelectArea("SB2")
+        RecLock("SB2", .F.)
+        SB2->B2_QATU -= 10
+        MsUnlock()
+
+        // Valida se o saldo ficou negativo indevidamente
+        If SB2->B2_QATU < 0
+            DisarmTransaction() // Força cancelamento total
+            ConOut("Transação desarmada! Saldo não pode ficar negativo.")
+        EndIf
+    End Transaction
+Return`
+  },
+  {
+    nome: "SimpleLock",
+    categoria: "Banco de Dados",
+    sintaxe: "SimpleLock()",
+    retorno: "Lógico (.T. se bloqueado com sucesso, .F. caso contrário)",
+    descricaoCurta: "Tenta efetuar o bloqueio do registro corrente de forma simplificada sem interface de espera.",
+    descricaoDetalhada: "Tenta bloquear o registro na tabela ativa para atualização exclusiva. Retorna imediatamente .F. caso o registro já esteja bloqueado por outro usuário ou thread, evitando paradas indesejadas na execução de rotinas automáticas.",
+    parametros: [],
+    exemplo: `// Exemplo prático: Bloqueio sem espera para atualização rápida
+User Function ExSimpleLock()
+    DbSelectArea("SA1")
+
+    If SimpleLock()
+        SA1->A1_NOME := "NOME ATUALIZADO"
+        MsUnlock()
+        ConOut("Registro alterado com sucesso.")
+    Else
+        ConOut("Registro ocupado por outro usuário no momento.")
+    EndIf
+Return`
+  },
+  {
+    nome: "MsRLock",
+    categoria: "Banco de Dados",
+    sintaxe: "MsRLock( [<nRecNo>] )",
+    retorno: "Lógico (.T. se bloqueado com sucesso, .F. se timeout ou bloqueado)",
+    descricaoCurta: "Aplica bloqueio de registro (RLock) com controle de concorrência e tentativas automáticas do Protheus.",
+    descricaoDetalhada: "Rotina padrão do Framework Protheus para lock de registro. Tenta obter exclusividade sobre o registro indicado (ou corrente) efetuando tentativas com intervalo de espera antes de desistir, garantindo maior estabilidade que o RLock puro do Clipper.",
+    parametros: [
+      { nome: "nRecNo", tipo: "Numérico", descricao: "Número do RecNo a bloquear (padrão: registro corrente posicionado).", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Bloqueio seguro de registro com retentativas do Protheus
+User Function ExMsRLock()
+    DbSelectArea("SC5")
+
+    If MsRLock(SC5->(RecNo()))
+        SC5->C5_LIBEROK := "S"
+        MsRUnlock(SC5->(RecNo()))
+        ConOut("Pedido liberado com segurança.")
+    EndIf
+Return`
+  },
+  {
+    nome: "MsRUnlock",
+    categoria: "Banco de Dados",
+    sintaxe: "MsRUnlock( [<nRecNo>] )",
+    retorno: "NIL",
+    descricaoCurta: "Libera o bloqueio de registro previamente obtido por MsRLock() ou RecLock().",
+    descricaoDetalhada: "Desfaz a trava exclusiva sobre o registro especificado na tabela corrente, tornando-o novamente disponível para alteração por outras threads ou operadores no Protheus.",
+    parametros: [
+      { nome: "nRecNo", tipo: "Numérico", descricao: "Número do RecNo a desbloquear (padrão: registro corrente).", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Liberação explícita de bloqueio de registro
+User Function ExMsRUnlock()
+    DbSelectArea("SB1")
+    If MsRLock()
+        // Executa atualização...
+        MsRUnlock() // Libera imediatamente o bloqueio
+    EndIf
+Return`
+  },
+  {
+    nome: "SoftLock",
+    categoria: "Banco de Dados",
+    sintaxe: "SoftLock( <cAlias> )",
+    retorno: "Lógico (.T. se obteve o semáforo, .F. caso já esteja bloqueado)",
+    descricaoCurta: "Cria um bloqueio lógico (semáforo de concorrência) sem travar fisicamente a linha no SGBD.",
+    descricaoDetalhada: "Utilizado principalmente em rotinas de tela e cadastros do Protheus para sinalizar que determinado registro está sendo editado por um usuário, evitando que outro operador inicie a edição simultânea, sem manter locks longos no SGBD.",
+    parametros: [
+      { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela cujo registro corrente receberá o semáforo.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Criação de semáforo de tela com SoftLock
+User Function ExSoftLock()
+    DbSelectArea("SA1")
+
+    If SoftLock("SA1")
+        ConOut("Semáforo obtido com sucesso! Abrindo tela para edição...")
+        // Abre tela de edição...
+    Else
+        MsgAlert("Este cliente já está em manutenção por outro operador!", "Aviso")
+    EndIf
+Return`
+  },
+  {
+    nome: "DbRLock",
+    categoria: "Banco de Dados",
+    sintaxe: "DbRLock( [<nRecNo>] )",
+    retorno: "Lógico (.T. se o registro foi bloqueado, .F. caso contrário)",
+    descricaoCurta: "Função oficial do RDD para bloqueio do registro especificado pelo seu número de RecNo.",
+    descricaoDetalhada: "Comando nativo da camada RDD/DBAccess que solicita o bloqueio exclusivo de um registro na área de trabalho ativa. Aceita como parâmetro o número do registro a ser travado sem necessidade de posicionamento prévio.",
+    parametros: [
+      { nome: "nRecNo", tipo: "Numérico", descricao: "Identificador físico (RecNo) do registro a ser bloqueado.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Bloqueio direto via RDD com DbRLock
+User Function ExDbRLock()
+    DbSelectArea("SB1")
+
+    If DbRLock(150)
+        ConOut("Registro 150 bloqueado com sucesso na camada RDD.")
+        DbRUnlock(150)
+    EndIf
+Return`
   }
 );

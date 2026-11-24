@@ -1,4 +1,4 @@
-﻿# 📚 Catálogo de Funções ADVPL / TOTVS Protheus
+# 📚 Catálogo de Funções ADVPL / TOTVS Protheus
 
 Documentação técnica interativa e **100% offline** das principais funções nativas do ADVPL e do Framework TOTVS Protheus, desenvolvida com foco em consulta rápida, precisão de sintaxe e exemplos práticos do dia a dia.
 
@@ -21,20 +21,20 @@ O projeto oferece duas modalidades de uso para atender tanto o compartilhamento 
 ```text
 catalogo_funcoes_advpl/
 ├── index.html                      # Redirecionamento da raiz para GitHub Pages
-├── documentacao_advpl.html         # Arquivo único autocontido com 200 funções (HTML + CSS + JS)
+├── documentacao_advpl.html         # Arquivo único autocontido com 250 funções (HTML + CSS + JS)
 └── catalogo_advpl/                 # Versão modular para manutenção e expansão
     ├── index.html                  # Interface principal e tela de detalhes SPA
     ├── style.css                   # Estilização limpa, moderna e responsiva
     ├── app.js                      # Lógica de busca, filtros dinâmicos e roteamento por hash
     └── dados/                      # Arquivos de dados separados por categoria
-        ├── strings.js              # Manipulação de textos (28 funções)
-        ├── arrays.js               # Vetores e matrizes (12 funções)
-        ├── datas.js                # Datas, horas e calendário (22 funções)
-        ├── banco_dados.js          # Navegação ISAM, locks, filtros, índices e SQL (30 funções)
+        ├── strings.js              # Manipulação de textos e formatação (36 funções)
+        ├── arrays.js               # Vetores, matrizes, blocos de código e HashMap (18 funções)
+        ├── datas.js                # Datas, horas, conversões e calendário (26 funções)
+        ├── banco_dados.js          # Navegação ISAM, locks, transações, índices e SQL (38 funções)
         ├── arquivos.js             # Arquivos e diretórios locais/servidor (15 funções)
-        ├── sistema_tipos.js        # Tipos, validações, pontos de entrada e RPO (19 funções)
-        ├── framework_fw.js         # Framework Protheus moderno e MVC (14 funções)
-        ├── mensagens_telas.js      # Diálogos TDialog, componentes visuais e réguas (20 funções)
+        ├── sistema_tipos.js        # Tipos, validações, exceções, controle e RPO (23 funções)
+        ├── framework_fw.js         # Framework Protheus moderno, MVC e logs (22 funções)
+        ├── mensagens_telas.js      # Cadastros Ax, browses, diálogos e componentes (32 funções)
         ├── matematica.js           # Arredondamentos, truncamentos e cálculos (8 funções)
         ├── integracoes_web.js      # REST, SOAP, XML, JSON e ExecAuto (10 funções)
         ├── ambiente_debug.js       # Sessão RPC, usuários, IPs e debug (12 funções)

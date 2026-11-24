@@ -407,5 +407,99 @@ User Function ExFindFunction()
         ConOut("Aviso: Função de JSON não disponível nesta versão do RPO.")
     EndIf
 Return`
+  },
+  {
+    nome: "GetCbSource",
+    categoria: "Tipos e Validações",
+    sintaxe: "GetCbSource( <bBloco> )",
+    retorno: "Caractere (Código fonte em texto do bloco de código)",
+    descricaoCurta: "Descompila e retorna o texto do código fonte original que compõe um bloco de código (Codeblock).",
+    descricaoDetalhada: "Função de depuração e inspeção dinâmica que decompõe um codeblock e retorna sua representação em string legível (ex: '{|x| x * 2}'). Extremamente útil para logs de auditoria e depuração de gatilhos e regras de negócio parametrizadas.",
+    parametros: [
+      { nome: "bBloco", tipo: "Bloco de Código", descricao: "Codeblock cujo código fonte em texto será inspecionado.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Auditoria de código fonte de codeblock dinâmico
+User Function ExGetCbSource()
+    Local bRegra := {|cDoc| Val(cDoc) > 1000}
+    Local cFonte := GetCbSource(bRegra)
+
+    ConOut("Expressão fonte do bloco: " + cFonte)
+    // "{|cDoc| Val(cDoc) > 1000}"
+Return`
+  },
+  {
+    nome: "ErrorBlock",
+    categoria: "Tipos e Validações",
+    sintaxe: "ErrorBlock( [<bNovoTratador>] )",
+    retorno: "Bloco de Código (Tratador de erro anterior)",
+    descricaoCurta: "Define um tratador global customizado de erros para interceptar falhas em tempo de execução.",
+    descricaoDetalhada: "Substitui o mecanismo padrão de tratamento de erro do Protheus por um bloco de código customizado {|e| MeuTrataErro(e)}. O bloco recebe um objeto de erro (Error Object) contendo descrição, pilha de chamadas e operação com falha, permitindo capturar exceções sem abortar o sistema.",
+    parametros: [
+      { nome: "bNovoTratador", tipo: "Bloco de Código", descricao: "Novo bloco de tratamento de erro. Se omitido, mantém o tratador atual.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Interceptação controlada de erros de execução
+User Function ExErrorBlock()
+    Local bErroPadrao := ErrorBlock({|oErro| TrataErroCustom(oErro)})
+
+    // Código protegido contra quedas abruptas
+    U_RotinaSensivel()
+
+    // Restaura o tratador padrão do Protheus
+    ErrorBlock(bErroPadrao)
+Return
+
+Static Function TrataErroCustom(oErro)
+    ConOut("[ERRO INTERCEPTADO] " + oErro:Description)
+    Break(oErro)
+Return Nil`
+  },
+  {
+    nome: "Break",
+    categoria: "Tipos e Validações",
+    sintaxe: "Break( [<xValor>] )",
+    retorno: "NIL",
+    descricaoCurta: "Interrompe a execução normal e desvia o fluxo para o bloco de captura RECOVER de uma estrutura SEQUENCE.",
+    descricaoDetalhada: "Mecanismo de controle de fluxo para sinalização de exceções em ADVPL. Quando invocado dentro de uma estrutura BEGIN SEQUENCE ... RECOVER ... END SEQUENCE, interrompe as instruções seguintes e salta imediatamente para a cláusula RECOVER, passando opcionalmente um valor.",
+    parametros: [
+      { nome: "xValor", tipo: "Qualquer tipo", descricao: "Valor opcional transmitido para a variável de captura da cláusula RECOVER.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Desvio controlado de exceção com Break e Recover
+User Function ExBreak()
+    Local cMsgErro := ""
+
+    Begin Sequence
+        If Empty(cUsuario)
+            Break("Usuário obrigatório não informado!")
+        EndIf
+        ConOut("Processamento realizado com sucesso.")
+    Recover Using cMsgErro
+        ConOut("Exceção capturada: " + cMsgErro)
+    End Sequence
+Return`
+  },
+  {
+    nome: "Sleep",
+    categoria: "Tipos e Validações",
+    sintaxe: "Sleep( <nMilisegundos> )",
+    retorno: "NIL",
+    descricaoCurta: "Pausa a execução da thread corrente pelo período informado em milissegundos.",
+    descricaoDetalhada: "Suspende temporariamente o processamento da thread ativa no AppServer pelo tempo especificado (ex: Sleep(1000) para 1 segundo). Muito utilizada em rotinas de integração, pooling de fila, retentativas com backoff e sincronização de jobs em background.",
+    parametros: [
+      { nome: "nMilisegundos", tipo: "Numérico", descricao: "Tempo de pausa da thread em milissegundos (ex: 1000 = 1 segundo).", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Retentativa com pausa via Sleep
+User Function TentaConexao()
+    Local nTentativas := 0
+    Local lConectou   := .F.
+
+    While nTentativas < 3 .And. !lConectou
+        lConectou := U_ConectaWS()
+        If !lConectou
+            nTentativas++
+            ConOut("Falha na tentativa " + Str(nTentativas) + ". Aguardando 2 segundos...")
+            Sleep(2000) // Aguarda 2 segundos antes de tentar novamente
+        EndIf
+    EndDo
+Return lConectou`
   }
 );

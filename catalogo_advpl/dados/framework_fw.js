@@ -276,5 +276,178 @@ User Function ExFwFldPut()
     FwFldPut("A1_TIPO", "F")
     ConOut("Campo A1_TIPO atualizado para 'F'.")
 Return`
+  },
+  {
+    nome: "MPFormModel",
+    categoria: "Framework Protheus",
+    sintaxe: "MPFormModel():New( <cIdModel>, [<bPreValid>], [<bPosValid>], [<bCommit>], [<bCancel>] )",
+    retorno: "Objeto (Instância da classe MPFormModel)",
+    descricaoCurta: "Classe central de Modelo de Dados do Framework MVC no Protheus para regras de negócio e validações.",
+    descricaoDetalhada: "Coração do MVC no Protheus. Representa o Modelo (Model) que isola totalmente a regra de negócio da interface visual, gerenciando componentes de formulário (FWFormModelStruct), submodelos de itens (Grid), eventos de pré/pós-validação e comutação segura no banco de dados.",
+    parametros: [
+      { nome: "cIdModel", tipo: "Caractere", descricao: "Identificador único do modelo de dados (ex: 'COMP011M').", opcional: false },
+      { nome: "bPreValid", tipo: "Bloco de Código", descricao: "Bloco de pré-validação antes da edição dos dados.", opcional: true },
+      { nome: "bPosValid", tipo: "Bloco de Código", descricao: "Bloco de pós-validação executado ao confirmar o formulário.", opcional: true },
+      { nome: "bCommit", tipo: "Bloco de Código", descricao: "Bloco customizado de persistência no banco de dados.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Definição da função ModelDef padrão MVC
+Static Function ModelDef()
+    Local oModel := MPFormModel():New("MEUMODEL", /*bPre*/, {|oMdl| MinhaPosValid(oMdl)})
+    Local oStruSA1 := FWFormStruct(1, "SA1")
+
+    oModel:AddFields("SA1MASTER", /*cOwner*/, oStruSA1)
+    oModel:SetDescription("Modelo de Clientes MVC")
+Return oModel`
+  },
+  {
+    nome: "FWFormStruct",
+    categoria: "Framework Protheus",
+    sintaxe: "FWFormStruct( <nTipo>, <cAlias>, [<bAvalCampo>] )",
+    retorno: "Objeto (Instância de FWFormModelStruct ou FWFormViewStruct)",
+    descricaoCurta: "Cria a estrutura de metadados e validações para modelos e visões MVC com base no dicionário SX3.",
+    descricaoDetalhada: "Função essencial de construção no padrão MVC. Quando nTipo é 1 (MODEL), monta a estrutura de regras e campos para o Model; quando nTipo é 2 (VIEW), monta as propriedades visuais de interface (Picture, Título, Pasta, Ordem) para a View.",
+    parametros: [
+      { nome: "nTipo", tipo: "Numérico", descricao: "Tipo de estrutura desejada (1 = ModelStruct, 2 = ViewStruct).", opcional: false },
+      { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela no dicionário SX3 (ex: 'SA1', 'SB1').", opcional: false },
+      { nome: "bAvalCampo", tipo: "Bloco de Código", descricao: "Filtro opcional para seleção de campos específicos.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Criação de estruturas Model e View via FWFormStruct
+User Function ExFWFormStruct()
+    // Estrutura de dados para o Model
+    Local oStructModel := FWFormStruct(1, "SB1")
+
+    // Estrutura visual para a View
+    Local oStructView  := FWFormStruct(2, "SB1")
+
+    ConOut("Estruturas criadas com sucesso para a tabela SB1.")
+Return`
+  },
+  {
+    nome: "FWFormView",
+    categoria: "Framework Protheus",
+    sintaxe: "FWFormView():New()",
+    retorno: "Objeto (Instância da classe FWFormView)",
+    descricaoCurta: "Classe de Visão (View) do Framework MVC responsável pela interface gráfica e layout de formulários.",
+    descricaoDetalhada: "Gerencia a interface de usuário no MVC do Protheus. Define a disposição visual de painéis, formulários (FormFields), grades (FormGrid), agrupamento em abas/pastas horizontais ou verticais e amarração aos submodelos do MPFormModel.",
+    parametros: [],
+    exemplo: `// Exemplo prático: Definição da função ViewDef padrão MVC
+Static Function ViewDef()
+    Local oModel := FWLoadModel("MEUMODEL")
+    Local oView  := FWFormView():New()
+    Local oStru  := FWFormStruct(2, "SA1")
+
+    oView:SetModel(oModel)
+    oView:AddField("VIEW_SA1", oStru, "SA1MASTER")
+    oView:CreateHorizontalBox("TELA_PRINCIPAL", 100)
+    oView:SetOwnerView("VIEW_SA1", "TELA_PRINCIPAL")
+Return oView`
+  },
+  {
+    nome: "MPReport",
+    categoria: "Framework Protheus",
+    sintaxe: "MPReport():New( <cReport>, <cTitle>, [<uParam>], [<bAction>], [<cDescription>] )",
+    retorno: "Objeto (Instância da classe MPReport)",
+    descricaoCurta: "Classe base de geração de relatórios integrados ao Framework Protheus (evolução do TReport).",
+    descricaoDetalhada: "Classe do TOTVS Framework que herda e expande o TReport, fornecendo recursos aprimorados para internacionalização, gráficos integrados, suporte a exportação nativa e compatibilidade total com dicionários de parâmetros.",
+    parametros: [
+      { nome: "cReport", tipo: "Caractere", descricao: "Nome identificador interno do relatório.", opcional: false },
+      { nome: "cTitle", tipo: "Caractere", descricao: "Título principal do relatório.", opcional: false },
+      { nome: "uParam", tipo: "Caractere / Array", descricao: "Grupo de perguntas do SX1 para filtros.", opcional: true },
+      { nome: "bAction", tipo: "Bloco de Código", descricao: "Bloco de código de processamento e impressão das seções.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Criação de relatório integrado com MPReport
+User Function RelFaturamento()
+    Local oReport := MPReport():New("RELFAT", "Faturamento Mensal", "MTR500", {|oRpt| ImprimeRel(oRpt)})
+    oReport:PrintDialog()
+Return`
+  },
+  {
+    nome: "FWMVCRotAuto",
+    categoria: "Framework Protheus",
+    sintaxe: "FWMVCRotAuto( <oModel>, <cAlias>, <nOpc>, [<aAutoCab>], [<aAutoItens>] )",
+    retorno: "Lógico (.T. se processado com sucesso, .F. caso ocorra erro)",
+    descricaoCurta: "Executa uma rotina automática em segundo plano para fontes desenvolvidos na arquitetura MVC.",
+    descricaoDetalhada: "Equivalente moderno do MsExecAuto() para programas desenvolvidos em MVC. Carrega o MPFormModel da rotina sem interface gráfica, alimenta os campos de cabeçalho e linhas de itens através de arrays e valida todas as regras do modelo, retornando o status da gravação.",
+    parametros: [
+      { nome: "oModel", tipo: "Objeto", descricao: "Instância carregada do MPFormModel da rotina.", opcional: false },
+      { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela principal gerenciada pelo modelo.", opcional: false },
+      { nome: "nOpc", tipo: "Numérico", descricao: "Opção da operação (3: Inclusão, 4: Alteração, 5: Exclusão).", opcional: false },
+      { nome: "aAutoCab", tipo: "Array", descricao: "Vetor com os campos do cabeçalho {{campo, valor, nil}}.", opcional: true },
+      { nome: "aAutoItens", tipo: "Array", descricao: "Matriz com as linhas dos itens para modelos mestre-detalhe.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Execução de rotina automática MVC sem interface
+User Function IncClienteMVC()
+    Local oModel   := FWLoadModel("CRMA980") // Modelo padrão de clientes
+    Local aCampos  := {}
+    Local lSucesso := .F.
+
+    AAdd(aCampos, {"A1_COD",  "CLI001", Nil})
+    AAdd(aCampos, {"A1_LOJA", "01",     Nil})
+    AAdd(aCampos, {"A1_NOME", "NOVO CLIENTE SA", Nil})
+
+    lSucesso := FWMVCRotAuto(oModel, "SA1", 3, aCampos)
+    If lSucesso
+        ConOut("Cliente inserido via rotina automática MVC!")
+    EndIf
+Return lSucesso`
+  },
+  {
+    nome: "FWLogMsg",
+    categoria: "Framework Protheus",
+    sintaxe: "FWLogMsg( <cSeveridade>, [<cMsgId>], <cGrupo>, <cSubGrupo>, [<cMensagem>], [<cSolucao>] )",
+    retorno: "NIL",
+    descricaoCurta: "Registra mensagens estruturadas de auditoria, alerta e erro no serviço centralizado de log do Protheus.",
+    descricaoDetalhada: "Mecanismo padrão moderno do Protheus para gravação de logs (console.log / TOTVS Log). Suporta severidades 'INFO', 'WARN', 'ERROR', 'FATAL' com rastreamento por categorias, facilitando a identificação de problemas em monitoramentos corporativos.",
+    parametros: [
+      { nome: "cSeveridade", tipo: "Caractere", descricao: "Nível do log: 'INFO', 'WARN', 'ERROR' ou 'FATAL'.", opcional: false },
+      { nome: "cMsgId", tipo: "Caractere", descricao: "Identificador ou código único da mensagem.", opcional: true },
+      { nome: "cGrupo", tipo: "Caractere", descricao: "Categoria ou módulo da aplicação (ex: 'FATURAMENTO').", opcional: false },
+      { nome: "cSubGrupo", tipo: "Caractere", descricao: "Subgrupo ou rotina específica (ex: 'INTEGRACAO_API').", opcional: false },
+      { nome: "cMensagem", tipo: "Caractere", descricao: "Texto descritivo do evento registrado.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Gravação estruturada de log corporativo
+User Function ExFWLogMsg()
+    FWLogMsg("INFO", "LOG001", "INTEGRACOES", "REST_PEDIDOS", "Sincronização de pedidos iniciada com sucesso.")
+    FWLogMsg("WARN", "LOG002", "INTEGRACOES", "REST_PEDIDOS", "Alerta: Tempo de resposta do parceiro acima de 3 segundos.")
+Return`
+  },
+  {
+    nome: "FWGetDialog",
+    categoria: "Framework Protheus",
+    sintaxe: "FWGetDialog( [<oWnd>] )",
+    retorno: "Objeto (Instância da janela de diálogo ativa)",
+    descricaoCurta: "Retorna o objeto da janela de diálogo (TDialog/MSDialog) atualmente ativa na pilha de execução.",
+    descricaoDetalhada: "Função utilitária que permite recuperar o contexto visual da janela corrente em execução, muito útil em gatilhos, validações de campo ou pontos de entrada onde se precisa atualizar componentes de tela sem ter a variável do diálogo no escopo local.",
+    parametros: [
+      { nome: "oWnd", tipo: "Objeto", descricao: "Janela de referência inicial (opcional).", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Recuperação da janela corrente em ponto de entrada
+User Function ExFWGetDialog()
+    Local oDlgAtual := FWGetDialog()
+
+    If oDlgAtual != Nil
+        ConOut("Janela ativa identificada. Atualizando componentes visuais...")
+        oDlgAtual:Refresh()
+    EndIf
+Return`
+  },
+  {
+    nome: "FWSX3Util",
+    categoria: "Framework Protheus",
+    sintaxe: "FWSX3Util():GetDescription( <cCampo> )",
+    retorno: "Qualquer tipo (Varia conforme o método estático executado)",
+    descricaoCurta: "Classe utilitária de alta performance para consulta de metadados e propriedades de campos do SX3 em memória.",
+    descricaoDetalhada: "Disponibiliza métodos estáticos otimizados (:GetDescription, :GetTitle, :GetType, :GetSize, :GetDecimal, :GetValid) que consultam o cache de metadados do Protheus sem necessidade de realizar consultas lentas na tabela física do dicionário SX3.",
+    parametros: [
+      { nome: "cCampo", tipo: "Caractere", descricao: "Nome do campo no dicionário de dados (ex: 'A1_NOME').", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Consulta ultrarrápida de propriedades do dicionário
+User Function ExFWSX3Util()
+    Local cTitulo := FWSX3Util():GetTitle("A1_NOME")
+    Local cTipo   := FWSX3Util():GetType("A1_NOME")
+    Local nTam    := FWSX3Util():GetSize("A1_NOME")
+
+    ConOut("Campo: A1_NOME | Título: " + cTitulo + " | Tipo: " + cTipo + " | Tamanho: " + cValToChar(nTam))
+Return`
   }
 );

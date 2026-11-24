@@ -311,5 +311,130 @@ User Function ExaIgual()
     ConOut("A e B são iguais: " + cValToChar(aIgual(aVetorA, aVetorB))) // .T.
     ConOut("A e C são iguais: " + cValToChar(aIgual(aVetorA, aVetorC))) // .F.
 Return`
+  },
+  {
+    nome: "Eval",
+    categoria: "Arrays",
+    sintaxe: "Eval( <bCodeBlock>, [<xArg1>], [<xArg2>], ... )",
+    retorno: "Qualquer tipo (Resultado retornado pela execução do bloco)",
+    descricaoCurta: "Executa (avalia) um bloco de código passando argumentos opcionais e devolvendo o resultado.",
+    descricaoDetalhada: "Mecanismo primordial da linguagem ADVPL para execução de funções de alta ordem e chamadas dinâmicas. Permite disparar codeblocks com parâmetros variáveis, amplamente utilizado em rotinas de busca, ordenação customizada, gatilhos e validações de interface.",
+    parametros: [
+      { nome: "bCodeBlock", tipo: "Bloco de Código", descricao: "Bloco de código a ser avaliado e executado.", opcional: false },
+      { nome: "xArg1, xArg2...", tipo: "Qualquer tipo", descricao: "Argumentos passados como parâmetros para o bloco de código.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Execução dinâmica de cálculo com Eval
+User Function ExEval()
+    Local bCalculo := {|nPreco, nDesc| nPreco * (1 - (nDesc / 100))}
+    Local nTotal   := Eval(bCalculo, 200, 15) // Aplica 15% de desconto em 200
+
+    ConOut("Valor final calculado: " + cValToChar(nTotal)) // 170
+Return`
+  },
+  {
+    nome: "bSetGet",
+    categoria: "Arrays",
+    sintaxe: "bSetGet( <xVar> )",
+    retorno: "Bloco de Código (Bloco de Get/Set da variável)",
+    descricaoCurta: "Gera automaticamente um bloco de código de leitura e gravação (Get/Set) para a variável informada.",
+    descricaoDetalhada: "Cria o bloco no formato {|u| If(PCount() > 0, xVar := u, xVar)}. Essencial na criação de controles visuais (TGet, TCheckBox, TComboBox) onde o componente necessita de um codeblock bidirecional para ler o valor inicial e atualizar a variável ao ser editada.",
+    parametros: [
+      { nome: "xVar", tipo: "Qualquer tipo", descricao: "Variável que será associada ao bloco Get/Set.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Associação bidirecional de variável com bSetGet
+User Function ExbSetGet()
+    Local cNome := "TOTVS"
+    Local bGetSet := bSetGet(cNome)
+
+    ConOut("Valor lido via Get: " + Eval(bGetSet)) // "TOTVS"
+    Eval(bGetSet, "Novo Nome")
+    ConOut("Valor atualizado via Set: " + Eval(bGetSet)) // "Novo Nome"
+Return`
+  },
+  {
+    nome: "Array",
+    categoria: "Arrays",
+    sintaxe: "Array( <nDim1>, [<nDim2>], ... )",
+    retorno: "Array (Novo array alocado com as dimensões especificadas)",
+    descricaoCurta: "Cria e dimensiona dinamicamente um novo array com uma ou mais dimensões preenchidas com NIL.",
+    descricaoDetalhada: "Função nativa para alocação de matrizes multidimensionais no Protheus. Por exemplo, Array(10, 5) cria uma matriz de 10 linhas por 5 colunas com todos os elementos inicialmente inicializados como NIL.",
+    parametros: [
+      { nome: "nDim1", tipo: "Numérico", descricao: "Tamanho da primeira dimensão (quantidade de linhas).", opcional: false },
+      { nome: "nDim2", tipo: "Numérico", descricao: "Tamanho da segunda dimensão (quantidade de colunas).", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Criação e preenchimento de matriz bidimensional
+User Function ExArray()
+    Local aMatriz := Array(3, 2) // Matriz 3x2
+
+    aMatriz[1][1] := "Linha 1 Coluna 1"
+    aMatriz[1][2] := 100
+    aMatriz[2][1] := "Linha 2 Coluna 1"
+    aMatriz[2][2] := 200
+
+    ConOut("Total de linhas: " + cValToChar(Len(aMatriz)))
+Return`
+  },
+  {
+    nome: "HMNew",
+    categoria: "Arrays",
+    sintaxe: "HMNew()",
+    retorno: "Objeto / Identificador (Instância da tabela Hash/HashMap)",
+    descricaoCurta: "Cria uma nova tabela Hash em memória (HashMap nativo) de altíssima performance para busca O(1).",
+    descricaoDetalhada: "Recurso nativo do Protheus para armazenamento e busca de pares chave-valor em memória com complexidade O(1). Extremamente mais rápido do que arrays tradicionais manipulados com AScan() quando se trabalha com milhares de registros.",
+    parametros: [],
+    exemplo: `// Exemplo prático: Inicialização de tabela Hash de alta velocidade
+User Function ExHMNew()
+    Local oHash := HMNew()
+
+    HMSet(oHash, "CLIENTE_01", "Acme Corporation")
+    HMSet(oHash, "CLIENTE_02", "Globex Indústria")
+
+    ConOut("Cliente 01: " + HMGet(oHash, "CLIENTE_01"))
+Return`
+  },
+  {
+    nome: "HMSet",
+    categoria: "Arrays",
+    sintaxe: "HMSet( <oHash>, <cKey>, <xValue> )",
+    retorno: "Lógico (.T. se inserido/atualizado com sucesso, .F. caso contrário)",
+    descricaoCurta: "Insere ou atualiza um par chave-valor dentro de uma tabela Hash (HashMap).",
+    descricaoDetalhada: "Atribui o valor <xValue> (de qualquer tipo de dado: string, número, array, objeto) associado à chave textual <cKey> no HashMap fornecido. Se a chave já existir, seu valor anterior será sobrescrito.",
+    parametros: [
+      { nome: "oHash", tipo: "Objeto / Identificador", descricao: "Tabela Hash previamente criada com HMNew().", opcional: false },
+      { nome: "cKey", tipo: "Caractere", descricao: "Chave identificadora textual do registro no HashMap.", opcional: false },
+      { nome: "xValue", tipo: "Qualquer tipo", descricao: "Valor a ser armazenado sob a chave correspondente.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Armazenamento de dados complexos em Hash
+User Function ExHMSet()
+    Local oMap := HMNew()
+    Local aPrecos := {15.50, 18.90, 22.00}
+
+    HMSet(oMap, "PROD_A", aPrecos)
+    HMSet(oMap, "STATUS", .T.)
+    ConOut("Valores inseridos no mapa com sucesso.")
+Return`
+  },
+  {
+    nome: "HMGet",
+    categoria: "Arrays",
+    sintaxe: "HMGet( <oHash>, <cKey>, [<xDefault>] )",
+    retorno: "Qualquer tipo (Valor associado à chave ou xDefault se não localizada)",
+    descricaoCurta: "Recupera instantaneamente em tempo constante O(1) o valor associado a uma chave na tabela Hash.",
+    descricaoDetalhada: "Busca no HashMap o valor armazenado sob a chave <cKey>. Caso a chave não exista no mapa, retorna o valor padrão opcional <xDefault> ou NIL, eliminando laços de repetição lentos em grandes massas de dados.",
+    parametros: [
+      { nome: "oHash", tipo: "Objeto / Identificador", descricao: "Tabela Hash onde a busca será executada.", opcional: false },
+      { nome: "cKey", tipo: "Caractere", descricao: "Chave textual cujo valor associado será retornado.", opcional: false },
+      { nome: "xDefault", tipo: "Qualquer tipo", descricao: "Valor padrão retornado se a chave não for localizada.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Busca ultrarrápida O(1) de cadastro via HashMap
+User Function ExHMGet()
+    Local oTabela := HMNew()
+
+    HMSet(oTabela, "001", "Filial Matriz - SP")
+    HMSet(oTabela, "002", "Filial Filial - RJ")
+
+    ConOut("Filial 001: " + HMGet(oTabela, "001"))
+    ConOut("Filial 999: " + HMGet(oTabela, "999", "NÃO ENCONTRADA"))
+Return`
   }
 );

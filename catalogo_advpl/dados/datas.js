@@ -436,5 +436,85 @@ User Function ExYear2Str()
 
     ConOut("Código gerado do lote: " + cNumLote)
 Return`
+  },
+  {
+    nome: "Month2Str",
+    categoria: "Datas",
+    sintaxe: "Month2Str( <dData> )",
+    retorno: "Caractere (String de 2 dígitos com o mês)",
+    descricaoCurta: "Retorna o mês de uma data em formato string de 2 dígitos (preenchido com zero à esquerda).",
+    descricaoDetalhada: "Extrai o mês da data informada e converte em texto de tamanho 2 (ex: '01' para janeiro, '12' para dezembro). Útil para composição de códigos contábeis, competências (MMAAAA) e nomes de arquivos de fechamento.",
+    parametros: [
+      { nome: "dData", tipo: "Data", descricao: "Data da qual o mês de 2 dígitos será extraído.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Montagem de competência fiscal no formato MMAAAA
+User Function ExMonth2Str()
+    Local dHoje       := Date()
+    Local cMes        := Month2Str(dHoje)
+    Local cAno        := StrZero(Year(dHoje), 4)
+    Local cCompetencia := cMes + "/" + cAno
+
+    ConOut("Competência atual: " + cCompetencia) // "11/2026"
+Return`
+  },
+  {
+    nome: "Day2Str",
+    categoria: "Datas",
+    sintaxe: "Day2Str( <dData> )",
+    retorno: "Caractere (String de 2 dígitos com o dia)",
+    descricaoCurta: "Retorna o dia do mês de uma data em formato string de 2 dígitos com zero à esquerda.",
+    descricaoDetalhada: "Converte o dia da data informada para string fixa de 2 caracteres (ex: '05' para o dia 5, '28' para o dia 28). Muito utilizada na formatação de datas customizadas e máscaras de exportação bancária.",
+    parametros: [
+      { nome: "dData", tipo: "Data", descricao: "Data da qual o dia do mês será extraído.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Formatação de arquivo de remessa com Day2Str
+User Function ExDay2Str()
+    Local dProcesso := Date()
+    Local cDia      := Day2Str(dProcesso)
+    Local cNomeArq  := "REMESSA_" + cDia + ".TXT"
+
+    ConOut("Arquivo do dia: " + cNomeArq)
+Return`
+  },
+  {
+    nome: "Sec2Time",
+    categoria: "Datas",
+    sintaxe: "Sec2Time( <nSegundos> )",
+    retorno: "Caractere (String formatada no padrão 'HH:MM:SS')",
+    descricaoCurta: "Converte uma quantidade total de segundos em string formatada de horas, minutos e segundos ('HH:MM:SS').",
+    descricaoDetalhada: "Função indispensável para exibição de durações e tempos de processamento no Protheus. Converte um valor numérico em segundos (como o tempo retornado pela medição com Seconds()) para o formato legível 'HH:MM:SS'.",
+    parametros: [
+      { nome: "nSegundos", tipo: "Numérico", descricao: "Quantidade total de segundos decorridos.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Exibição legível da duração de rotina de fechamento
+User Function ExSec2Time()
+    Local nInicio  := Seconds()
+    Local nDuracao := 0
+
+    // Simula execução de processo
+    Sleep(2500) // Aguarda 2.5 segundos
+
+    nDuracao := Seconds() - nInicio
+    ConOut("Duração formatada: " + Sec2Time(nDuracao)) // "00:00:02"
+Return`
+  },
+  {
+    nome: "Time2Sec",
+    categoria: "Datas",
+    sintaxe: "Time2Sec( <cHora> )",
+    retorno: "Numérico (Total de segundos decorridos no dia)",
+    descricaoCurta: "Converte uma string de hora no formato 'HH:MM:SS' no número total de segundos correspondentes.",
+    descricaoDetalhada: "Função inversa do Sec2Time. Recebe uma hora em texto (como '02:30:00' ou Time()) e calcula o total acumulado de segundos desde o início do dia, facilitando operações de soma e subtração de intervalos de tempo.",
+    parametros: [
+      { nome: "cHora", tipo: "Caractere", descricao: "String contendo o horário no padrão 'HH:MM:SS'.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Cálculo da diferença em segundos entre dois horários
+User Function ExTime2Sec()
+    Local cHoraIni := "08:00:00"
+    Local cHoraFim := "10:30:00"
+    Local nDiferenca := Time2Sec(cHoraFim) - Time2Sec(cHoraIni)
+
+    ConOut("Segundos decorridos no intervalo: " + cValToChar(nDiferenca)) // 9000 segundos
+Return`
   }
 );

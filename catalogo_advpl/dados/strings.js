@@ -640,5 +640,137 @@ User Function ExChr()
 
     ConOut(cTexto)
 Return`
+  },
+  {
+    nome: "Trim",
+    categoria: "Strings",
+    sintaxe: "Trim( <cString> )",
+    retorno: "Caractere (String sem espaços à direita)",
+    descricaoCurta: "Remove todos os espaços em branco presentes no final (lado direito) de uma string.",
+    descricaoDetalhada: "Função clássica de manipulação de texto em ADVPL equivalente ao RTrim(). Elimina os espaços excedentes à direita gerados por campos de tamanho fixo do banco de dados.",
+    parametros: [
+      { nome: "cString", tipo: "Caractere", descricao: "String a ser desprovida de espaços finais.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Remoção de espaços à direita com Trim
+User Function ExTrim()
+    Local cTexto := "TOTVS Protheus    "
+    ConOut("[" + Trim(cTexto) + "]") // "[TOTVS Protheus]"
+Return`
+  },
+  {
+    nome: "LTrim",
+    categoria: "Strings",
+    sintaxe: "LTrim( <cString> )",
+    retorno: "Caractere (String sem espaços à esquerda)",
+    descricaoCurta: "Remove todos os espaços em branco presentes no início (lado esquerdo) de uma string.",
+    descricaoDetalhada: "Elimina espaços precedentes de um texto, muito utilizada após conversões de números via Str() para remover os espaços de alinhamento à esquerda.",
+    parametros: [
+      { nome: "cString", tipo: "Caractere", descricao: "String da qual os espaços iniciais serão eliminados.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Remoção de espaços à esquerda com LTrim
+User Function ExLTrim()
+    Local cNumero := Str(150, 10) // "       150"
+    ConOut("[" + LTrim(cNumero) + "]") // "[150]"
+Return`
+  },
+  {
+    nome: "RTrim",
+    categoria: "Strings",
+    sintaxe: "RTrim( <cString> )",
+    retorno: "Caractere (String sem espaços à direita)",
+    descricaoCurta: "Remove todos os espaços em branco presentes à direita de uma cadeia de caracteres.",
+    descricaoDetalhada: "Equivalente direto da função Trim(). Muito utilizada para concatenar campos de tabelas do Protheus (que possuem tamanho fixo preenchido com espaços) sem criar espaçamentos indesejados.",
+    parametros: [
+      { nome: "cString", tipo: "Caractere", descricao: "Cadeia de caracteres a ser truncada.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Concatenação limpa de campos com RTrim
+User Function ExRTrim()
+    Local cNome := RTrim(SA1->A1_NOME)
+    Local cMun  := RTrim(SA1->A1_MUN)
+    ConOut(cNome + " - " + cMun)
+Return`
+  },
+  {
+    nome: "IsAlpha",
+    categoria: "Strings",
+    sintaxe: "IsAlpha( <cString> )",
+    retorno: "Lógico (.T. se o primeiro caractere for letra, .F. caso contrário)",
+    descricaoCurta: "Verifica se o primeiro caractere de uma string é uma letra do alfabeto (A-Z ou a-z).",
+    descricaoDetalhada: "Avalia se o caractere inicial da string informada pertence ao alfabeto. Retorna .F. para números, espaços, pontuações ou símbolos especiais.",
+    parametros: [
+      { nome: "cString", tipo: "Caractere", descricao: "String a ser avaliada.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Verificação se identificador inicia por letra
+User Function ExIsAlpha()
+    ConOut("Começa com letra: " + cValToChar(IsAlpha("Cliente123"))) // .T.
+    ConOut("Começa com letra: " + cValToChar(IsAlpha("123Cliente"))) // .F.
+Return`
+  },
+  {
+    nome: "IsUpper",
+    categoria: "Strings",
+    sintaxe: "IsUpper( <cString> )",
+    retorno: "Lógico (.T. se o primeiro caractere for letra maiúscula, .F. caso contrário)",
+    descricaoCurta: "Verifica se o primeiro caractere de uma string é uma letra maiúscula.",
+    descricaoDetalhada: "Retorna .T. se o primeiro caractere for uma letra alfabética maiúscula ('A' a 'Z'). Retorna .F. se for minúscula, número ou símbolo.",
+    parametros: [
+      { nome: "cString", tipo: "Caractere", descricao: "String a inspecionar.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Checagem de letra maiúscula com IsUpper
+User Function ExIsUpper()
+    ConOut("Maiúscula: " + cValToChar(IsUpper("PROTHEUS"))) // .T.
+    ConOut("Maiúscula: " + cValToChar(IsUpper("protheus"))) // .F.
+Return`
+  },
+  {
+    nome: "IsLower",
+    categoria: "Strings",
+    sintaxe: "IsLower( <cString> )",
+    retorno: "Lógico (.T. se o primeiro caractere for letra minúscula, .F. caso contrário)",
+    descricaoCurta: "Verifica se o primeiro caractere de uma string é uma letra minúscula.",
+    descricaoDetalhada: "Retorna .T. se o primeiro caractere for uma letra alfabética minúscula ('a' a 'z'). Retorna .F. se for maiúscula, número ou símbolo.",
+    parametros: [
+      { nome: "cString", tipo: "Caractere", descricao: "String a inspecionar.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Checagem de letra minúscula com IsLower
+User Function ExIsLower()
+    ConOut("Minúscula: " + cValToChar(IsLower("teste"))) // .T.
+    ConOut("Minúscula: " + cValToChar(IsLower("Teste"))) // .F.
+Return`
+  },
+  {
+    nome: "Capital",
+    categoria: "Strings",
+    sintaxe: "Capital( <cString> )",
+    retorno: "Caractere (String com iniciais das palavras em maiúsculas)",
+    descricaoCurta: "Converte a primeira letra de cada palavra para maiúscula e as demais para minúsculas.",
+    descricaoDetalhada: "Padroniza a capitalização de nomes próprios, títulos ou endereços no Protheus, convertendo o texto para o padrão 'Title Case' (ex: converte 'JOAO DA SILVA' em 'Joao Da Silva').",
+    parametros: [
+      { nome: "cString", tipo: "Caractere", descricao: "Texto a ser capitalizado.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Formatação de nomes em Title Case com Capital
+User Function ExCapital()
+    Local cNome := "CARLOS EDUARDO DE SOUZA"
+    ConOut("Nome formatado: " + Capital(cNome))
+    // "Carlos Eduardo De Souza"
+Return`
+  },
+  {
+    nome: "Encode64",
+    categoria: "Strings",
+    sintaxe: "Encode64( <cString> )",
+    retorno: "Caractere (String codificada em Base64)",
+    descricaoCurta: "Codifica uma cadeia de caracteres ou dados binários no padrão Base64.",
+    descricaoDetalhada: "Função essencial de criptografia e formatação para integrações web, APIs REST, SOAP e envio de anexos por e-mail no Protheus. Converte qualquer string ou payload binário em sua representação textual segura Base64.",
+    parametros: [
+      { nome: "cString", tipo: "Caractere", descricao: "Conteúdo a ser codificado para Base64.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Codificação de credenciais para autenticação Basic
+User Function ExEncode64()
+    Local cCredenciais := "usuario:senha123"
+    Local cBase64      := Encode64(cCredenciais)
+
+    ConOut("Header Authorization: Basic " + cBase64)
+Return`
   }
 );

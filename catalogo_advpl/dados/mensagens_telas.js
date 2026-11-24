@@ -506,5 +506,308 @@ User Function ExConPad1()
         ConOut("Seleção F3 cancelada.")
     EndIf
 Return`
+  },
+  {
+    nome: "AxCadastro",
+    categoria: "Mensagens e Telas",
+    sintaxe: "AxCadastro( <cAlias>, <cTitle>, [<cVldExc>], [<cVldAlt>] )",
+    retorno: "NIL",
+    descricaoCurta: "Cria e executa uma interface completa e padrão de cadastro Protheus (Browse com CRUD completo).",
+    descricaoDetalhada: "Função clássica fundamental para geração rápida de telas de cadastro (CRUD) no Protheus. Monta automaticamente o MBrowse com base no dicionário de dados (SX2/SX3/SIX), fornecendo os botões de ação e permitindo definir validações customizadas para exclusão e alteração.",
+    parametros: [
+      { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela no dicionário de dados (ex: 'SA1', 'SZ1').", opcional: false },
+      { nome: "cTitle", tipo: "Caractere", descricao: "Título exibido na barra superior da janela de cadastro.", opcional: false },
+      { nome: "cVldExc", tipo: "Caractere", descricao: "Função ou expressão ADVPL executada para validar a exclusão de registros.", opcional: true },
+      { nome: "cVldAlt", tipo: "Caractere", descricao: "Função ou expressão ADVPL executada para validar a alteração de registros.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Criação de cadastro rápido para tabela customizada
+User Function CadTabela()
+    Local cAlias   := "SZ1"
+    Local cTitulo  := "Cadastro de Transportadoras Parceiras"
+    Local cVldExc  := "U_VldExcSZ1()" // Validação prévia de exclusão
+    Local cVldAlt  := ".T."            // Permite alteração
+
+    AxCadastro(cAlias, cTitulo, cVldExc, cVldAlt)
+Return
+
+User Function VldExcSZ1()
+    If SZ1->Z1_STATUS == "A"
+        MsgAlert("Não é permitido excluir transportadora com status Ativo!", "Validação")
+        Return .F.
+    EndIf
+Return .T.`
+  },
+  {
+    nome: "AxInclui",
+    categoria: "Mensagens e Telas",
+    sintaxe: "AxInclui( <cAlias>, <nReg>, [<nOpc>], [<aAcho>], [<cFunc>], [<aCpos>], [<cTudoOk>], [<lF3>], [<cTransact>], [<aButtons>], [<aParam>] )",
+    retorno: "Numérico (1 se confirmado ou 0 se cancelado)",
+    descricaoCurta: "Abre a tela padrão de inclusão de registro (Enchoice) para a tabela informada.",
+    descricaoDetalhada: "Invoca o formulário padrão de inclusão do Protheus baseado no SX3 para a tabela indicada por cAlias. Executa as validações de campo, validação de TudoOk e grava o novo registro caso confirmado.",
+    parametros: [
+      { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela onde o registro será incluído.", opcional: false },
+      { nome: "nReg", tipo: "Numérico", descricao: "Número do RecNo posicionado (normalmente RecNo() atual ou 0).", opcional: false },
+      { nome: "nOpc", tipo: "Numérico", descricao: "Opção da rotina (padrão 3: Inclusão).", opcional: true },
+      { nome: "aAcho", tipo: "Array", descricao: "Vetor com nomes dos campos a serem exibidos na interface.", opcional: true },
+      { nome: "cFunc", tipo: "Caractere", descricao: "Função executada na validação de campos ou gatilhos.", opcional: true },
+      { nome: "aCpos", tipo: "Array", descricao: "Vetor com a relação de campos editáveis.", opcional: true },
+      { nome: "cTudoOk", tipo: "Caractere", descricao: "Expressão ou função ADVPL de validação final executada ao confirmar.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Abertura direta de tela padrão de inclusão
+User Function IncCliente()
+    Local nOpcao := 0
+
+    DbSelectArea("SA1")
+    nOpcao := AxInclui("SA1", RecNo(), 3, Nil, Nil, Nil, "U_CliTudoOk()")
+
+    If nOpcao == 1
+        ConOut("Cliente gravado com sucesso no banco de dados!")
+    Else
+        ConOut("Operação de inclusão cancelada pelo usuário.")
+    EndIf
+Return`
+  },
+  {
+    nome: "AxAltera",
+    categoria: "Mensagens e Telas",
+    sintaxe: "AxAltera( <cAlias>, <nReg>, <nOpc>, [<aAcho>], [<aCpos>], [<nColMens>], [<cMensagem>], [<cTudoOk>], [<cTransact>], [<cFunc>], [<aButtons>], [<aParam>] )",
+    retorno: "Numérico (1 se confirmado ou 0 se cancelado)",
+    descricaoCurta: "Abre a tela padrão de alteração de registro para a tabela e RecNo posicionados.",
+    descricaoDetalhada: "Exibe o diálogo de alteração de dados do registro corrente posicionado pelo RecNo (nReg). Aplica bloqueio de registro (RecLock), validações de campo e executa o bloco de TudoOk antes de comitar as alterações.",
+    parametros: [
+      { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela do registro a alterar.", opcional: false },
+      { nome: "nReg", tipo: "Numérico", descricao: "RecNo do registro que será alterado.", opcional: false },
+      { nome: "nOpc", tipo: "Numérico", descricao: "Opção da operação (padrão 4: Alteração).", opcional: false },
+      { nome: "aAcho", tipo: "Array", descricao: "Lista de campos visíveis na tela.", opcional: true },
+      { nome: "aCpos", tipo: "Array", descricao: "Lista de campos permitidos para edição.", opcional: true },
+      { nome: "cTudoOk", tipo: "Caractere", descricao: "Validação final para permitir a confirmação da alteração.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Tela padrão de alteração com bloqueio automático
+User Function AltCliente()
+    DbSelectArea("SA1")
+    DbSetOrder(1)
+
+    If DbSeek(xFilial("SA1") + "00000101")
+        If AxAltera("SA1", SA1->(RecNo()), 4, Nil, Nil, Nil, Nil, "U_AltTudoOk()") == 1
+            MsgInfo("Alterações salvas com sucesso!", "Protheus")
+        EndIf
+    EndIf
+Return`
+  },
+  {
+    nome: "AxDeleta",
+    categoria: "Mensagens e Telas",
+    sintaxe: "AxDeleta( <cAlias>, <nReg>, <nOpc>, [<cFunc>], [<cTudoOk>], [<aAcho>], [<aCpos>], [<cTransact>] )",
+    retorno: "Numérico (1 se excluído ou 0 se cancelado)",
+    descricaoCurta: "Abre a tela de confirmação e executa a exclusão padrão de um registro da tabela.",
+    descricaoDetalhada: "Apresenta os dados do registro para conferência do usuário e confirmação de exclusão. Se confirmado e atendidas as validações de exclusão, marca o registro como deletado (DbDelete) e libera bloqueios.",
+    parametros: [
+      { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela do registro a excluir.", opcional: false },
+      { nome: "nReg", tipo: "Numérico", descricao: "Número de RecNo do registro posicionado.", opcional: false },
+      { nome: "nOpc", tipo: "Numérico", descricao: "Opção da rotina (padrão 5: Exclusão).", opcional: false },
+      { nome: "cFunc", tipo: "Caractere", descricao: "Função complementar de validação da exclusão.", opcional: true },
+      { nome: "cTudoOk", tipo: "Caractere", descricao: "Validação de confirmação de exclusão.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Exclusão com confirmação visual
+User Function DelCliente()
+    DbSelectArea("SA1")
+
+    If AxDeleta("SA1", SA1->(RecNo()), 5) == 1
+        ConOut("Registro excluído da tabela SA1.")
+    EndIf
+Return`
+  },
+  {
+    nome: "AxVisual",
+    categoria: "Mensagens e Telas",
+    sintaxe: "AxVisual( <cAlias>, <nReg>, <nOpc>, [<aAcho>], [<nColMens>], [<cMensagem>], [<cFunc>], [<aButtons>], [<aParam>] )",
+    retorno: "Numérico (1 ao fechar a tela)",
+    descricaoCurta: "Abre a tela de visualização somente leitura dos dados do registro posicionado.",
+    descricaoDetalhada: "Carrega os campos da tabela em modo somente leitura (desabilitados para edição), permitindo ao usuário consultar todas as informações do registro posicionado sem risco de alteração acidental.",
+    parametros: [
+      { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela a consultar.", opcional: false },
+      { nome: "nReg", tipo: "Numérico", descricao: "Número de RecNo do registro a visualizar.", opcional: false },
+      { nome: "nOpc", tipo: "Numérico", descricao: "Opção da rotina (padrão 2: Visualização).", opcional: false },
+      { nome: "aAcho", tipo: "Array", descricao: "Lista dos campos a exibir na visualização.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Visualização rápida de registro sem edição
+User Function VisRegistro()
+    DbSelectArea("SB1")
+    AxVisual("SB1", SB1->(RecNo()), 2)
+Return`
+  },
+  {
+    nome: "MBrowse",
+    categoria: "Mensagens e Telas",
+    sintaxe: "MBrowse( [<nLin1>], [<nCol1>], [<nLin2>], [<nCol2>], <cAlias>, [<aFixe>], [<cCpo>], [<nPar8>], [<cPar9>], [<nPar10>], [<aColors>], [<uPar12>], [<uPar13>], [<uPar14>], [<uPar15>], [<lTopFun>], [<lBotFun>] )",
+    retorno: "NIL",
+    descricaoCurta: "Constrói a grade clássica de navegação e listagem de registros em tabela do Protheus.",
+    descricaoDetalhada: "Função clássica essencial de listagem em grade do Protheus (escrita sem o 'r' final: MBrowse, embora muitos pesquisem por 'MBrowser'). Diferencia-se do moderno FWMBrowse por utilizar o padrão procedural legado do Protheus, exibindo colunas do SX3, barra de ferramentas e suporte a legendas de cores via aColors.",
+    parametros: [
+      { nome: "nLin1, nCol1, nLin2, nCol2", tipo: "Numéricos", descricao: "Coordenadas de posicionamento da janela (opcional, padrão tela cheia).", opcional: true },
+      { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela principal exibida no browse.", opcional: false },
+      { nome: "aFixe", tipo: "Array", descricao: "Vetor de colunas fixadas no grid.", opcional: true },
+      { nome: "cCpo", tipo: "Caractere", descricao: "Campo inicial para pesquisa.", opcional: true },
+      { nome: "aColors", tipo: "Array", descricao: "Matriz de regras de cores e status de linhas (ex: {{'C5_TIPO==\"N\"', 'BR_VERDE'}}).", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Browse clássico com menu de operações e cores
+User Function MeuBrowse()
+    Private cCadastro := "Cadastro de Produtos Especiais"
+    Private aRotina   := {}
+
+    // Define menu padrão
+    AAdd(aRotina, {"Pesquisar",  "AxPesqui", 0, 1})
+    AAdd(aRotina, {"Visualizar", "AxVisual", 0, 2})
+    AAdd(aRotina, {"Incluir",    "AxInclui", 0, 3})
+    AAdd(aRotina, {"Alterar",    "AxAltera", 0, 4})
+    AAdd(aRotina, {"Excluir",    "AxDeleta", 0, 5})
+
+    DbSelectArea("SB1")
+    DbSetOrder(1)
+
+    // Aciona o MBrowse clássico
+    MBrowse(,,,,"SB1")
+Return`
+  },
+  {
+    nome: "BrwLegenda",
+    categoria: "Mensagens e Telas",
+    sintaxe: "BrwLegenda( <cTitulo>, <cDescricao>, <aLegenda> )",
+    retorno: "NIL",
+    descricaoCurta: "Exibe uma janela modal informativa com a legenda visual de cores dos registros do browse.",
+    descricaoDetalhada: "Apresenta ao operador um diálogo contendo as cores de status (semáforo) e suas respectivas descrições textuais, explicando os critérios que determinam as cores dos registros no MBrowse ou FWMBrowse.",
+    parametros: [
+      { nome: "cTitulo", tipo: "Caractere", descricao: "Título exibido na barra superior da janela de legenda.", opcional: false },
+      { nome: "cDescricao", tipo: "Caractere", descricao: "Subtítulo ou mensagem introdutória explicativa.", opcional: false },
+      { nome: "aLegenda", tipo: "Array", descricao: "Matriz de pares com identificador da cor e texto descritivo.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Exibição da legenda de status do browse
+User Function ExBrwLegenda()
+    Local aCores := {}
+
+    AAdd(aCores, {"BR_VERDE",    "Pedido Liberado"})
+    AAdd(aCores, {"BR_AMARELO",  "Pedido Bloqueado por Crédito"})
+    AAdd(aCores, {"BR_VERMELHO", "Pedido Faturado"})
+    AAdd(aCores, {"BR_AZUL",     "Pedido Cancelado"})
+
+    BrwLegenda("Legenda de Status", "Status dos Pedidos de Venda:", aCores)
+Return`
+  },
+  {
+    nome: "MaWndBrowse",
+    categoria: "Mensagens e Telas",
+    sintaxe: "MaWndBrowse( [<nTop>], [<nLeft>], [<nBottom>], [<nRight>], <cAlias>, [<aFixe>], [<aRotina>], [<aColors>], [<cFiltro>], [<bBloco>] )",
+    retorno: "Objeto (Instância da janela de browse)",
+    descricaoCurta: "Cria e encapsula uma janela de browse completa integrada às rotinas e menus definidos em aRotina.",
+    descricaoDetalhada: "Rotina de controle do browse clássico de módulos padrão do Protheus (como Faturamento, Estoque e Compras), vinculando a navegação na tabela diretamente ao vetor de operações aRotina e suas opções de menu.",
+    parametros: [
+      { nome: "nTop, nLeft, nBottom, nRight", tipo: "Numéricos", descricao: "Dimensões da janela em pixels.", opcional: true },
+      { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela gerenciada.", opcional: false },
+      { nome: "aFixe", tipo: "Array", descricao: "Vetor com os campos fixados à esquerda.", opcional: true },
+      { nome: "aRotina", tipo: "Array", descricao: "Estrutura do menu de operações da tela.", opcional: true },
+      { nome: "aColors", tipo: "Array", descricao: "Vetor de legendas e cores condicionais.", opcional: true },
+      { nome: "cFiltro", tipo: "Caractere", descricao: "Expressão de filtro aplicada à tabela.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Criação de browse com MaWndBrowse
+User Function ExMaWndBrowse()
+    Local oBrowse := Nil
+
+    DbSelectArea("SC5")
+    DbSetOrder(1)
+
+    oBrowse := MaWndBrowse(0, 0, 400, 600, "SC5", Nil, aRotina)
+Return oBrowse`
+  },
+  {
+    nome: "Enchoice",
+    categoria: "Mensagens e Telas",
+    sintaxe: "Enchoice( <cAlias>, <nReg>, <nOpc>, [<aAcho>], [<cFunc>], [<aCpos>], [<oDlg>], [<lF3>], [<aCols>], [<aHeader>], [<lTop>], [<lBot>] )",
+    retorno: "Objeto / NIL",
+    descricaoCurta: "Monta a área de cabeçalho de formulários com campos editáveis baseados no dicionário SX3.",
+    descricaoDetalhada: "Componente clássico de interface para desenho de telas no padrão Protheus. Desenha os campos da tabela em grupos/pastas na parte superior da tela (cabeçalho), frequentemente associado ao MsGetDados para compor formulários mestre-detalhe (como Pedidos de Venda e Notas Fiscais).",
+    parametros: [
+      { nome: "cAlias", tipo: "Caractere", descricao: "Alias da tabela que fornece os campos do cabeçalho.", opcional: false },
+      { nome: "nReg", tipo: "Numérico", descricao: "RecNo do registro posicionado.", opcional: false },
+      { nome: "nOpc", tipo: "Numérico", descricao: "Opção da operação (3: Inclui, 4: Altera, 2: Visualiza).", opcional: false },
+      { nome: "aAcho", tipo: "Array", descricao: "Lista dos campos visíveis na área do cabeçalho.", opcional: true },
+      { nome: "oDlg", tipo: "Objeto", descricao: "Janela pai (TDialog) onde o cabeçalho será renderizado.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Construção de cabeçalho Enchoice em diálogo modal
+User Function ExEnchoice()
+    Local oDlg := Nil
+
+    DEFINE MSDIALOG oDlg TITLE "Pedido de Venda" FROM 0, 0 TO 500, 700 PIXEL
+
+    // Desenha o cabeçalho do pedido (SC5)
+    Enchoice("SC5", SC5->(RecNo()), 3, Nil, Nil, Nil, oDlg)
+
+    ACTIVATE MSDIALOG oDlg CENTERED
+Return`
+  },
+  {
+    nome: "MsGetDados",
+    categoria: "Mensagens e Telas",
+    sintaxe: "MsGetDados( <nTop>, <nLeft>, <nBottom>, <nRight>, <nOpc>, [<cLinOk>], [<cTudOk>], [<cFieldOk>], [<lVirtual>], [<aAlter>], [<nFreeze>], [<nMaxLin>], [<cFieldAuto>], [<cFieldDel>], [<oWnd>], [<aHeader>], [<aCols>] )",
+    retorno: "Objeto (Instância do controle de grid MsGetDados)",
+    descricaoCurta: "Cria uma grade clássica (grid de itens) editável com validação linha a linha e exclusão.",
+    descricaoDetalhada: "Componente legado essencial para telas mestre-detalhe no Protheus. Gerencia a matriz aCols (linhas de dados) e o vetor aHeader (definição das colunas), provendo suporte a inserção de linhas, exclusão com tecla Delete e validações de linha (cLinOk) e total (cTudOk).",
+    parametros: [
+      { nome: "nTop, nLeft, nBottom, nRight", tipo: "Numéricos", descricao: "Coordenadas do grid na janela pai em pixels.", opcional: false },
+      { nome: "nOpc", tipo: "Numérico", descricao: "Opção da rotina (3: Inclusão, 4: Alteração, 2: Visualização).", opcional: false },
+      { nome: "cLinOk", tipo: "Caractere", descricao: "Função ou expressão ADVPL executada ao trocar ou validar linha.", opcional: true },
+      { nome: "cTudOk", tipo: "Caractere", descricao: "Validação geral de todas as linhas do grid ao confirmar.", opcional: true },
+      { nome: "oWnd", tipo: "Objeto", descricao: "Diálogo container pai (TDialog/MSDialog).", opcional: true },
+      { nome: "aHeader", tipo: "Array", descricao: "Estrutura descritiva das colunas do grid.", opcional: true },
+      { nome: "aCols", tipo: "Array", descricao: "Matriz multidimensional contendo os dados das linhas.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Criação de grid clássico de itens com MsGetDados
+User Function ExMsGetDados(oDlg, aHeader, aCols)
+    Local oGrid := Nil
+
+    // Cria grid de itens editável na parte inferior do diálogo
+    oGrid := MsGetDados(150, 10, 320, 480, 3, "U_LinhaOk()", "U_TudoOk()", "", .F., Nil, 2, 999, "", "", oDlg, aHeader, aCols)
+Return oGrid`
+  },
+  {
+    nome: "MsNewGetDados",
+    categoria: "Mensagens e Telas",
+    sintaxe: "MsNewGetDados():New( <nTop>, <nLeft>, <nBottom>, <nRight>, [<nOpc>], [<cLinOk>], [<cTudOk>], [<cFieldOk>], [<aAlter>], [<nFreeze>], [<nMaxLin>], [<cFieldAuto>], [<cFieldDel>], [<oWnd>], [<aHeader>], [<aCols>] )",
+    retorno: "Objeto (Instância da classe MsNewGetDados)",
+    descricaoCurta: "Classe orientada a objetos para criação de grades editáveis de itens (evolução do MsGetDados).",
+    descricaoDetalhada: "Evolução em classe do MsGetDados tradicional. Proporciona controle dinâmico dos métodos de grid (:oBrowse, :Refresh(), :nAt, :ForceRefresh()), facilitando o manuseio de colunas, congelamento e validação de matrizes aHeader e aCols em janelas customizadas.",
+    parametros: [
+      { nome: "nTop, nLeft, nBottom, nRight", tipo: "Numéricos", descricao: "Posicionamento e dimensões do grid em pixels.", opcional: false },
+      { nome: "nOpc", tipo: "Numérico", descricao: "Código da operação (3: Inclusão, 4: Alteração, 2: Visualização).", opcional: true },
+      { nome: "cLinOk", tipo: "Caractere", descricao: "Validação de linha executada ao avançar/trocar registro.", opcional: true },
+      { nome: "cTudOk", tipo: "Caractere", descricao: "Validação global de todas as linhas preenchidas.", opcional: true },
+      { nome: "oWnd", tipo: "Objeto", descricao: "Container pai (TDialog ou MSDialog).", opcional: true },
+      { nome: "aHeader", tipo: "Array", descricao: "Vetor de cabeçalhos das colunas.", opcional: true },
+      { nome: "aCols", tipo: "Array", descricao: "Matriz com os dados e linhas da grade.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Grid orientado a objetos com métodos da classe
+User Function ExMsNewGetDados(oDlg, aHeader, aCols)
+    Local oNewGrid := Nil
+
+    oNewGrid := MsNewGetDados():New(160, 10, 330, 500, 3, "U_LinOk()", "U_TudOk()",,,, 999,,, oDlg, aHeader, aCols)
+    oNewGrid:oBrowse:bChange := {|| ConOut("Linha atual: " + Str(oNewGrid:nAt)) }
+Return oNewGrid`
+  },
+  {
+    nome: "SetKey",
+    categoria: "Mensagens e Telas",
+    sintaxe: "SetKey( <nKey>, [<bAction>] )",
+    retorno: "Bloco de Código (Ação anterior associada à tecla ou NIL)",
+    descricaoCurta: "Associa ou desassocia uma ação em bloco de código a uma tecla de atalho do teclado (F1 a F12).",
+    descricaoDetalhada: "Função nativa para captura global de teclas de função ou atalhos em interfaces do Protheus. Muito utilizada para acionar consultas rápidas, calculadoras, janelas de ajuda customizadas ou rotinas auxiliares quando o operador pressiona teclas específicas como F4, F5, F6, etc.",
+    parametros: [
+      { nome: "nKey", tipo: "Numérico", descricao: "Código da tecla de função (ex: -3 para F4, -4 para F5, -5 para F6).", opcional: false },
+      { nome: "bAction", tipo: "Bloco de Código", descricao: "Bloco de código executado quando a tecla for pressionada. Se omitido, desassocia.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Vinculação de tecla F5 para consulta de estoque
+User Function ConfiguraAtalhos()
+    // Tecla F5 (código -4 no InKey)
+    SetKey(-4, {|| U_ConsultaSaldoEstoque()})
+    ConOut("Atalho F5 configurado para consulta de estoque.")
+Return`
   }
 );
