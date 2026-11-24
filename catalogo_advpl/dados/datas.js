@@ -394,5 +394,47 @@ User Function ExDaySub()
     Local dLimite := DaySub(Date(), 7) // 7 dias atrás
     ConOut("Data limite de tolerância: " + dToC(dLimite))
 Return`
+  },
+  {
+    nome: "Seconds",
+    categoria: "Datas",
+    sintaxe: "Seconds()",
+    retorno: "Numérico (Segundos decorridos desde a meia-noite com centésimos)",
+    descricaoCurta: "Retorna o número de segundos decorridos desde a meia-noite (00:00:00) com precisão centesimal.",
+    descricaoDetalhada: "Função essencial para medição de performance, tempo de processamento de rotinas e benchmarking. Ao calcular a diferença entre Seconds() no fim e no início de uma rotina, obtém-se o tempo exato decorrido em segundos.",
+    parametros: [],
+    exemplo: `// Exemplo prático: Medição de tempo de execução com Seconds
+User Function MedirTempo()
+    Local nInicio := Seconds()
+    Local nFim    := 0
+    Local nTempo  := 0
+
+    // Processamento de carga
+    U_CargaDados()
+
+    nFim   := Seconds()
+    nTempo := nFim - nInicio
+
+    ConOut("Tempo total de execução: " + cValToChar(nTempo) + " segundos.")
+Return`
+  },
+  {
+    nome: "Year2Str",
+    categoria: "Datas",
+    sintaxe: "Year2Str( <dData> )",
+    retorno: "Caractere (String de 2 dígitos com o ano)",
+    descricaoCurta: "Retorna os dois últimos dígitos do ano de uma data no formato string.",
+    descricaoDetalhada: "Extrai o ano da data informada e converte em uma string com os 2 últimos dígitos (ex: para uma data em 2026, retorna '26'). Muito utilizada na composição de números de série, lotes e códigos anuais.",
+    parametros: [
+      { nome: "dData", tipo: "Data", descricao: "Data da qual o ano de 2 dígitos será extraído.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Composição de código de lote anual com Year2Str
+User Function ExYear2Str()
+    Local dEmissao := Date()
+    Local cAno2    := Year2Str(dEmissao) // "26" para o ano 2026
+    Local cNumLote := "LOT-" + cAno2 + "-001"
+
+    ConOut("Código gerado do lote: " + cNumLote)
+Return`
   }
 );

@@ -339,5 +339,73 @@ User Function ExGetAdvFVal()
     Local cDescProd := GetAdvFVal("SB1", "B1_DESC", xFilial("SB1") + "PROD001", 1, "PRODUTO NÃO ENCONTRADO")
     ConOut("Descrição: " + cDescProd)
 Return`
+  },
+  {
+    nome: "ExecBlock",
+    categoria: "Tipos e Validações",
+    sintaxe: "ExecBlock( <cFuncao>, [<lParam1>], [<lParam2>], [<xParam3>] )",
+    retorno: "Qualquer tipo (Retorno devolvido pela função executada)",
+    descricaoCurta: "Executa dinamicamente uma User Function compilada no RPO pelo nome, passando parâmetros.",
+    descricaoDetalhada: "Permite invocar rotinas de customização dinamicamente pelo nome (sem necessidade de compilação estática ou linking). O nome da função deve corresponder a uma User Function declarada no RPO (sem o prefixo 'U_'). Muito utilizada para acionamento de pontos de entrada (PE) e rotinas parametrizadas em dicionário.",
+    parametros: [
+      { nome: "cFuncao", tipo: "Caractere", descricao: "Nome da User Function a executar (sem o prefixo 'U_').", opcional: false },
+      { nome: "lParam1", tipo: "Lógico", descricao: "Parâmetro lógico reservado (normalmente .F.).", opcional: true },
+      { nome: "lParam2", tipo: "Lógico", descricao: "Parâmetro lógico reservado (normalmente .F.).", opcional: true },
+      { nome: "xParam3", tipo: "Qualquer tipo / Array", descricao: "Parâmetro ou vetor de argumentos para a função.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Execução segura de Ponto de Entrada dinâmico
+User Function DisparaPE()
+    Local cPontoEntrada := "MT010INC"
+    Local xResultado    := Nil
+
+    // Valida se o ponto de entrada existe antes de executar
+    If ExistBlock(cPontoEntrada)
+        xResultado := ExecBlock(cPontoEntrada, .F., .F., {"PARAMETRO_1", 100})
+        ConOut("Ponto de entrada executado com sucesso.")
+    Else
+        ConOut("Ponto de entrada " + cPontoEntrada + " não implementado.")
+    EndIf
+Return xResultado`
+  },
+  {
+    nome: "ExistBlock",
+    categoria: "Tipos e Validações",
+    sintaxe: "ExistBlock( <cFuncao> )",
+    retorno: "Lógico (.T. se a função existir no RPO, .F. caso contrário)",
+    descricaoCurta: "Verifica se uma User Function customizada existe compilada no repositório de objetos (RPO).",
+    descricaoDetalhada: "Testa previamente a existência de uma User Function antes de invocá-la com ExecBlock(). Evita erros de execução em tempo de execução (User Function não encontrada) ao chamar pontos de entrada opcionais.",
+    parametros: [
+      { nome: "cFuncao", tipo: "Caractere", descricao: "Nome da User Function a verificar (sem o prefixo 'U_').", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Verificação prévia de Ponto de Entrada customizado
+User Function ExExistBlock()
+    Local cPonto := "M410LIOK"
+
+    If ExistBlock(cPonto)
+        ConOut("O ponto de entrada " + cPonto + " está ativo no RPO.")
+    Else
+        ConOut("Nenhuma customização encontrada para " + cPonto)
+    EndIf
+Return`
+  },
+  {
+    nome: "FindFunction",
+    categoria: "Tipos e Validações",
+    sintaxe: "FindFunction( <cNomeFuncao> )",
+    retorno: "Lógico (.T. se a função existir, .F. caso contrário)",
+    descricaoCurta: "Verifica se qualquer função nativa, de framework ou customizada está presente no repositório (RPO).",
+    descricaoDetalhada: "Testa a existência de qualquer símbolo de função no RPO ativo do Protheus, abrangendo funções nativas de linguagem ADVPL, classes do TOTVS Framework ou funções de usuário (com prefixo 'U_').",
+    parametros: [
+      { nome: "cNomeFuncao", tipo: "Caractere", descricao: "Nome da função a verificar (com 'U_' se for User Function).", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Compatibilidade de versão com FindFunction
+User Function ExFindFunction()
+    // Testa se uma função mais recente do framework existe no ambiente
+    If FindFunction("FWJsonDeserialize")
+        ConOut("Framework compatível com serialização JSON nativa.")
+    Else
+        ConOut("Aviso: Função de JSON não disponível nesta versão do RPO.")
+    EndIf
+Return`
   }
 );

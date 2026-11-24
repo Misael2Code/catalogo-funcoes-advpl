@@ -463,5 +463,228 @@ User Function ExRestArea()
     // Restaura fielmente a tabela, índice e registro onde o usuário estava
     RestArea(aAreaAnt)
 Return`
+  },
+  {
+    nome: "DbSetFilter",
+    categoria: "Banco de Dados",
+    sintaxe: "DbSetFilter( <bFiltro>, [<cFiltro>] )",
+    retorno: "NIL",
+    descricaoCurta: "Aplica um filtro temporário nos registros da tabela ativa com base em um bloco de código ou expressão.",
+    descricaoDetalhada: "Estabelece uma condição de filtragem lógica na área de trabalho selecionada. Todos os comandos de navegação subsequentes (DbSkip, DbGoTop, etc.) ignoram os registros que não satisfazem a condição até que DbClearFilter() seja invocado.",
+    parametros: [
+      { nome: "bFiltro", tipo: "Bloco de Código", descricao: "Condição lógica a ser avaliada para cada registro (ex: {|| SA1->A1_EST == 'SP'}).", opcional: false },
+      { nome: "cFiltro", tipo: "Caractere", descricao: "Expressão textual equivalente do filtro para documentação ou exibição.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Aplicação de filtro temporário de clientes de SP
+User Function ExDbSetFilter()
+    DbSelectArea("SA1")
+    DbSetOrder(1)
+
+    // Filtra apenas clientes do estado de SP
+    DbSetFilter({|| SA1->A1_EST == "SP"}, "A1_EST == 'SP'")
+    DbGoTop()
+
+    While !SA1->(Eof())
+        ConOut("Cliente SP: " + SA1->A1_NOME)
+        SA1->(DbSkip())
+    EndDo
+
+    // Remove o filtro da área
+    DbClearFilter()
+Return`
+  },
+  {
+    nome: "DbClearFilter",
+    categoria: "Banco de Dados",
+    sintaxe: "DbClearFilter()",
+    retorno: "NIL",
+    descricaoCurta: "Remove o filtro temporário previamente aplicado à área de trabalho ativa com DbSetFilter().",
+    descricaoDetalhada: "Desativa qualquer condição de filtragem em vigor na área selecionada, permitindo que a navegação volte a enxergar todos os registros ativos da tabela.",
+    parametros: [],
+    exemplo: `// Exemplo prático: Limpeza de filtro ativo após processamento
+User Function ExDbClearFilter()
+    DbSelectArea("SB1")
+    DbSetFilter({|| SB1->B1_TIPO == "PA"}, "B1_TIPO == 'PA'")
+
+    // Processamento com filtro...
+    U_ProcessaProdutos()
+
+    // Restaura visão total da tabela
+    DbClearFilter()
+    ConOut("Filtro removido. Todos os produtos visíveis novamente.")
+Return`
+  },
+  {
+    nome: "DbSkipper",
+    categoria: "Banco de Dados",
+    sintaxe: "DbSkipper( [<nRegistros>] )",
+    retorno: "Numérico (Quantidade real de registros movimentados)",
+    descricaoCurta: "Movimenta o ponteiro de registros na tabela ativa e retorna quantos registros foram efetivamente saltados.",
+    descricaoDetalhada: "Função de navegação de baixo nível muito utilizada por componentes de interface (TBrowse, MsSelect, Grids). Salta nRegistros para frente (positivo) ou para trás (negativo), parando automaticamente ao atingir EoF ou BoF e retornando a contagem de registros percorridos.",
+    parametros: [
+      { nome: "nRegistros", tipo: "Numérico", descricao: "Quantidade de registros a saltar (positivo ou negativo). Padrão: 1.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Navegação de bloco de registros com DbSkipper
+User Function ExDbSkipper()
+    Local nMovidos := 0
+
+    DbSelectArea("SA1")
+    DbSetOrder(1)
+    DbGoTop()
+
+    // Avança até 10 registros na tabela
+    nMovidos := DbSkipper(10)
+    ConOut("Registros avançados com sucesso: " + cValToChar(nMovidos))
+Return`
+  },
+  {
+    nome: "Found",
+    categoria: "Banco de Dados",
+    sintaxe: "Found()",
+    retorno: "Lógico (.T. se o registro foi localizado, .F. caso contrário)",
+    descricaoCurta: "Retorna se a última pesquisa de chave (DbSeek) localizou com sucesso um registro correspondente.",
+    descricaoDetalhada: "Avalia o resultado da última busca indexada realizada na área ativa. Retorna .T. se a chave de pesquisa foi encontrada ou .F. se nenhum registro correspondeu à busca.",
+    parametros: [],
+    exemplo: `// Exemplo prático: Validação de busca com Found()
+User Function ExFound()
+    DbSelectArea("SA1")
+    DbSetOrder(1)
+
+    DbSeek(xFilial("SA1") + "00000101")
+    If Found()
+        ConOut("Cliente localizado: " + SA1->A1_NOME)
+    Else
+        ConOut("Cliente não cadastrado na base de dados.")
+    EndIf
+Return`
+  },
+  {
+    nome: "Alias",
+    categoria: "Banco de Dados",
+    sintaxe: "Alias( [<nArea>] )",
+    retorno: "Caractere (Nome do alias da área de trabalho)",
+    descricaoCurta: "Retorna o alias (identificador da tabela) da área de trabalho ativa ou da área indicada pelo número.",
+    descricaoDetalhada: "Obtém a identificação textual da tabela aberta no contexto de trabalho (ex: 'SA1', 'SB1', 'SC5'). Se informado o número da workarea, retorna o alias daquela área específica.",
+    parametros: [
+      { nome: "nArea", tipo: "Numérico", descricao: "Número da área de trabalho a consultar. Padrão: área ativa.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Identificação dinâmica da tabela ativa
+User Function ExAlias()
+    DbSelectArea("SC5")
+    ConOut("Área de trabalho atual: " + Alias()) // Retorna 'SC5'
+
+    DbSelectArea("SC6")
+    ConOut("Nova área selecionada: " + Alias()) // Retorna 'SC6'
+Return`
+  },
+  {
+    nome: "IndexOrd",
+    categoria: "Banco de Dados",
+    sintaxe: "IndexOrd()",
+    retorno: "Numérico (Número da ordem do índice ativo)",
+    descricaoCurta: "Retorna o número da ordem de índice ativa na tabela corrente (1 para índice primário, 2 para secundário, etc.).",
+    descricaoDetalhada: "Informa qual índice do SIX está atualmente em uso para a navegação e busca na área ativa. Retorna 0 caso a tabela esteja em ordem natural de gravação (sem índice).",
+    parametros: [],
+    exemplo: `// Exemplo prático: Verificação da ordem de índice em vigor
+User Function ExIndexOrd()
+    DbSelectArea("SA1")
+    DbSetOrder(2) // Ordem por Nome
+
+    If IndexOrd() == 2
+        ConOut("Tabela SA1 posicionada na ordem por Nome do Cliente.")
+    EndIf
+Return`
+  },
+  {
+    nome: "IndexKey",
+    categoria: "Banco de Dados",
+    sintaxe: "IndexKey( [<nOrdem>] )",
+    retorno: "Caractere (Expressão ADVPL que compõe a chave do índice)",
+    descricaoCurta: "Retorna a expressão ADVPL que define a composição da chave do índice ativo ou da ordem indicada.",
+    descricaoDetalhada: "Retorna a string com os campos e expressões que formam o índice (ex: 'A1_FILIAL+A1_COD+A1_LOJA'). Fundamental para montar strings de chave de busca para DbSeek de forma genérica e segura.",
+    parametros: [
+      { nome: "nOrdem", tipo: "Numérico", descricao: "Número da ordem de índice a consultar. Padrão: ordem ativa.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Consulta dinâmica da chave de índice
+User Function ExIndexKey()
+    DbSelectArea("SB1")
+    DbSetOrder(1)
+
+    ConOut("Expressão da chave primária do SB1: " + IndexKey(1))
+    // Retorna: B1_FILIAL+B1_COD
+Return`
+  },
+  {
+    nome: "ChangeQuery",
+    categoria: "Banco de Dados",
+    sintaxe: "ChangeQuery( <cQuery> )",
+    retorno: "Caractere (Instrução SQL adaptada ao dialeto do SGBD)",
+    descricaoCurta: "Converte uma instrução SQL padrão do Protheus para a sintaxe nativa do banco de dados relacional ativo.",
+    descricaoDetalhada: "Função essencial de compatibilidade entre bancos de dados (Oracle, SQL Server, PostgreSQL). Traduz comandos e funções genéricas (como SUBSTR, D_E_L_E_T_, NVL) para as funções equivalentes do dialeto específico do SGBD configurado no DBAccess.",
+    parametros: [
+      { nome: "cQuery", tipo: "Caractere", descricao: "Comando SQL padrão Protheus que será adaptado.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Adaptação de consulta SQL com ChangeQuery
+User Function ExChangeQuery()
+    Local cQuery := ""
+
+    cQuery := "SELECT A1_COD, A1_NOME FROM " + RetSqlName("SA1") + " "
+    cQuery += "WHERE D_E_L_E_T_ = ' ' AND A1_EST = 'SP'"
+
+    // Adapta para o banco relacional em uso (Oracle, MSSQL, Postgres)
+    cQuery := ChangeQuery(cQuery)
+
+    TCQuery cQuery New Alias "TMPCLI"
+    TCSetField("TMPCLI", "A1_COD", "C", 6, 0)
+    TCSetField("TMPCLI", "A1_NOME", "C", 40, 0)
+Return`
+  },
+  {
+    nome: "TcSqlError",
+    categoria: "Banco de Dados",
+    sintaxe: "TcSqlError()",
+    retorno: "Caractere (Mensagem descritiva de erro retornada pelo banco)",
+    descricaoCurta: "Retorna a mensagem de erro detalhada devolvida pelo banco de dados relacional após uma falha no DBAccess/TopConnect.",
+    descricaoDetalhada: "Obtém a descrição exata do erro ocorrido na última execução de instrução SQL via TCSQLExec() ou falha de conexão com o banco de dados. Fundamental para diagnóstico e gravação de logs de integração.",
+    parametros: [],
+    exemplo: `// Exemplo prático: Captura de erro em execução SQL direta
+User Function ExTcSqlError()
+    Local cSql := "UPDATE " + RetSqlName("SB1") + " SET B1_PRV1 = 0 WHERE B1_COD = 'INEXISTENTE'"
+    Local nStatus := TCSQLExec(cSql)
+
+    If nStatus < 0
+        ConOut("Falha na execução SQL! Detalhe do banco: " + TcSqlError())
+    Else
+        ConOut("Comando SQL executado com sucesso.")
+    EndIf
+Return`
+  },
+  {
+    nome: "DbCreateIndex",
+    categoria: "Banco de Dados",
+    sintaxe: "DbCreateIndex( <cNomeIndice>, <cChave>, [<bChave>], [<lExclusivo>] )",
+    retorno: "NIL",
+    descricaoCurta: "Cria um índice temporário ou definitivo em tempo de execução para a área de trabalho ativa.",
+    descricaoDetalhada: "Gera um índice sob demanda para a tabela selecionada, ordenando os registros com base na expressão de chave informada. Muito utilizado na criação de relatórios ou telas com ordenações temporárias customizadas.",
+    parametros: [
+      { nome: "cNomeIndice", tipo: "Caractere", descricao: "Nome do arquivo temporário de índice a ser criado.", opcional: false },
+      { nome: "cChave", tipo: "Caractere", descricao: "Expressão em string dos campos que compõem a chave (ex: 'A1_EST+A1_NOME').", opcional: false },
+      { nome: "bChave", tipo: "Bloco de Código", descricao: "Bloco de código equivalente para indexação.", opcional: true },
+      { nome: "lExclusivo", tipo: "Lógico", descricao: "Se .T., cria índice único (ignora duplicados). Padrão: .F.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Criação de índice temporário para ordenação personalizada
+User Function ExDbCreateIndex()
+    Local cTmpInd := CriaTrab(Nil, .F.)
+
+    DbSelectArea("SA1")
+    // Cria índice temporário por UF + Razão Social
+    DbCreateIndex(cTmpInd, "A1_EST + A1_NOME", {|| SA1->A1_EST + SA1->A1_NOME})
+    DbGoTop()
+
+    While !SA1->(Eof())
+        ConOut("UF: " + SA1->A1_EST + " - Cliente: " + SA1->A1_NOME)
+        SA1->(DbSkip())
+    EndDo
+Return`
   }
 );

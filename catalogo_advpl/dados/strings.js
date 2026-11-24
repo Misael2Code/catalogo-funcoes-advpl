@@ -582,5 +582,63 @@ User Function ExIsDigit()
     ConOut("Começa com dígito: " + cValToChar(IsDigit(cValor1))) // .T.
     ConOut("Começa com dígito: " + cValToChar(IsDigit(cValor2))) // .F.
 Return`
+  },
+  {
+    nome: "Str",
+    categoria: "Strings",
+    sintaxe: "Str( <nNumero>, [<nTamanho>], [<nDecimais>] )",
+    retorno: "Caractere (String com a representação formatada do número)",
+    descricaoCurta: "Converte um valor numérico em sua representação string com controle de tamanho total e decimais.",
+    descricaoDetalhada: "Transforma valores numéricos em string, permitindo especificar o comprimento total do texto resultante (com preenchimento de espaços à esquerda) e o número de casas decimais após o ponto.",
+    parametros: [
+      { nome: "nNumero", tipo: "Numérico", descricao: "Valor numérico a ser convertido.", opcional: false },
+      { nome: "nTamanho", tipo: "Numérico", descricao: "Comprimento total da string gerada. Padrão: 10.", opcional: true },
+      { nome: "nDecimais", tipo: "Numérico", descricao: "Quantidade de casas decimais. Padrão: 0.", opcional: true }
+    ],
+    exemplo: `// Exemplo prático: Conversão e formatação numérica com Str
+User Function ExStr()
+    Local nValor := 125.758
+
+    ConOut("[" + Str(nValor) + "]")          // "       126" (arredondado, tamanho padrão 10)
+    ConOut("[" + Str(nValor, 8, 2) + "]")    // "  125.76" (tamanho 8, 2 decimais)
+    ConOut("[" + AllTrim(Str(nValor, 10, 2)) + "]") // "125.76"
+Return`
+  },
+  {
+    nome: "Asc",
+    categoria: "Strings",
+    sintaxe: "Asc( <cString> )",
+    retorno: "Numérico (Código ASCII de 0 a 255)",
+    descricaoCurta: "Retorna o código ASCII numérico correspondente ao primeiro caractere de uma string.",
+    descricaoDetalhada: "Obtém o valor decimal da tabela ASCII do primeiro caractere da cadeia fornecida. Retorna 0 caso a string seja vazia.",
+    parametros: [
+      { nome: "cString", tipo: "Caractere", descricao: "String cujo caractere inicial será avaliado.", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Identificação de código ASCII
+User Function ExAsc()
+    Local cLetra := "A"
+
+    ConOut("Código ASCII de 'A': " + cValToChar(Asc(cLetra))) // 65
+    ConOut("Código ASCII de 'a': " + cValToChar(Asc("a")))    // 97
+Return`
+  },
+  {
+    nome: "Chr",
+    categoria: "Strings",
+    sintaxe: "Chr( <nCodigoAscii> )",
+    retorno: "Caractere (String de 1 caractere correspondente)",
+    descricaoCurta: "Retorna o caractere correspondente ao código numérico ASCII informado.",
+    descricaoDetalhada: "Converte um valor numérico inteiro (de 0 a 255) no respectivo caractere da tabela ASCII. Muito utilizado para inserção de caracteres de controle como tabulação (Chr(9)), quebra de linha (Chr(13)+Chr(10)) e aspas (Chr(34)).",
+    parametros: [
+      { nome: "nCodigoAscii", tipo: "Numérico", descricao: "Código numérico ASCII decimal (0 a 255).", opcional: false }
+    ],
+    exemplo: `// Exemplo prático: Construção de string com tabulação e aspas via Chr
+User Function ExChr()
+    Local cTab   := Chr(9)
+    Local cAspas := Chr(34)
+    Local cTexto := "Coluna 1" + cTab + "Coluna 2" + cTab + cAspas + "Valor entre aspas" + cAspas
+
+    ConOut(cTexto)
+Return`
   }
 );
